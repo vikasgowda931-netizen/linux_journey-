@@ -1,0 +1,1332 @@
+# Linux Journey - Day 02
+
+## Topics Covered
+
+Today I learned the following Linux concepts and commands:
+
+- stdin
+- stdout
+- stderr
+- File Descriptors
+- Input and Output Redirection
+- Pipe (`|`)
+- tee
+- Environment Variables
+- env
+- cut
+- paste
+- head
+- tail
+
+---
+
+# 1. stdin - Standard Input
+
+`stdin` stands for **Standard Input**.
+
+It is the input that a Linux program receives.
+
+Normally, the keyboard is the standard input.
+
+Example:
+
+    cat
+
+After running the command, type:
+
+    Hello Linux
+
+The `cat` command receives `Hello Linux` through `stdin` and displays it.
+
+Press:
+
+    Ctrl + D
+
+to tell `cat` that the input has ended.
+
+### Real-World Example
+
+Think about a restaurant.
+
+    Customer -> Order -> Restaurant
+
+The customer's order is the input.
+
+Similarly:
+
+    Keyboard -> stdin -> Linux Program
+
+---
+
+# 2. stdout - Standard Output
+
+`stdout` stands for **Standard Output**.
+
+It is the normal output produced by a Linux command.
+
+Usually, stdout is displayed on the terminal.
+
+Example:
+
+    echo "Hello Linux"
+
+Output:
+
+    Hello Linux
+
+The text `Hello Linux` is sent to `stdout`.
+
+---
+
+# 3. stderr - Standard Error
+
+`stderr` stands for **Standard Error**.
+
+It is used by programs to display error messages.
+
+Example:
+
+    ls /this-directory-does-not-exist
+
+You may get:
+
+    ls: cannot access '/this-directory-does-not-exist': No such file or directory
+
+This message is sent to `stderr`.
+
+### Difference
+
+    stdin  -> Input
+    stdout -> Normal Output
+    stderr -> Error Output
+
+---
+
+# 4. File Descriptors
+
+Linux represents the three standard streams using numbers called file descriptors.
+
+    0 -> stdin
+    1 -> stdout
+    2 -> stderr
+
+The easiest way to remember:
+
+    0 = Input
+    1 = Output
+    2 = Error
+
+These numbers become important when working with redirection.
+
+---
+
+# 5. Output Redirection
+
+The `>` operator is used to redirect stdout into a file.
+
+Example:
+
+    echo "Linux is interesting" > linux.txt
+
+Instead of displaying the output on the terminal, it is stored inside:
+
+    linux.txt
+
+To view the file:
+
+    cat linux.txt
+
+Output:
+
+    Linux is interesting
+
+### Important
+
+`>` overwrites the file.
+
+Example:
+
+    echo "Line 1" > test.txt
+    echo "Line 2" > test.txt
+
+Now the file contains:
+
+    Line 2
+
+The previous content was overwritten.
+
+---
+
+# 6. Append Output
+
+The `>>` operator is used to append output to a file.
+
+Example:
+
+    echo "Line 1" > test.txt
+    echo "Line 2" >> test.txt
+
+Now:
+
+    cat test.txt
+
+Output:
+
+    Line 1
+    Line 2
+
+### Difference
+
+    >   -> Overwrite the file
+    >>  -> Append to the file
+
+---
+
+# 7. Redirecting stderr
+
+Remember:
+
+    0 -> stdin
+    1 -> stdout
+    2 -> stderr
+
+We can redirect stderr using:
+
+    2>
+
+Example:
+
+    ls /wrong-directory 2> error.txt
+
+The error message is saved inside:
+
+    error.txt
+
+View it using:
+
+    cat error.txt
+
+This is useful when we want to save error messages for later analysis.
+
+---
+
+# 8. Pipe - |
+
+The pipe operator is represented by:
+
+    |
+
+The pipe sends the stdout of one command as the stdin of another command.
+
+Basic structure:
+
+    command1 | command2
+
+The flow is:
+
+    command1
+        |
+      stdout
+        |
+        |
+      stdin
+        |
+    command2
+
+Example:
+
+    ls | less
+
+Here:
+
+    ls -> produces output
+    |  -> sends the output
+    less -> receives the output
+
+---
+
+# 9. Real-World Example of Pipe
+
+Suppose there are many files in a directory.
+
+We want to find only `.txt` files.
+
+We can use:
+
+    ls | grep ".txt"
+
+The flow is:
+
+    ls
+     |
+     v
+    grep
+     |
+     v
+    .txt files
+
+The output of `ls` becomes the input of `grep`.
+
+This is one of the most powerful concepts in Linux.
+
+---
+
+# 10. Multiple Pipes
+
+Linux allows us to connect multiple commands.
+
+Example:
+
+    cat file.txt | grep "error" | head
+
+The flow is:
+
+    cat
+     |
+     v
+    grep
+     |
+     v
+    head
+     |
+     v
+    output
+
+Each command processes the output of the previous command.
+
+This allows us to build powerful command pipelines.
+
+---
+
+# 11. tee Command
+
+The `tee` command is used to:
+
+1. Display output on the terminal.
+2. Save the same output into a file.
+
+Example:
+
+    echo "Hello Linux" | tee output.txt
+
+The terminal displays:
+
+    Hello Linux
+
+The same text is also saved in:
+
+    output.txt
+
+Check the file:
+
+    cat output.txt
+
+Output:
+
+    Hello Linux
+
+---
+
+# 12. Why is tee Useful?
+
+Without `tee`:
+
+    echo "Hello Linux" > output.txt
+
+The output is stored in the file.
+
+With `tee`:
+
+    echo "Hello Linux" | tee output.txt
+
+The output is:
+
+    Terminal -> Hello Linux
+    File     -> Hello Linux
+
+### Real-World Example
+
+Suppose you are running a security scan.
+
+You want to:
+
+- See the results immediately.
+- Save the results for later.
+
+You can use:
+
+    some-command | tee results.txt
+
+This allows you to see and save the results at the same time.
+
+---
+
+# 13. Append Using tee
+
+By default, `tee` overwrites the file.
+
+To append instead, use:
+
+    tee -a
+
+Example:
+
+    echo "Day 1" | tee notes.txt
+    echo "Day 2" | tee -a notes.txt
+
+Now:
+
+    cat notes.txt
+
+Output:
+
+    Day 1
+    Day 2
+
+### Difference
+
+    tee file.txt
+        -> Overwrites
+
+    tee -a file.txt
+        -> Appends
+
+---
+
+# 14. Environment Variables
+
+Environment variables are variables provided by the operating system and shell.
+
+They store information that programs can use.
+
+Common environment variables include:
+
+    HOME
+    USER
+    SHELL
+    PWD
+    PATH
+
+To access an environment variable, use `$`.
+
+Example:
+
+    echo $HOME
+
+Example output:
+
+    /home/user
+
+The `$` means:
+
+    Get the value of this variable.
+
+---
+
+# 15. HOME Environment Variable
+
+`HOME` contains the path to the user's home directory.
+
+Run:
+
+    echo $HOME
+
+Example output:
+
+    /home/user
+
+The exact output depends on the Linux system and username.
+
+---
+
+# 16. USER Environment Variable
+
+`USER` usually contains the current username.
+
+Run:
+
+    echo $USER
+
+Example output:
+
+    user
+
+---
+
+# 17. PWD Environment Variable
+
+`PWD` represents the current working directory.
+
+Run:
+
+    echo $PWD
+
+Example:
+
+    /home/user/projects
+
+This is similar to the information provided by:
+
+    pwd
+
+---
+
+# 18. SHELL Environment Variable
+
+`SHELL` tells you which shell is being used.
+
+Run:
+
+    echo $SHELL
+
+Example:
+
+    /bin/bash
+
+Other shells can also be used, such as:
+
+    /bin/zsh
+
+---
+
+# 19. PATH Environment Variable
+
+`PATH` contains directories where Linux searches for executable programs.
+
+Run:
+
+    echo $PATH
+
+Example:
+
+    /usr/local/bin:/usr/bin:/bin
+
+When you type:
+
+    python
+
+Linux searches the directories listed in `PATH` to find the executable.
+
+This is why you can normally type a command without specifying its complete path.
+
+---
+
+# 20. env Command
+
+The `env` command displays environment variables.
+
+Run:
+
+    env
+
+You may see:
+
+    HOME=/home/user
+    USER=user
+    SHELL=/bin/bash
+    PATH=/usr/local/bin:/usr/bin:/bin
+
+The exact output depends on your system.
+
+---
+
+# 21. Creating a Shell Variable
+
+We can create our own shell variable.
+
+Example:
+
+    NAME="Linux"
+
+Then:
+
+    echo $NAME
+
+Output:
+
+    Linux
+
+To export the variable as an environment variable:
+
+    export NAME="Linux"
+
+Then:
+
+    echo $NAME
+
+Output:
+
+    Linux
+
+---
+
+# 22. cut Command
+
+The `cut` command is used to extract specific parts of lines.
+
+It is especially useful when data is separated by a delimiter.
+
+Suppose we create:
+
+    students.txt
+
+with:
+
+    Niranjan:Cybersecurity:21
+    Rahul:Networking:22
+    Arun:Linux:20
+
+The fields are:
+
+    Field 1 -> Name
+    Field 2 -> Subject
+    Field 3 -> Age
+
+We can extract the first field using:
+
+    cut -d ":" -f 1 students.txt
+
+Output:
+
+    Niranjan
+    Rahul
+    Arun
+
+Explanation:
+
+    -d ":" -> Specifies `:` as the delimiter
+    -f 1   -> Selects field 1
+
+---
+
+# 23. Extracting Different Fields Using cut
+
+To extract the first field:
+
+    cut -d ":" -f 1 students.txt
+
+Output:
+
+    Niranjan
+    Rahul
+    Arun
+
+To extract the second field:
+
+    cut -d ":" -f 2 students.txt
+
+Output:
+
+    Cybersecurity
+    Networking
+    Linux
+
+To extract the third field:
+
+    cut -d ":" -f 3 students.txt
+
+Output:
+
+    21
+    22
+    20
+
+---
+
+# 24. Real-World Use of cut
+
+Linux system files often contain structured information.
+
+For example:
+
+    /etc/passwd
+
+contains information separated by `:`.
+
+We can use:
+
+    cut -d ":" -f 1 /etc/passwd
+
+This extracts the first field from each line.
+
+The first field generally contains usernames.
+
+This technique is useful in:
+
+- Linux administration
+- System analysis
+- Cybersecurity
+- Digital forensics
+- CTF challenges
+- Shell scripting
+
+---
+
+# 25. paste Command
+
+The `paste` command combines lines from multiple files.
+
+Suppose we have:
+
+    names.txt
+
+containing:
+
+    Niranjan
+    Rahul
+    Arun
+
+And:
+
+    ages.txt
+
+containing:
+
+    21
+    22
+    20
+
+Run:
+
+    paste names.txt ages.txt
+
+Output:
+
+    Niranjan    21
+    Rahul       22
+    Arun        20
+
+The first line of the first file is combined with the first line of the second file.
+
+---
+
+# 26. paste with Delimiter
+
+We can specify a delimiter using:
+
+    -d
+
+Example:
+
+    paste -d "," names.txt ages.txt
+
+Output:
+
+    Niranjan,21
+    Rahul,22
+    Arun,20
+
+This can be useful when creating simple CSV-style data.
+
+---
+
+# 27. head Command
+
+The `head` command displays the beginning of a file.
+
+Example:
+
+    head file.txt
+
+By default, it displays the first 10 lines.
+
+To display a specific number of lines:
+
+    head -n 5 file.txt
+
+This displays the first 5 lines.
+
+---
+
+# 28. Real-World Use of head
+
+Suppose we have a very large log file:
+
+    server.log
+
+The file might contain thousands or millions of lines.
+
+Instead of displaying the entire file:
+
+    cat server.log
+
+we can quickly examine the beginning:
+
+    head server.log
+
+Or:
+
+    head -n 20 server.log
+
+This displays the first 20 lines.
+
+---
+
+# 29. tail Command
+
+The `tail` command displays the end of a file.
+
+Example:
+
+    tail file.txt
+
+By default, it displays the last 10 lines.
+
+To display the last 5 lines:
+
+    tail -n 5 file.txt
+
+---
+
+# 30. tail -f
+
+One of the most useful options of `tail` is:
+
+    tail -f
+
+The `-f` option means follow.
+
+It continuously displays new lines added to a file.
+
+Example:
+
+    tail -f server.log
+
+If a new log entry is added to `server.log`, it will appear on the terminal.
+
+Stop the command using:
+
+    Ctrl + C
+
+---
+
+# 31. Real-World Cybersecurity Example
+
+Web servers generate log files.
+
+For example:
+
+    access.log
+
+We can monitor the latest activity using:
+
+    tail -f access.log
+
+We might see:
+
+    192.168.1.10 GET /login
+    192.168.1.15 GET /index.html
+    192.168.1.20 POST /login
+
+If new requests arrive, they can appear immediately.
+
+This is useful for:
+
+- Log monitoring
+- System administration
+- Security monitoring
+- Troubleshooting
+- Digital forensics
+
+---
+
+# 32. Combining Commands
+
+The real power of Linux comes from combining small commands.
+
+For example:
+
+    cat access.log | grep "ERROR"
+
+This means:
+
+    cat
+     |
+     v
+    grep
+     |
+     v
+    ERROR messages
+
+Another example:
+
+    cat access.log | grep "ERROR" | head
+
+This means:
+
+1. Read the file.
+2. Find lines containing `ERROR`.
+3. Display the first few matching lines.
+
+---
+
+# 33. Mini Project - Linux Log Analyzer
+
+Create a file:
+
+    server.log
+
+Add:
+
+    INFO User logged in
+    INFO User opened dashboard
+    ERROR Database connection failed
+    INFO User logged out
+    ERROR Authentication failed
+    INFO User logged in
+    ERROR File not found
+
+---
+
+## Task 1 - Display the first 3 lines
+
+Command:
+
+    head -n 3 server.log
+
+---
+
+## Task 2 - Display the last 3 lines
+
+Command:
+
+    tail -n 3 server.log
+
+---
+
+## Task 3 - Find all errors
+
+Command:
+
+    grep "ERROR" server.log
+
+---
+
+## Task 4 - Display errors and save them
+
+Command:
+
+    grep "ERROR" server.log | tee errors.txt
+
+This will:
+
+- Display the errors on the terminal.
+- Save the errors into `errors.txt`.
+
+Check the file:
+
+    cat errors.txt
+
+---
+
+# 34. Practice Exercises
+
+## Exercise 1 - stdin
+
+Run:
+
+    cat
+
+Type:
+
+    Linux is powerful
+
+Then press:
+
+    Ctrl + D
+
+Question:
+
+What happened?
+
+---
+
+## Exercise 2 - stdout
+
+Run:
+
+    echo "I am learning Linux"
+
+Question:
+
+Where did the output appear?
+
+---
+
+## Exercise 3 - stderr
+
+Run:
+
+    ls /this-directory-does-not-exist
+
+Question:
+
+Was the error sent to stdout or stderr?
+
+---
+
+## Exercise 4 - Redirect stdout
+
+Create a file called:
+
+    day02.txt
+
+and store:
+
+    Linux Journey Day 02
+
+inside it using `>`.
+
+---
+
+## Exercise 5 - Append
+
+Add this line to the same file:
+
+    I learned Linux streams
+
+Use `>>` without deleting the previous content.
+
+---
+
+## Exercise 6 - Redirect stderr
+
+Run:
+
+    ls /wrong-path
+
+Save the error into:
+
+    error.txt
+
+Hint:
+
+    2>
+
+---
+
+## Exercise 7 - Pipe
+
+Run:
+
+    ls | less
+
+Question:
+
+Which command produces the input for `less`?
+
+---
+
+## Exercise 8 - Pipe and grep
+
+Display only `.txt` files from the current directory.
+
+Hint:
+
+    ls | grep ".txt"
+
+---
+
+## Exercise 9 - tee
+
+Display:
+
+    Linux Practice
+
+on the terminal and save it into:
+
+    practice.txt
+
+Use `tee`.
+
+---
+
+## Exercise 10 - Environment Variables
+
+Find the values of:
+
+    HOME
+    USER
+    SHELL
+    PWD
+    PATH
+
+Use:
+
+    echo $VARIABLE
+
+---
+
+## Exercise 11 - env
+
+Run:
+
+    env
+
+Find the following variables:
+
+    USER
+    HOME
+    SHELL
+
+---
+
+## Exercise 12 - cut
+
+Create:
+
+    students.txt
+
+with:
+
+    Niranjan:Cybersecurity:21
+    Rahul:Networking:22
+    Arun:Linux:20
+
+Use `cut` to display only the names.
+
+Expected output:
+
+    Niranjan
+    Rahul
+    Arun
+
+---
+
+## Exercise 13 - cut
+
+Using the same file, display only the subjects.
+
+Expected output:
+
+    Cybersecurity
+    Networking
+    Linux
+
+---
+
+## Exercise 14 - paste
+
+Create:
+
+    names.txt
+
+with:
+
+    Niranjan
+    Rahul
+    Arun
+
+Create:
+
+    marks.txt
+
+with:
+
+    85
+    90
+    78
+
+Use `paste` to combine them.
+
+Expected output:
+
+    Niranjan    85
+    Rahul       90
+    Arun        78
+
+---
+
+## Exercise 15 - head
+
+Create a file containing 20 lines.
+
+Use `head` to display only the first 5 lines.
+
+Hint:
+
+    head -n 5 filename
+
+---
+
+## Exercise 16 - tail
+
+Using the same file, display only the last 5 lines.
+
+Hint:
+
+    tail -n 5 filename
+
+---
+
+## Exercise 17 - tail -f
+
+Create:
+
+    server.log
+
+Add several lines.
+
+Then run:
+
+    tail -f server.log
+
+Open another terminal and add a new line to the file.
+
+Observe what happens.
+
+Stop the command using:
+
+    Ctrl + C
+
+---
+
+# 35. Command Summary
+
+| Command / Concept | Purpose |
+|---|---|
+| stdin | Standard input |
+| stdout | Standard output |
+| stderr | Standard error |
+| 0 | stdin file descriptor |
+| 1 | stdout file descriptor |
+| 2 | stderr file descriptor |
+| > | Redirect stdout and overwrite |
+| >> | Redirect stdout and append |
+| 2> | Redirect stderr |
+| \| | Send output of one command to another |
+| tee | Display and save output |
+| tee -a | Display and append output |
+| env | Display environment variables |
+| $VARIABLE | Access variable value |
+| export | Export a shell variable |
+| cut | Extract fields or characters |
+| paste | Combine lines from files |
+| head | Display beginning of file |
+| tail | Display end of file |
+| tail -f | Continuously monitor a file |
+
+---
+
+# 36. What I Learned Today
+
+Today I learned about Linux standard streams:
+
+    stdin  -> Standard Input
+    stdout -> Standard Output
+    stderr -> Standard Error
+
+I learned that Linux uses file descriptors:
+
+    0 -> stdin
+    1 -> stdout
+    2 -> stderr
+
+I learned how to redirect output using:
+
+    >
+    >>
+
+I learned how to redirect errors using:
+
+    2>
+
+I learned how the pipe operator:
+
+    |
+
+connects the output of one command to the input of another command.
+
+I learned that `tee` allows me to display output on the terminal while also saving it to a file.
+
+I learned about environment variables such as:
+
+    HOME
+    USER
+    SHELL
+    PWD
+    PATH
+
+I learned how to view environment variables using:
+
+    env
+
+and:
+
+    echo $VARIABLE
+
+I learned how to use:
+
+    cut
+    paste
+    head
+    tail
+
+for processing and examining text files.
+
+I also learned how commands can be combined together to perform more powerful tasks.
+
+---
+
+# 37. Key Takeaway
+
+The most important concept from today's lesson is that Linux commands are designed to work together.
+
+For example:
+
+    command1 | command2 | command3
+
+The general flow is:
+
+    Input
+      |
+      v
+    Command 1
+      |
+    stdout
+      |
+      v
+    Command 2
+      |
+    stdout
+      |
+      v
+    Command 3
+      |
+      v
+    Output
+
+This command-line philosophy makes Linux extremely powerful.
+
+These concepts will be useful for:
+
+- Linux administration
+- Shell scripting
+- Networking
+- Cybersecurity
+- Digital forensics
+- Log analysis
+- CTF challenges
+- System troubleshooting
+
+---
+
+# Linux Journey Day 02 - Completed
+
+Topics completed:
+
+[x] stdin
+[x] stdout
+[x] stderr
+[x] File descriptors
+[x] Output redirection
+[x] Pipe
+[x] tee
+[x] Environment variables
+[x] env
+[x] cut
+[x] paste
+[x] head
+[x] tail
+[x] Practice exercises
+[x] Mini log-analysis project
