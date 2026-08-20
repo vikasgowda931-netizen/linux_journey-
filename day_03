@@ -1,0 +1,2004 @@
+# 🐧 LINUX JOURNEY - DAY 03
+
+## 📅 Day 03 - Text Processing Commands
+
+### 📚 Learning Platform
+
+* Linux Journey
+* Practical command-line exercises
+* Real-world examples
+
+---
+
+# 📌 TOPICS LEARNED TODAY
+
+Today I learned the following Linux text-processing commands:
+
+1. `expand`
+2. `unexpand`
+3. `join`
+4. `split`
+5. `sort`
+6. `tr`
+7. `uniq`
+8. `wc`
+9. `nl`
+10. `grep`
+
+These commands are very useful for:
+
+* Text processing
+* Log analysis
+* Data cleaning
+* File management
+* System administration
+* Automation
+* Cybersecurity
+* Digital forensics
+* CTF challenges
+
+---
+
+# 1. EXPAND COMMAND
+
+## What is `expand`?
+
+The `expand` command is used to convert **TAB characters into spaces**.
+
+By default, a tab is converted into spaces according to tab-stop positions.
+
+### Basic Syntax
+
+```bash
+expand filename
+```
+
+---
+
+## Example
+
+Create a file containing tabs:
+
+```bash
+printf 'Name\tAge\tCity\nJohn\t25\tBangalore\n' > data.txt
+```
+
+Now use:
+
+```bash
+expand data.txt
+```
+
+The TAB characters are converted into spaces.
+
+---
+
+## Save the result into another file
+
+```bash
+expand data.txt > expanded.txt
+```
+
+Now `expanded.txt` contains spaces instead of TAB characters.
+
+---
+
+## Real-world example
+
+Suppose you receive a text file from another system that uses TAB formatting.
+
+Before:
+
+```text
+Name    Age    City
+John    25     Bangalore
+```
+
+You can convert the tabs into spaces:
+
+```bash
+expand data.txt
+```
+
+This is useful when preparing text files for systems that don't handle tabs consistently.
+
+---
+
+## Practice Exercise
+
+Create a file:
+
+```bash
+printf 'Name\tAge\tCountry\nAlice\t22\tIndia\nBob\t25\tUSA\n' > students.txt
+```
+
+Run:
+
+```bash
+expand students.txt
+```
+
+Then save the output:
+
+```bash
+expand students.txt > students_spaces.txt
+```
+
+---
+
+# 2. UNEXPAND COMMAND
+
+## What is `unexpand`?
+
+`unexpand` does almost the opposite of `expand`.
+
+It converts sequences of spaces into TAB characters.
+
+### Basic Syntax
+
+```bash
+unexpand filename
+```
+
+---
+
+## Example
+
+```bash
+printf 'Name    Age    City\nJohn    25     Bangalore\n' > data.txt
+```
+
+Run:
+
+```bash
+unexpand data.txt
+```
+
+---
+
+## Convert only leading spaces
+
+A useful option is:
+
+```bash
+unexpand -a data.txt
+```
+
+The `-a` option converts spaces throughout the line where possible.
+
+---
+
+## Real-world example
+
+Suppose you have a text file with many spaces and want to reduce its size or make it tab-separated.
+
+You can use:
+
+```bash
+unexpand -a data.txt
+```
+
+This can be useful when preparing structured text files.
+
+---
+
+## Practice Exercise
+
+Create:
+
+```bash
+printf 'Name    Age    City\nAlice   21     Delhi\nBob     24     Mumbai\n' > students.txt
+```
+
+Try:
+
+```bash
+unexpand -a students.txt
+```
+
+---
+
+# 3. JOIN COMMAND
+
+## What is `join`?
+
+The `join` command combines lines from two files based on a **common field**.
+
+It is similar to performing a simple database JOIN operation.
+
+### Basic Syntax
+
+```bash
+join file1 file2
+```
+
+Important:
+
+The files normally need to be sorted according to the joining field.
+
+---
+
+# Real-world example
+
+Suppose we have a student file:
+
+```bash
+cat > students.txt <<EOF
+101 Alice
+102 Bob
+103 Charlie
+EOF
+```
+
+And a marks file:
+
+```bash
+cat > marks.txt <<EOF
+101 85
+102 90
+103 78
+EOF
+```
+
+Both files contain student IDs.
+
+Now run:
+
+```bash
+join students.txt marks.txt
+```
+
+Output:
+
+```text
+101 Alice 85
+102 Bob 90
+103 Charlie 78
+```
+
+The common field is:
+
+```text
+101
+102
+103
+```
+
+---
+
+## Why is `join` useful?
+
+It is useful when information is stored in separate files.
+
+For example:
+
+```text
+students.txt
+----------------
+ID Name
+
+marks.txt
+----------------
+ID Marks
+```
+
+You can combine them using the ID.
+
+---
+
+## Real-world database analogy
+
+Imagine two database tables:
+
+```text
+Students
+
+ID    Name
+101   Alice
+102   Bob
+```
+
+and:
+
+```text
+Marks
+
+ID    Score
+101   85
+102   90
+```
+
+`join` can combine them using the ID.
+
+---
+
+## Practice Exercise
+
+Create:
+
+```bash
+printf '101 Alice\n102 Bob\n103 Charlie\n' > students.txt
+```
+
+Create:
+
+```bash
+printf '101 85\n102 90\n103 78\n' > marks.txt
+```
+
+Run:
+
+```bash
+join students.txt marks.txt
+```
+
+Expected:
+
+```text
+101 Alice 85
+102 Bob 90
+103 Charlie 78
+```
+
+---
+
+# 4. SPLIT COMMAND
+
+## What is `split`?
+
+The `split` command divides a large file into smaller files.
+
+### Basic Syntax
+
+```bash
+split filename
+```
+
+By default, `split` divides the file into chunks of a certain number of lines.
+
+---
+
+## Example
+
+Create a file:
+
+```bash
+seq 1 20 > numbers.txt
+```
+
+Check it:
+
+```bash
+cat numbers.txt
+```
+
+Now split it:
+
+```bash
+split -l 5 numbers.txt
+```
+
+This divides the file into pieces containing 5 lines each.
+
+You may get files such as:
+
+```text
+xaa
+xab
+xac
+xad
+```
+
+---
+
+## Understanding `-l`
+
+```bash
+-l 5
+```
+
+means:
+
+```text
+Split the file every 5 lines.
+```
+
+---
+
+## Naming output files
+
+You can specify a prefix:
+
+```bash
+split -l 5 numbers.txt part_
+```
+
+This creates:
+
+```text
+part_aa
+part_ab
+part_ac
+part_ad
+```
+
+---
+
+## Real-world example
+
+Imagine you have a huge log file:
+
+```text
+server.log
+```
+
+It contains millions of lines.
+
+You can split it:
+
+```bash
+split -l 10000 server.log log_part_
+```
+
+Now each file contains 10,000 lines.
+
+This makes the data easier to analyze.
+
+---
+
+## Cybersecurity example
+
+Suppose you have a very large security log:
+
+```bash
+security.log
+```
+
+You can divide it:
+
+```bash
+split -l 5000 security.log log_
+```
+
+Then analyze each smaller file individually.
+
+---
+
+## Practice Exercise
+
+Create:
+
+```bash
+seq 1 50 > numbers.txt
+```
+
+Split it into files containing 10 lines:
+
+```bash
+split -l 10 numbers.txt part_
+```
+
+Check the files:
+
+```bash
+ls part_*
+```
+
+---
+
+# 5. SORT COMMAND
+
+## What is `sort`?
+
+The `sort` command sorts lines of text.
+
+### Basic Syntax
+
+```bash
+sort filename
+```
+
+---
+
+## Example
+
+Create:
+
+```bash
+printf "orange\napple\nbanana\nmango\n" > fruits.txt
+```
+
+Run:
+
+```bash
+sort fruits.txt
+```
+
+Output:
+
+```text
+apple
+banana
+mango
+orange
+```
+
+---
+
+# Reverse Sorting
+
+Use:
+
+```bash
+sort -r fruits.txt
+```
+
+Output:
+
+```text
+orange
+mango
+banana
+apple
+```
+
+---
+
+# Numeric Sorting
+
+Suppose:
+
+```bash
+printf "10\n2\n30\n5\n1\n" > numbers.txt
+```
+
+Normal:
+
+```bash
+sort numbers.txt
+```
+
+May produce:
+
+```text
+1
+10
+2
+30
+5
+```
+
+This happens because normal `sort` performs text/lexicographic sorting.
+
+For numerical sorting:
+
+```bash
+sort -n numbers.txt
+```
+
+Output:
+
+```text
+1
+2
+5
+10
+30
+```
+
+---
+
+## Real-world example
+
+Suppose you have:
+
+```text
+100
+25
+5
+90
+10
+```
+
+You want to find the smallest value.
+
+Use:
+
+```bash
+sort -n numbers.txt
+```
+
+---
+
+## Largest to smallest
+
+```bash
+sort -nr numbers.txt
+```
+
+---
+
+## Cybersecurity example
+
+Suppose you have a list of IP addresses:
+
+```text
+192.168.1.20
+192.168.1.5
+192.168.1.10
+```
+
+You can sort the data:
+
+```bash
+sort ip.txt
+```
+
+Sorting is often useful before using other commands such as `uniq` and `join`.
+
+---
+
+# 6. TR COMMAND
+
+## What is `tr`?
+
+`tr` means **translate**.
+
+It is used to:
+
+* Replace characters
+* Convert uppercase to lowercase
+* Convert lowercase to uppercase
+* Delete characters
+* Compress repeated characters
+
+### Basic Syntax
+
+```bash
+tr 'set1' 'set2'
+```
+
+---
+
+# Convert lowercase to uppercase
+
+```bash
+echo "hello world" | tr 'a-z' 'A-Z'
+```
+
+Output:
+
+```text
+HELLO WORLD
+```
+
+---
+
+# Convert uppercase to lowercase
+
+```bash
+echo "HELLO WORLD" | tr 'A-Z' 'a-z'
+```
+
+Output:
+
+```text
+hello world
+```
+
+---
+
+# Replace characters
+
+```bash
+echo "hello world" | tr ' ' '_'
+```
+
+Output:
+
+```text
+hello_world
+```
+
+---
+
+# Delete characters
+
+Use:
+
+```bash
+tr -d
+```
+
+Example:
+
+```bash
+echo "hello123" | tr -d '0-9'
+```
+
+Output:
+
+```text
+hello
+```
+
+The numbers are removed.
+
+---
+
+# Real-world example
+
+Suppose you have:
+
+```text
+phone: 9876543210
+```
+
+You only want the digits:
+
+```bash
+echo "phone: 9876543210" | tr -cd '0-9'
+```
+
+Output:
+
+```text
+9876543210
+```
+
+---
+
+# Cybersecurity example
+
+Suppose a log contains uppercase and lowercase usernames:
+
+```text
+ADMIN
+Admin
+admin
+```
+
+Convert everything to lowercase:
+
+```bash
+cat users.txt | tr 'A-Z' 'a-z'
+```
+
+Now they can be normalized before analysis.
+
+---
+
+# 7. UNIQ COMMAND
+
+## What is `uniq`?
+
+The `uniq` command is used to detect or remove **consecutive duplicate lines**.
+
+### Basic Syntax
+
+```bash
+uniq filename
+```
+
+Important:
+
+`uniq` normally works on adjacent/consecutive duplicates.
+
+---
+
+## Example
+
+Create:
+
+```bash
+printf "apple\napple\nbanana\nbanana\norange\n" > fruits.txt
+```
+
+Run:
+
+```bash
+uniq fruits.txt
+```
+
+Output:
+
+```text
+apple
+banana
+orange
+```
+
+---
+
+# Count duplicates
+
+Use:
+
+```bash
+uniq -c fruits.txt
+```
+
+Output:
+
+```text
+2 apple
+2 banana
+1 orange
+```
+
+This tells us how many times each consecutive value occurred.
+
+---
+
+# Important: sort + uniq
+
+Consider:
+
+```text
+apple
+banana
+apple
+```
+
+Running:
+
+```bash
+uniq fruits.txt
+```
+
+will NOT remove both `apple` entries because they are not adjacent.
+
+Instead use:
+
+```bash
+sort fruits.txt | uniq
+```
+
+Or:
+
+```bash
+sort fruits.txt | uniq -c
+```
+
+---
+
+## Real-world example
+
+Suppose a server log contains repeated IP addresses:
+
+```text
+192.168.1.10
+192.168.1.10
+192.168.1.20
+192.168.1.10
+192.168.1.20
+```
+
+To count them:
+
+```bash
+sort ips.txt | uniq -c
+```
+
+You can determine which IP addresses appear most frequently.
+
+---
+
+## Cybersecurity use
+
+This is useful for analyzing:
+
+* Repeated login attempts
+* IP addresses
+* Usernames
+* Error messages
+* Web requests
+* Security logs
+
+Example:
+
+```bash
+grep "Failed password" auth.log | sort | uniq -c
+```
+
+This can help identify repeated failed-login messages.
+
+---
+
+# 8. WC COMMAND
+
+## What is `wc`?
+
+`wc` means **word count**.
+
+It can count:
+
+* Lines
+* Words
+* Bytes
+* Characters
+
+### Basic Syntax
+
+```bash
+wc filename
+```
+
+Example:
+
+```bash
+wc data.txt
+```
+
+Typical output:
+
+```text
+10 25 150 data.txt
+```
+
+Meaning:
+
+```text
+10 = lines
+25 = words
+150 = bytes
+```
+
+---
+
+# Count lines
+
+```bash
+wc -l data.txt
+```
+
+---
+
+# Count words
+
+```bash
+wc -w data.txt
+```
+
+---
+
+# Count bytes
+
+```bash
+wc -c data.txt
+```
+
+---
+
+# Count characters
+
+```bash
+wc -m data.txt
+```
+
+---
+
+## Real-world example
+
+Suppose you have a large log:
+
+```text
+server.log
+```
+
+Count the number of lines:
+
+```bash
+wc -l server.log
+```
+
+Output:
+
+```text
+50000 server.log
+```
+
+This means the file contains 50,000 lines.
+
+---
+
+## Cybersecurity example
+
+Count failed login attempts:
+
+```bash
+grep "Failed password" auth.log | wc -l
+```
+
+This counts how many matching lines were found.
+
+---
+
+# 9. NL COMMAND
+
+## What is `nl`?
+
+The `nl` command is used to **number lines** in a file.
+
+### Basic Syntax
+
+```bash
+nl filename
+```
+
+---
+
+## Example
+
+Create:
+
+```bash
+printf "Linux\nPython\nNetworking\nCybersecurity\n" > topics.txt
+```
+
+Run:
+
+```bash
+nl topics.txt
+```
+
+Output:
+
+```text
+     1  Linux
+     2  Python
+     3  Networking
+     4  Cybersecurity
+```
+
+---
+
+## Real-world example
+
+Suppose you have a configuration file:
+
+```text
+server=localhost
+port=8080
+username=admin
+```
+
+Using:
+
+```bash
+nl config.txt
+```
+
+makes it easier to refer to a specific line.
+
+---
+
+## Why is line numbering useful?
+
+It helps when:
+
+* Debugging
+* Reading configuration files
+* Analyzing logs
+* Finding errors
+* Reviewing source code
+* Working with CTF files
+
+---
+
+# 10. GREP COMMAND
+
+## What is `grep`?
+
+`grep` is one of the most important Linux commands for searching text.
+
+It searches for patterns inside files or command output.
+
+### Basic Syntax
+
+```bash
+grep "pattern" filename
+```
+
+---
+
+## Example
+
+Create:
+
+```bash
+printf "apple\nbanana\norange\napple pie\n" > fruits.txt
+```
+
+Search for `apple`:
+
+```bash
+grep "apple" fruits.txt
+```
+
+Output:
+
+```text
+apple
+apple pie
+```
+
+---
+
+# Case-insensitive search
+
+Use:
+
+```bash
+grep -i "apple" fruits.txt
+```
+
+This matches:
+
+```text
+apple
+Apple
+APPLE
+```
+
+---
+
+# Show line numbers
+
+Use:
+
+```bash
+grep -n "apple" fruits.txt
+```
+
+Example output:
+
+```text
+1:apple
+4:apple pie
+```
+
+---
+
+# Search for an exact word
+
+Use:
+
+```bash
+grep -w "apple" fruits.txt
+```
+
+This helps distinguish a whole word from a word appearing inside another word.
+
+---
+
+# Invert the search
+
+Use:
+
+```bash
+grep -v "apple" fruits.txt
+```
+
+This displays lines that do NOT contain `apple`.
+
+---
+
+# Count matches
+
+Use:
+
+```bash
+grep -c "apple" fruits.txt
+```
+
+---
+
+# Search recursively
+
+Use:
+
+```bash
+grep -r "password" .
+```
+
+This searches for `password` inside files under the current directory.
+
+---
+
+# Real-world example: Log analysis
+
+Suppose a web server has:
+
+```text
+access.log
+```
+
+Search for errors:
+
+```bash
+grep "ERROR" access.log
+```
+
+Search for failed authentication:
+
+```bash
+grep "Failed" auth.log
+```
+
+---
+
+# Cybersecurity example
+
+Suppose you have a log file:
+
+```text
+auth.log
+```
+
+Search for failed login attempts:
+
+```bash
+grep "Failed password" auth.log
+```
+
+Count them:
+
+```bash
+grep -c "Failed password" auth.log
+```
+
+Search without caring about uppercase/lowercase:
+
+```bash
+grep -i "failed" auth.log
+```
+
+---
+
+# 11. COMBINING COMMANDS WITH PIPE
+
+One of the most powerful concepts in Linux is combining commands using:
+
+```bash
+|
+```
+
+This is called a **pipe**.
+
+The output of one command becomes the input of another command.
+
+---
+
+## Example
+
+```bash
+cat fruits.txt | sort
+```
+
+Flow:
+
+```text
+cat
+ ↓
+sort
+ ↓
+sorted output
+```
+
+---
+
+# Sort + Uniq
+
+```bash
+sort fruits.txt | uniq
+```
+
+This sorts the file and then removes consecutive duplicate lines.
+
+---
+
+# Sort + Uniq + Count
+
+```bash
+sort fruits.txt | uniq -c
+```
+
+This is extremely useful for frequency analysis.
+
+---
+
+# Grep + WC
+
+```bash
+grep "ERROR" server.log | wc -l
+```
+
+Meaning:
+
+```text
+grep
+ ↓
+Find ERROR
+ ↓
+wc -l
+ ↓
+Count matching lines
+```
+
+---
+
+# Grep + Sort + Uniq
+
+```bash
+grep "Failed" auth.log | sort | uniq -c
+```
+
+This can help count repeated failed-login messages.
+
+---
+
+# 12. REAL-WORLD MINI PROJECT
+
+## Log Analysis Project
+
+Create a sample log:
+
+```bash
+cat > login.log <<EOF
+Failed login from 192.168.1.10
+Successful login from 192.168.1.20
+Failed login from 192.168.1.10
+Failed login from 192.168.1.30
+Successful login from 192.168.1.20
+Failed login from 192.168.1.10
+EOF
+```
+
+---
+
+## Step 1: Find failed logins
+
+```bash
+grep "Failed" login.log
+```
+
+---
+
+## Step 2: Count failed login lines
+
+```bash
+grep "Failed" login.log | wc -l
+```
+
+---
+
+## Step 3: Extract repeated entries
+
+```bash
+grep "Failed" login.log | sort | uniq -c
+```
+
+This shows which failed-login messages occur most frequently.
+
+---
+
+# 13. PRACTICE EXERCISES
+
+## Exercise 1 - Expand
+
+Create a file containing TAB characters:
+
+```bash
+printf 'Name\tAge\tCity\nAlice\t22\tBangalore\nBob\t25\tDelhi\n' > students.txt
+```
+
+Convert TABs to spaces:
+
+```bash
+expand students.txt
+```
+
+---
+
+## Exercise 2 - Unexpand
+
+Use:
+
+```bash
+unexpand -a students.txt
+```
+
+Observe how spaces can be converted back into TABs where possible.
+
+---
+
+## Exercise 3 - Join
+
+Create:
+
+```bash
+printf '101 Alice\n102 Bob\n103 Charlie\n' > names.txt
+```
+
+Create:
+
+```bash
+printf '101 90\n102 85\n103 95\n' > marks.txt
+```
+
+Run:
+
+```bash
+join names.txt marks.txt
+```
+
+---
+
+## Exercise 4 - Split
+
+Create:
+
+```bash
+seq 1 100 > numbers.txt
+```
+
+Split into 20-line files:
+
+```bash
+split -l 20 numbers.txt part_
+```
+
+Check:
+
+```bash
+ls part_*
+```
+
+---
+
+## Exercise 5 - Sort
+
+Create:
+
+```bash
+printf "banana\napple\norange\nmango\n" > fruits.txt
+```
+
+Sort it:
+
+```bash
+sort fruits.txt
+```
+
+Reverse it:
+
+```bash
+sort -r fruits.txt
+```
+
+---
+
+## Exercise 6 - Numeric Sort
+
+Create:
+
+```bash
+printf "50\n2\n100\n20\n5\n" > numbers.txt
+```
+
+Run:
+
+```bash
+sort numbers.txt
+```
+
+Then:
+
+```bash
+sort -n numbers.txt
+```
+
+Understand the difference.
+
+---
+
+## Exercise 7 - TR
+
+Convert lowercase to uppercase:
+
+```bash
+echo "linux is powerful" | tr 'a-z' 'A-Z'
+```
+
+Expected:
+
+```text
+LINUX IS POWERFUL
+```
+
+---
+
+## Exercise 8 - TR Delete
+
+Remove numbers:
+
+```bash
+echo "Linux123Python456" | tr -d '0-9'
+```
+
+Expected:
+
+```text
+LinuxPython
+```
+
+---
+
+## Exercise 9 - Uniq
+
+Create:
+
+```bash
+printf "apple\napple\nbanana\nbanana\nbanana\norange\n" > fruits.txt
+```
+
+Run:
+
+```bash
+uniq fruits.txt
+```
+
+Then:
+
+```bash
+uniq -c fruits.txt
+```
+
+---
+
+## Exercise 10 - WC
+
+Create:
+
+```bash
+printf "Linux is powerful\nLinux is open source\nLinux is widely used\n" > linux.txt
+```
+
+Find:
+
+```bash
+wc linux.txt
+```
+
+Then separately find:
+
+```bash
+wc -l linux.txt
+wc -w linux.txt
+wc -c linux.txt
+```
+
+---
+
+## Exercise 11 - NL
+
+Run:
+
+```bash
+nl linux.txt
+```
+
+Observe how every line gets a number.
+
+---
+
+## Exercise 12 - GREP
+
+Search for Linux:
+
+```bash
+grep "Linux" linux.txt
+```
+
+Search with line numbers:
+
+```bash
+grep -n "Linux" linux.txt
+```
+
+Count matches:
+
+```bash
+grep -c "Linux" linux.txt
+```
+
+---
+
+# 14. COMBINED PRACTICE CHALLENGE
+
+Create this file:
+
+```bash
+cat > users.txt <<EOF
+alice
+bob
+alice
+charlie
+bob
+alice
+david
+charlie
+bob
+EOF
+```
+
+### Challenge 1
+
+Sort the usernames:
+
+```bash
+sort users.txt
+```
+
+### Challenge 2
+
+Remove duplicate usernames:
+
+```bash
+sort users.txt | uniq
+```
+
+### Challenge 3
+
+Count each username:
+
+```bash
+sort users.txt | uniq -c
+```
+
+### Challenge 4
+
+Find only `alice`:
+
+```bash
+grep "alice" users.txt
+```
+
+### Challenge 5
+
+Count how many times Alice appears:
+
+```bash
+grep -c "alice" users.txt
+```
+
+### Challenge 6
+
+Number every line:
+
+```bash
+nl users.txt
+```
+
+---
+
+# 15. CYBERSECURITY PRACTICE CHALLENGE
+
+Create a fake security log:
+
+```bash
+cat > security.log <<EOF
+Failed login from 10.0.0.5
+Failed login from 10.0.0.5
+Successful login from 10.0.0.10
+Failed login from 10.0.0.8
+Failed login from 10.0.0.5
+Successful login from 10.0.0.10
+Failed login from 10.0.0.8
+EOF
+```
+
+### Task 1
+
+Find failed logins:
+
+```bash
+grep "Failed" security.log
+```
+
+### Task 2
+
+Count failed logins:
+
+```bash
+grep -c "Failed" security.log
+```
+
+### Task 3
+
+Sort failed-login entries:
+
+```bash
+grep "Failed" security.log | sort
+```
+
+### Task 4
+
+Count repeated entries:
+
+```bash
+grep "Failed" security.log | sort | uniq -c
+```
+
+### Task 5
+
+Number the entire log:
+
+```bash
+nl security.log
+```
+
+This demonstrates a simplified version of how command-line tools can be combined for security-log analysis.
+
+---
+
+# 16. COMMAND CHEAT SHEET
+
+| Command    | Purpose                               |
+| ---------- | ------------------------------------- |
+| `expand`   | Convert TABs to spaces                |
+| `unexpand` | Convert spaces to TABs where possible |
+| `join`     | Combine files using a common field    |
+| `split`    | Divide a file into smaller files      |
+| `sort`     | Sort lines                            |
+| `tr`       | Translate/delete characters           |
+| `uniq`     | Remove/count consecutive duplicates   |
+| `wc`       | Count lines, words, bytes, characters |
+| `nl`       | Number lines                          |
+| `grep`     | Search text/patterns                  |
+
+---
+
+# 17. IMPORTANT OPTIONS
+
+## expand
+
+```bash
+expand file
+```
+
+```bash
+expand -t 4 file
+```
+
+---
+
+## unexpand
+
+```bash
+unexpand file
+```
+
+```bash
+unexpand -a file
+```
+
+---
+
+## split
+
+```bash
+split -l 10 file
+```
+
+---
+
+## sort
+
+```bash
+sort file
+sort -r file
+sort -n file
+sort -nr file
+```
+
+---
+
+## tr
+
+```bash
+tr 'a-z' 'A-Z'
+tr 'A-Z' 'a-z'
+tr -d '0-9'
+tr -s ' '
+```
+
+---
+
+## uniq
+
+```bash
+uniq file
+uniq -c file
+```
+
+---
+
+## wc
+
+```bash
+wc file
+wc -l file
+wc -w file
+wc -c file
+wc -m file
+```
+
+---
+
+## grep
+
+```bash
+grep "word" file
+grep -i "word" file
+grep -n "word" file
+grep -v "word" file
+grep -c "word" file
+grep -r "word" .
+```
+
+---
+
+# 18. WHAT I LEARNED TODAY
+
+Today I learned how to process and analyze text using Linux command-line tools.
+
+### Commands covered:
+
+```text
+expand
+unexpand
+join
+split
+sort
+tr
+uniq
+wc
+nl
+grep
+```
+
+I also practiced combining commands using the pipe:
+
+```bash
+|
+```
+
+Important combinations I practiced:
+
+```bash
+sort file | uniq
+```
+
+```bash
+sort file | uniq -c
+```
+
+```bash
+grep "ERROR" file | wc -l
+```
+
+```bash
+grep "Failed" file | sort | uniq -c
+```
+
+---
+
+# 19. KEY TAKEAWAYS
+
+### `expand`
+
+```text
+TAB → spaces
+```
+
+### `unexpand`
+
+```text
+spaces → TABs where possible
+```
+
+### `join`
+
+```text
+Combine related data from two files
+```
+
+### `split`
+
+```text
+Large file → smaller files
+```
+
+### `sort`
+
+```text
+Arrange lines
+```
+
+### `tr`
+
+```text
+Translate / replace / delete characters
+```
+
+### `uniq`
+
+```text
+Remove or count consecutive duplicates
+```
+
+### `wc`
+
+```text
+Count lines / words / bytes / characters
+```
+
+### `nl`
+
+```text
+Number lines
+```
+
+### `grep`
+
+```text
+Search for patterns
+```
+
+---
+
+# 🚀 FINAL LEARNING NOTE
+
+These commands are important because Linux follows the philosophy of combining small tools to accomplish larger tasks.
+
+For example:
+
+```bash
+grep "Failed" security.log | sort | uniq -c
+```
+
+uses three commands together:
+
+```text
+grep
+ ↓
+Find relevant information
+
+sort
+ ↓
+Organize the information
+
+uniq -c
+ ↓
+Count repeated entries
+```
+
+This same approach becomes extremely useful in:
+
+* Linux administration
+* Cybersecurity
+* Digital forensics
+* CTFs
+* Log analysis
+* Incident response
+* Automation
+* DevOps
+* System troubleshooting
+
+The most important skill from today's lesson is not just memorizing individual commands, but learning how to **combine commands together using pipes** to solve real-world problems.
+
+---
+
+# 🐧 LINUX JOURNEY DAY 03 COMPLETE
