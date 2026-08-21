@@ -1,0 +1,2288 @@
+# LINUX LEARNING - DAY 04
+
+## Topics: Regular Expressions (Regex), Text Editors, Vim, Vim Navigation, Searching, Inserting, Appending and Editing
+
+---
+
+# 1. Introduction
+
+Today I learned about:
+
+* Regular Expressions (Regex)
+* Regex command line usage
+* Text editors in Linux
+* Vim editor
+* Vim modes
+* Vim navigation
+* Vim search patterns
+* Searching inside Vim
+* Inserting text
+* Appending text
+* Editing text
+* Deleting text
+* Vim editing commands
+* Saving and exiting Vim
+* Practical exercises using Vim
+
+These concepts are important because Linux administrators, developers, cybersecurity professionals, digital forensics investigators and penetration testers frequently work with text files, configuration files, logs and command-line tools.
+
+---
+
+# 2. What is Regular Expression?
+
+Regular Expression, commonly called **Regex**, is a pattern used to search, match, filter or manipulate text.
+
+Regex is useful when we want to find specific patterns instead of searching for an exact word.
+
+For example, suppose we have:
+
+```text
+admin@gmail.com
+user@yahoo.com
+student@gmail.com
+test@hotmail.com
+```
+
+If we want to find all Gmail addresses, we can use a pattern that matches:
+
+```text
+@gmail.com
+```
+
+Regex is widely used for:
+
+* Searching text
+* Finding patterns
+* Log analysis
+* Extracting information
+* Validating data
+* Finding IP addresses
+* Finding email addresses
+* Filtering command output
+* Cybersecurity investigations
+* Digital forensics
+* System administration
+
+---
+
+# 3. Regex in Linux
+
+Linux provides several tools that can work with regular expressions.
+
+Common commands include:
+
+```text
+grep
+sed
+awk
+```
+
+The most beginner-friendly command for regex searching is:
+
+```bash
+grep
+```
+
+---
+
+# 4. What is grep?
+
+`grep` is used to search for text or patterns inside files.
+
+### Basic Syntax
+
+```bash
+grep "pattern" filename
+```
+
+Example:
+
+```bash
+grep "error" server.log
+```
+
+This searches for lines containing:
+
+```text
+error
+```
+
+inside:
+
+```text
+server.log
+```
+
+---
+
+# 5. Real-World grep Example
+
+Suppose we have a log file:
+
+```text
+server.log
+```
+
+Contents:
+
+```text
+INFO Server started
+INFO User logged in
+ERROR Database connection failed
+INFO File uploaded
+ERROR Authentication failed
+```
+
+Command:
+
+```bash
+grep "ERROR" server.log
+```
+
+Output:
+
+```text
+ERROR Database connection failed
+ERROR Authentication failed
+```
+
+This is useful when investigating system or application logs.
+
+---
+
+# 6. grep Case-Insensitive Search
+
+Normally grep is case-sensitive.
+
+Example:
+
+```bash
+grep "error" server.log
+```
+
+It may not match:
+
+```text
+ERROR
+Error
+```
+
+Use `-i` for case-insensitive searching:
+
+```bash
+grep -i "error" server.log
+```
+
+This searches for:
+
+```text
+error
+ERROR
+Error
+eRrOr
+```
+
+---
+
+# 7. grep Search With Line Numbers
+
+Use:
+
+```bash
+grep -n "error" server.log
+```
+
+The `-n` option displays the line number.
+
+Example output:
+
+```text
+3:ERROR Database connection failed
+5:ERROR Authentication failed
+```
+
+---
+
+# 8. grep Recursive Search
+
+The `-r` option searches inside files and directories recursively.
+
+```bash
+grep -r "password" /var/log/
+```
+
+This can search for the word `password` inside files under `/var/log/`.
+
+Always be careful when searching large directories because it may produce a large amount of output.
+
+---
+
+# 9. Regex Character Classes
+
+Character classes allow us to match a group of possible characters.
+
+Example:
+
+```text
+[abc]
+```
+
+This matches:
+
+```text
+a
+b
+c
+```
+
+Example:
+
+```bash
+grep "[aeiou]" file.txt
+```
+
+This searches for lines containing at least one vowel.
+
+---
+
+# 10. Range in Regex
+
+We can specify a range.
+
+Example:
+
+```text
+[a-z]
+```
+
+Matches lowercase letters.
+
+```text
+[A-Z]
+```
+
+Matches uppercase letters.
+
+```text
+[0-9]
+```
+
+Matches digits.
+
+Example:
+
+```bash
+grep "[0-9]" file.txt
+```
+
+This searches for lines containing a number.
+
+---
+
+# 11. Negated Character Class
+
+The `^` character inside square brackets can mean "not".
+
+Example:
+
+```text
+[^0-9]
+```
+
+This means:
+
+```text
+any character that is NOT a number
+```
+
+Example:
+
+```bash
+grep "[^0-9]" file.txt
+```
+
+---
+
+# 12. Dot in Regex
+
+The dot:
+
+```text
+.
+```
+
+matches almost any single character.
+
+Example:
+
+```text
+c.t
+```
+
+can match:
+
+```text
+cat
+cut
+cot
+c9t
+```
+
+Example:
+
+```bash
+grep "c.t" file.txt
+```
+
+---
+
+# 13. Beginning of Line
+
+The `^` symbol outside a character class represents the beginning of a line.
+
+Example:
+
+```text
+^Linux
+```
+
+This matches lines that start with:
+
+```text
+Linux
+```
+
+Command:
+
+```bash
+grep "^Linux" file.txt
+```
+
+---
+
+# 14. End of Line
+
+The `$` symbol represents the end of a line.
+
+Example:
+
+```text
+Linux$
+```
+
+This matches lines ending with:
+
+```text
+Linux
+```
+
+Command:
+
+```bash
+grep "Linux$" file.txt
+```
+
+---
+
+# 15. Exact Word Matching
+
+Use:
+
+```bash
+grep -w "admin" users.txt
+```
+
+This searches for the complete word:
+
+```text
+admin
+```
+
+instead of matching words such as:
+
+```text
+administrator
+admin123
+myadmin
+```
+
+---
+
+# 16. Regex Practice Example
+
+Create a file:
+
+```bash
+nano users.txt
+```
+
+Add:
+
+```text
+admin
+administrator
+user
+user123
+guest
+guest01
+root
+root123
+```
+
+Search for lines beginning with `root`:
+
+```bash
+grep "^root" users.txt
+```
+
+Search for lines containing numbers:
+
+```bash
+grep "[0-9]" users.txt
+```
+
+Search for exactly the word `admin`:
+
+```bash
+grep -w "admin" users.txt
+```
+
+---
+
+# 17. What is a Text Editor?
+
+A text editor is a program used to create and modify text files.
+
+Linux provides many text editors.
+
+Common examples:
+
+```text
+nano
+vim
+vi
+emacs
+```
+
+Text editors are used for:
+
+* Writing scripts
+* Editing configuration files
+* Editing source code
+* Modifying system files
+* Creating notes
+* Editing logs
+* Writing shell scripts
+
+---
+
+# 18. What is Vim?
+
+Vim stands for:
+
+```text
+Vi Improved
+```
+
+Vim is a powerful command-line text editor.
+
+It is an improved version of the traditional Unix `vi` editor.
+
+Vim is commonly available on Linux systems.
+
+---
+
+# 19. Why Learn Vim?
+
+Vim is useful because:
+
+* It works from the terminal.
+* It is lightweight.
+* It is powerful.
+* It can edit large files.
+* It provides keyboard-based navigation.
+* It provides powerful search features.
+* It can be used remotely through SSH.
+* It is commonly available on Linux systems.
+
+For cybersecurity and system administration, knowing Vim is useful when working on remote Linux machines where graphical editors may not be available.
+
+---
+
+# 20. Opening Vim
+
+To open Vim:
+
+```bash
+vim filename.txt
+```
+
+Example:
+
+```bash
+vim notes.txt
+```
+
+If the file doesn't exist, Vim can create it when you save it.
+
+---
+
+# 21. Vim Modes
+
+One of the most important concepts in Vim is that it works using different modes.
+
+The main modes are:
+
+```text
+Normal Mode
+Insert Mode
+Command Mode
+Visual Mode
+```
+
+---
+
+# 22. Normal Mode
+
+Normal mode is Vim's default mode.
+
+It is mainly used for:
+
+* Navigation
+* Deleting text
+* Copying text
+* Pasting text
+* Searching
+* Editing
+* Executing commands
+
+When Vim starts, you are normally in Normal mode.
+
+Press:
+
+```text
+Esc
+```
+
+to return to Normal mode.
+
+---
+
+# 23. Insert Mode
+
+Insert mode is used to type text.
+
+Common commands:
+
+```text
+i
+I
+a
+A
+o
+O
+```
+
+These commands enter Insert mode in different positions.
+
+---
+
+# 24. Command Mode
+
+Command mode is used for operations such as:
+
+```text
+Saving
+Exiting
+Searching
+Replacing
+```
+
+Press:
+
+```text
+:
+```
+
+in Normal mode.
+
+Example:
+
+```text
+:w
+```
+
+means save.
+
+```text
+:q
+```
+
+means quit.
+
+---
+
+# 25. Visual Mode
+
+Visual mode is used to select text.
+
+Enter Visual mode using:
+
+```text
+v
+```
+
+Other forms include:
+
+```text
+V
+Ctrl + V
+```
+
+They are used for different types of selections.
+
+---
+
+# 26. Basic Vim Navigation
+
+Vim can be controlled using keyboard keys.
+
+The traditional navigation keys are:
+
+```text
+h → left
+j → down
+k → up
+l → right
+```
+
+Remember:
+
+```text
+      k
+      ↑
+h ←       → l
+      ↓
+      j
+```
+
+---
+
+# 27. Real-World Vim Navigation
+
+Suppose we open:
+
+```bash
+vim server.log
+```
+
+Use:
+
+```text
+j
+```
+
+to move down.
+
+Use:
+
+```text
+k
+```
+
+to move up.
+
+Use:
+
+```text
+h
+```
+
+to move left.
+
+Use:
+
+```text
+l
+```
+
+to move right.
+
+This allows you to navigate without using arrow keys.
+
+---
+
+# 28. Moving to Beginning of Line
+
+Press:
+
+```text
+0
+```
+
+This moves the cursor to the beginning of the current line.
+
+---
+
+# 29. Moving to End of Line
+
+Press:
+
+```text
+$
+```
+
+This moves the cursor to the end of the current line.
+
+---
+
+# 30. Moving to First Line
+
+Press:
+
+```text
+gg
+```
+
+This moves the cursor to the first line of the file.
+
+---
+
+# 31. Moving to Last Line
+
+Press:
+
+```text
+G
+```
+
+This moves the cursor to the last line.
+
+---
+
+# 32. Moving by Words
+
+Use:
+
+```text
+w
+```
+
+Move forward to the next word.
+
+Use:
+
+```text
+b
+```
+
+Move backward to the previous word.
+
+Use:
+
+```text
+e
+```
+
+Move to the end of a word.
+
+---
+
+# 33. Moving to a Specific Line
+
+Use:
+
+```text
+:number
+```
+
+Example:
+
+```text
+:20
+```
+
+This moves to line 20.
+
+Another method:
+
+```text
+20G
+```
+
+moves directly to line 20.
+
+---
+
+# 34. Vim Search
+
+Vim provides powerful search functionality.
+
+To search forward:
+
+```text
+/pattern
+```
+
+Example:
+
+```text
+/error
+```
+
+Press:
+
+```text
+Enter
+```
+
+to search.
+
+---
+
+# 35. Searching for the Next Match
+
+After searching:
+
+```text
+n
+```
+
+moves to the next matching result.
+
+```text
+N
+```
+
+moves to the previous matching result.
+
+---
+
+# 36. Real-World Vim Search Example
+
+Suppose a log contains:
+
+```text
+INFO Server started
+INFO User logged in
+ERROR Database failed
+INFO Backup started
+ERROR Authentication failed
+```
+
+Open:
+
+```bash
+vim server.log
+```
+
+Press:
+
+```text
+/ERROR
+```
+
+Then press Enter.
+
+Vim finds the first occurrence of:
+
+```text
+ERROR
+```
+
+Press:
+
+```text
+n
+```
+
+to find the next occurrence.
+
+---
+
+# 37. Vim Search Patterns
+
+Vim supports patterns and regular expressions.
+
+For example:
+
+```text
+/error
+```
+
+searches for error.
+
+You can also use patterns such as:
+
+```text
+/^ERROR
+```
+
+This searches for lines beginning with `ERROR`.
+
+Example:
+
+```text
+/^ERROR
+```
+
+---
+
+# 38. Searching for Numbers
+
+You can search for numbers using:
+
+```text
+/[0-9]
+```
+
+This finds a digit.
+
+For example:
+
+```text
+/[0-9][0-9][0-9]
+```
+
+can search for three consecutive digits.
+
+---
+
+# 39. Vim Search Case Sensitivity
+
+Searches are normally case-sensitive depending on Vim settings.
+
+You can use:
+
+```text
+:set ignorecase
+```
+
+to ignore case.
+
+Example:
+
+```text
+:set ignorecase
+```
+
+Now searching:
+
+```text
+/error
+```
+
+can match:
+
+```text
+error
+ERROR
+Error
+```
+
+To return to case-sensitive searching:
+
+```text
+:set noignorecase
+```
+
+---
+
+# 40. Vim Inserting Text
+
+The `i` command inserts text before the cursor.
+
+Example:
+
+```text
+i
+```
+
+Then type:
+
+```text
+Hello
+```
+
+Press:
+
+```text
+Esc
+```
+
+to return to Normal mode.
+
+---
+
+# 41. Insert at Beginning of Line
+
+Use:
+
+```text
+I
+```
+
+This enters Insert mode at the beginning of the current line.
+
+---
+
+# 42. Append Text
+
+The `a` command appends text after the cursor.
+
+Example:
+
+```text
+a
+```
+
+Then type your text.
+
+Press:
+
+```text
+Esc
+```
+
+to return to Normal mode.
+
+---
+
+# 43. Append at End of Line
+
+Use:
+
+```text
+A
+```
+
+This moves to the end of the current line and enters Insert mode.
+
+Example:
+
+```text
+A
+```
+
+Then type:
+
+```text
+ updated
+```
+
+---
+
+# 44. Insert a New Line Below
+
+Use:
+
+```text
+o
+```
+
+This creates a new line below the current line and enters Insert mode.
+
+Example:
+
+```text
+o
+```
+
+Type:
+
+```text
+New line
+```
+
+Press:
+
+```text
+Esc
+```
+
+---
+
+# 45. Insert a New Line Above
+
+Use:
+
+```text
+O
+```
+
+This creates a new line above the current line.
+
+---
+
+# 46. Vim Editing - Delete Character
+
+Use:
+
+```text
+x
+```
+
+This deletes the character under the cursor.
+
+Example:
+
+```text
+Hello
+```
+
+Place the cursor on:
+
+```text
+e
+```
+
+Press:
+
+```text
+x
+```
+
+Result:
+
+```text
+Hllo
+```
+
+---
+
+# 47. Delete a Word
+
+Use:
+
+```text
+dw
+```
+
+`d` means delete.
+
+`w` means word.
+
+So:
+
+```text
+dw
+```
+
+means delete a word.
+
+---
+
+# 48. Delete a Line
+
+Use:
+
+```text
+dd
+```
+
+This deletes the current line.
+
+---
+
+# 49. Delete Multiple Lines
+
+Example:
+
+```text
+3dd
+```
+
+This deletes three lines starting from the current line.
+
+Similarly:
+
+```text
+5dd
+```
+
+deletes five lines.
+
+---
+
+# 50. Delete From Cursor to End of Line
+
+Use:
+
+```text
+D
+```
+
+This deletes text from the cursor position to the end of the line.
+
+---
+
+# 51. Copy a Line
+
+Use:
+
+```text
+yy
+```
+
+This copies the current line.
+
+`yy` is often called "yank line".
+
+---
+
+# 52. Copy Multiple Lines
+
+Example:
+
+```text
+3yy
+```
+
+This copies three lines.
+
+---
+
+# 53. Paste Text
+
+Use:
+
+```text
+p
+```
+
+to paste after the cursor.
+
+Use:
+
+```text
+P
+```
+
+to paste before the cursor.
+
+---
+
+# 54. Undo
+
+Use:
+
+```text
+u
+```
+
+to undo the last change.
+
+Example:
+
+```text
+dd
+```
+
+deletes a line.
+
+Press:
+
+```text
+u
+```
+
+to restore it.
+
+---
+
+# 55. Redo
+
+Use:
+
+```text
+Ctrl + r
+```
+
+to redo an undone change.
+
+---
+
+# 56. Replace a Character
+
+Use:
+
+```text
+r
+```
+
+Example:
+
+```text
+rat
+```
+
+Place cursor on:
+
+```text
+r
+```
+
+Press:
+
+```text
+r
+```
+
+and type another character.
+
+---
+
+# 57. Replace Text
+
+Use:
+
+```text
+cw
+```
+
+This means:
+
+```text
+change word
+```
+
+Example:
+
+```text
+Linux is difficult
+```
+
+Place cursor at `difficult`.
+
+Use:
+
+```text
+cw
+```
+
+Then type:
+
+```text
+powerful
+```
+
+Press:
+
+```text
+Esc
+```
+
+Result:
+
+```text
+Linux is powerful
+```
+
+---
+
+# 58. Change an Entire Line
+
+Use:
+
+```text
+cc
+```
+
+This deletes the current line's content and enters Insert mode.
+
+---
+
+# 59. Vim Save Command
+
+To save a file:
+
+```text
+:w
+```
+
+Press:
+
+```text
+Enter
+```
+
+---
+
+# 60. Vim Exit Command
+
+To exit Vim:
+
+```text
+:q
+```
+
+Press:
+
+```text
+Enter
+```
+
+---
+
+# 61. Save and Exit
+
+Use:
+
+```text
+:wq
+```
+
+This means:
+
+```text
+write + quit
+```
+
+---
+
+# 62. Quit Without Saving
+
+Use:
+
+```text
+:q!
+```
+
+This exits Vim and discards unsaved changes.
+
+This is extremely useful when you accidentally modify a file and don't want to save it.
+
+---
+
+# 63. Save and Exit Using ZZ
+
+In Normal mode:
+
+```text
+ZZ
+```
+
+saves the file and exits Vim.
+
+---
+
+# 64. Vim Command Cheat Sheet
+
+```text
+:w      Save
+:q      Quit
+:wq     Save and quit
+:q!     Quit without saving
+ZZ      Save and quit
+```
+
+---
+
+# 65. Vim Navigation Cheat Sheet
+
+```text
+h       Move left
+j       Move down
+k       Move up
+l       Move right
+
+w       Next word
+b       Previous word
+e       End of word
+
+0       Beginning of line
+$       End of line
+
+gg      First line
+G       Last line
+
+20G     Go to line 20
+```
+
+---
+
+# 66. Vim Inserting and Appending Cheat Sheet
+
+```text
+i       Insert before cursor
+I       Insert at beginning of line
+
+a       Append after cursor
+A       Append at end of line
+
+o       New line below
+O       New line above
+```
+
+---
+
+# 67. Vim Editing Cheat Sheet
+
+```text
+x       Delete character
+dw      Delete word
+dd      Delete line
+3dd     Delete 3 lines
+D       Delete to end of line
+
+yy      Copy line
+3yy     Copy 3 lines
+
+p       Paste after
+P       Paste before
+
+u       Undo
+Ctrl+r  Redo
+
+r       Replace character
+cw      Change word
+cc      Change line
+```
+
+---
+
+# 68. Vim Search Cheat Sheet
+
+```text
+/pattern       Search forward
+?pattern       Search backward
+
+n              Next match
+N              Previous match
+
+:set ignorecase
+:set noignorecase
+```
+
+---
+
+# 69. Real-World Exercise 1 - Log Analysis With grep
+
+Create a file:
+
+```bash
+vim server.log
+```
+
+Add:
+
+```text
+INFO Server started
+INFO User login successful
+ERROR Database connection failed
+WARNING High CPU usage
+INFO Backup completed
+ERROR Authentication failed
+INFO Server stopped
+```
+
+Tasks:
+
+1. Find all `ERROR` lines.
+2. Find all `INFO` lines.
+3. Find all lines containing numbers.
+4. Display line numbers with errors.
+5. Search case-insensitively for `error`.
+
+Commands to practice:
+
+```bash
+grep "ERROR" server.log
+grep "INFO" server.log
+grep "[0-9]" server.log
+grep -n "ERROR" server.log
+grep -i "error" server.log
+```
+
+---
+
+# 70. Real-World Exercise 2 - Regex Practice
+
+Create:
+
+```bash
+vim users.txt
+```
+
+Add:
+
+```text
+admin
+administrator
+root
+root123
+guest
+guest01
+user
+user123
+test
+test99
+```
+
+Practice:
+
+```bash
+grep "^root" users.txt
+```
+
+Find users starting with `root`.
+
+Practice:
+
+```bash
+grep "[0-9]" users.txt
+```
+
+Find users containing numbers.
+
+Practice:
+
+```bash
+grep -w "admin" users.txt
+```
+
+Find the exact word `admin`.
+
+---
+
+# 71. Real-World Exercise 3 - Vim Navigation
+
+Create:
+
+```bash
+vim navigation.txt
+```
+
+Add at least 10 lines.
+
+Practice:
+
+```text
+h
+j
+k
+l
+```
+
+Then practice:
+
+```text
+w
+b
+e
+0
+$
+gg
+G
+```
+
+Goal:
+
+Move around the file without using the mouse.
+
+---
+
+# 72. Real-World Exercise 4 - Vim Inserting
+
+Create:
+
+```bash
+vim students.txt
+```
+
+Start with:
+
+```text
+Students
+```
+
+Practice:
+
+```text
+i
+I
+a
+A
+o
+O
+```
+
+Add:
+
+```text
+Rahul
+Vikas
+Anil
+Kiran
+```
+
+Practice entering text at different positions.
+
+---
+
+# 73. Real-World Exercise 5 - Vim Editing
+
+Create:
+
+```bash
+vim editing.txt
+```
+
+Add:
+
+```text
+Linux is difficult.
+Python is difficult.
+Networking is difficult.
+Cybersecurity is difficult.
+```
+
+Practice changing the sentences.
+
+Use:
+
+```text
+cw
+cc
+dd
+x
+r
+u
+Ctrl+r
+```
+
+Try changing:
+
+```text
+difficult
+```
+
+to:
+
+```text
+interesting
+```
+
+---
+
+# 74. Real-World Exercise 6 - Vim Search
+
+Create:
+
+```bash
+vim security.log
+```
+
+Add:
+
+```text
+INFO Login successful
+ERROR Invalid password
+INFO File accessed
+WARNING Multiple login attempts
+ERROR Authentication failed
+INFO User logged out
+ERROR Access denied
+```
+
+Search for:
+
+```text
+ERROR
+```
+
+Practice:
+
+```text
+/ERROR
+n
+N
+```
+
+Then search for:
+
+```text
+INFO
+```
+
+---
+
+# 75. Real-World Exercise 7 - Copy and Paste
+
+Create:
+
+```bash
+vim copy.txt
+```
+
+Add:
+
+```text
+Linux
+Python
+Networking
+Cybersecurity
+```
+
+Practice:
+
+```text
+yy
+p
+P
+3yy
+```
+
+Observe how the lines are copied and pasted.
+
+---
+
+# 76. Real-World Exercise 8 - Delete and Undo
+
+Create:
+
+```bash
+vim delete.txt
+```
+
+Add:
+
+```text
+Line 1
+Line 2
+Line 3
+Line 4
+Line 5
+```
+
+Practice:
+
+```text
+dd
+3dd
+u
+Ctrl+r
+```
+
+Observe what happens after each command.
+
+---
+
+# 77. Real-World Exercise 9 - Vim Configuration File
+
+Create:
+
+```bash
+vim application.conf
+```
+
+Add:
+
+```text
+server=localhost
+port=8080
+username=admin
+debug=true
+database=mysql
+```
+
+Practice:
+
+1. Change `8080` to `9090`.
+2. Change `admin` to `user`.
+3. Change `mysql` to `postgresql`.
+4. Search for `debug`.
+5. Save the file.
+6. Exit Vim.
+7. Reopen the file and verify your changes.
+
+---
+
+# 78. Real-World Exercise 10 - Cybersecurity Log Investigation
+
+Create:
+
+```bash
+vim auth.log
+```
+
+Add:
+
+```text
+192.168.1.10 LOGIN SUCCESS
+192.168.1.20 LOGIN FAILED
+192.168.1.30 LOGIN SUCCESS
+192.168.1.20 LOGIN FAILED
+192.168.1.40 LOGIN SUCCESS
+192.168.1.20 LOGIN FAILED
+192.168.1.50 LOGIN SUCCESS
+```
+
+Tasks:
+
+1. Find all failed login attempts.
+2. Search for the IP address `192.168.1.20`.
+3. Count how many times it appears using grep.
+4. Identify the suspicious IP address.
+5. Open the file in Vim.
+6. Search for the suspicious IP using Vim.
+7. Navigate between matches.
+
+Useful command:
+
+```bash
+grep -n "FAILED" auth.log
+```
+
+Another useful command:
+
+```bash
+grep -n "192.168.1.20" auth.log
+```
+
+---
+
+# 79. Mini Project - Linux Log Analyzer
+
+Create:
+
+```bash
+vim system.log
+```
+
+Add:
+
+```text
+INFO System started
+INFO User admin logged in
+WARNING Disk usage high
+ERROR Database connection failed
+INFO Backup started
+ERROR Authentication failed
+WARNING Memory usage high
+INFO Backup completed
+ERROR Permission denied
+INFO User admin logged out
+```
+
+Perform the following:
+
+### Task 1
+
+Find all errors:
+
+```bash
+grep "ERROR" system.log
+```
+
+### Task 2
+
+Find all warnings:
+
+```bash
+grep "WARNING" system.log
+```
+
+### Task 3
+
+Find all information messages:
+
+```bash
+grep "INFO" system.log
+```
+
+### Task 4
+
+Display line numbers:
+
+```bash
+grep -n "ERROR" system.log
+```
+
+### Task 5
+
+Open using Vim:
+
+```bash
+vim system.log
+```
+
+### Task 6
+
+Search:
+
+```text
+/ERROR
+```
+
+### Task 7
+
+Navigate between errors:
+
+```text
+n
+N
+```
+
+### Task 8
+
+Edit one line.
+
+### Task 9
+
+Save:
+
+```text
+:w
+```
+
+### Task 10
+
+Exit:
+
+```text
+:q
+```
+
+---
+
+# 80. Important Commands Learned Today
+
+## Regex / grep
+
+```bash
+grep "pattern" file
+grep -i "pattern" file
+grep -n "pattern" file
+grep -r "pattern" directory
+grep -w "word" file
+grep "^pattern" file
+grep "pattern$" file
+grep "[0-9]" file
+```
+
+## Vim
+
+```bash
+vim filename
+```
+
+Inside Vim:
+
+```text
+i
+I
+a
+A
+o
+O
+
+h
+j
+k
+l
+
+w
+b
+e
+0
+$
+gg
+G
+
+/pattern
+n
+N
+
+x
+dw
+dd
+D
+yy
+p
+P
+u
+Ctrl+r
+r
+cw
+cc
+
+:w
+:q
+:wq
+:q!
+ZZ
+```
+
+---
+
+# 81. What I Learned Today
+
+Today I learned how Linux handles text searching and editing from the command line.
+
+I learned that **Regular Expressions** allow us to search for patterns rather than only exact words.
+
+I learned how `grep` can be used to:
+
+* Search text
+* Search patterns
+* Search case-insensitively
+* Display line numbers
+* Search recursively
+* Search using character ranges
+* Search using beginning and end-of-line patterns
+
+I also learned about **text editors** and why they are important in Linux.
+
+I learned how to use **Vim**, including:
+
+* Vim modes
+* Normal mode
+* Insert mode
+* Command mode
+* Visual mode
+* Navigation
+* Searching
+* Search patterns
+* Inserting text
+* Appending text
+* Deleting text
+* Copying and pasting
+* Undo and redo
+* Saving files
+* Exiting Vim
+* Editing configuration files
+* Working with logs
+
+---
+
+# 82. Why These Skills Are Important for Cybersecurity
+
+These skills are particularly useful in cybersecurity because security professionals frequently work with text-based information.
+
+For example:
+
+```text
+Authentication Logs
+Web Server Logs
+Firewall Logs
+System Logs
+Application Logs
+Configuration Files
+Shell Scripts
+Network Information
+Forensic Evidence
+CTF Challenges
+```
+
+Regex can help identify patterns such as:
+
+```text
+IP addresses
+Email addresses
+Usernames
+Error messages
+Failed login attempts
+Suspicious strings
+File names
+URLs
+```
+
+Vim can then be used to quickly inspect and modify files directly from the Linux terminal.
+
+---
+
+# 83. Day 05 Quick Revision
+
+```text
+REGEX
+  ↓
+Search for patterns
+  ↓
+grep
+  ↓
+Filter text
+  ↓
+VIM
+  ↓
+Open and edit files
+  ↓
+Navigation
+  ↓
+Search
+  ↓
+Insert / Append
+  ↓
+Edit
+  ↓
+Save / Exit
+```
+
+---
+
+# 84. Final Day 05 Practice Challenge
+
+Without looking at the notes, try to complete the following:
+
+```text
+1. Create a file using Vim.
+2. Add 10 lines of log data.
+3. Save and exit Vim.
+4. Use grep to find ERROR messages.
+5. Display line numbers.
+6. Search for numbers using regex.
+7. Open the file again using Vim.
+8. Search for ERROR.
+9. Navigate between matches.
+10. Modify one line.
+11. Delete one line.
+12. Undo the deletion.
+13. Copy one line.
+14. Paste the copied line.
+15. Save and exit.
+```
+
+If you can complete all of these without referring to the notes, you have a good practical understanding of today's topics.
+
+---
+
+# DAY 04 SUMMARY
+
+## Linux Learning Progress
+
+```text
+DAY 01 → Linux Command Line Basics
+DAY 02 → Linux File and Directory Operations
+DAY 03 → Linux Input/Output and Text Processing
+DAY 04 → Regex + Text Editors + Vim
+```
+
+## Day 04 Main Topics
+
+```text
+Regular Expressions
+grep
+Regex Patterns
+Character Classes
+Ranges
+Beginning/End Patterns
+Text Editors
+Vim
+Vim Modes
+Vim Navigation
+Vim Search
+Vim Search Patterns
+Inserting Text
+Appending Text
+Deleting Text
+Copying
+Pasting
+Undo
+Redo
+Saving
+Exiting
+Vim Editing
+Practical Log Analysis
+```
+
+# END OF LINUX LEARNING - DAY 04
