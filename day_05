@@ -1,0 +1,1886 @@
+# LINUX LEARNING - DAY 05
+
+## Topic: Emacs Text Editor
+
+Today I learned about **Emacs**, a powerful text editor available in Linux.
+
+I learned how to:
+
+* Open and manipulate files using Emacs
+* Navigate through an Emacs buffer
+* Edit text using Emacs
+* Save and exit Emacs
+* Use Emacs help commands
+* Use Emacs commands in real-world situations
+
+---
+
+# 1. What is Emacs?
+
+**Emacs** is a powerful, extensible, and highly customizable text editor used in Linux and other operating systems.
+
+It can be used to:
+
+* Create files
+* Edit files
+* Read files
+* Navigate through large files
+* Search for text
+* Replace text
+* Save files
+* Work with multiple files
+* Run commands
+* Manage projects
+
+Emacs is different from simple editors because it provides many keyboard shortcuts and can be extended with additional functionality.
+
+### Basic Command
+
+```bash
+emacs
+```
+
+This opens Emacs without specifying a file.
+
+---
+
+# 2. Opening a File with Emacs
+
+We can open an existing file or create a new file using:
+
+```bash
+emacs filename
+```
+
+Example:
+
+```bash
+emacs notes.txt
+```
+
+If `notes.txt` already exists, Emacs opens it.
+
+If it does not exist, Emacs allows us to create it.
+
+### Real-World Example
+
+Suppose we have a file containing Linux study notes:
+
+```bash
+emacs linux_notes.txt
+```
+
+We can now read, modify, and save the notes using Emacs.
+
+---
+
+# 3. Emacs Interface
+
+When Emacs opens, we normally see:
+
+```text
++----------------------------------+
+|                                  |
+|          Editing Area            |
+|                                  |
+|                                  |
++----------------------------------+
+| Status / Information             |
++----------------------------------+
+| Command / Message Area           |
++----------------------------------+
+```
+
+The main editing area is called the **buffer**.
+
+---
+
+# 4. What is an Emacs Buffer?
+
+A **buffer** is an area in Emacs that contains the contents of a file or other information.
+
+When we open:
+
+```bash
+emacs notes.txt
+```
+
+Emacs loads the contents of `notes.txt` into a buffer.
+
+The buffer is where we actually work with the text.
+
+### Important Concept
+
+```text
+File
+  ↓
+Loaded into
+  ↓
+Emacs Buffer
+  ↓
+Edit the contents
+  ↓
+Save
+  ↓
+File updated
+```
+
+A buffer does not always represent a file. Emacs can also create buffers for things such as help pages, command output, and other activities.
+
+---
+
+# 5. Emacs Basic Keyboard Notation
+
+Emacs documentation often uses special notation.
+
+### C-x
+
+`C` means **Control**.
+
+So:
+
+```text
+C-x
+```
+
+means:
+
+```text
+Press Ctrl + x
+```
+
+### M-x
+
+`M` means **Meta**.
+
+On most modern keyboards, the **Alt** key is used as Meta.
+
+Therefore:
+
+```text
+M-x
+```
+
+usually means:
+
+```text
+Alt + x
+```
+
+If Alt does not work in a particular terminal, `Esc` followed by the key can often be used as Meta.
+
+---
+
+# 6. Opening and Creating Files
+
+Use:
+
+```bash
+emacs filename
+```
+
+Example:
+
+```bash
+emacs report.txt
+```
+
+If the file exists:
+
+```text
+Emacs opens the existing file.
+```
+
+If the file does not exist:
+
+```text
+Emacs creates a new buffer for the file.
+```
+
+The file is actually created on disk when we save it.
+
+---
+
+# 7. Creating a New File
+
+Suppose we want to create a cybersecurity notes file.
+
+Run:
+
+```bash
+emacs cybersecurity.txt
+```
+
+Type:
+
+```text
+Cybersecurity Learning Notes
+
+Topics:
+1. Linux
+2. Networking
+3. Python
+4. Digital Forensics
+```
+
+Then save the file.
+
+The file will be stored as:
+
+```text
+cybersecurity.txt
+```
+
+---
+
+# 8. Saving a File
+
+The shortcut for saving the current buffer is:
+
+```text
+C-x C-s
+```
+
+This means:
+
+```text
+Ctrl + x
+then
+Ctrl + s
+```
+
+### Real-World Example
+
+Suppose you edit:
+
+```text
+python_notes.txt
+```
+
+After making changes, use:
+
+```text
+C-x C-s
+```
+
+to save the changes.
+
+---
+
+# 9. Save As
+
+Emacs can save the current buffer under a different filename.
+
+Use:
+
+```text
+C-x C-w
+```
+
+This means:
+
+```text
+Ctrl + x
+Ctrl + w
+```
+
+Emacs will ask for a filename.
+
+Example:
+
+```text
+Save file as: backup_notes.txt
+```
+
+This allows you to create another file from the current buffer.
+
+---
+
+# 10. Opening Another File from Emacs
+
+Use:
+
+```text
+C-x C-f
+```
+
+This means:
+
+```text
+Ctrl + x
+Ctrl + f
+```
+
+Emacs will ask for a file name.
+
+Example:
+
+```text
+Find file: notes.txt
+```
+
+Then press Enter.
+
+---
+
+# 11. Emacs Buffer Navigation
+
+Navigation is one of the most important parts of using Emacs.
+
+We can move around a buffer without using the mouse.
+
+---
+
+# 12. Move Forward One Character
+
+Shortcut:
+
+```text
+C-f
+```
+
+Meaning:
+
+```text
+Ctrl + f
+```
+
+`f` means forward.
+
+Example:
+
+```text
+Linux
+ ^
+```
+
+Pressing `C-f` moves the cursor one character forward.
+
+---
+
+# 13. Move Backward One Character
+
+Shortcut:
+
+```text
+C-b
+```
+
+Meaning:
+
+```text
+Ctrl + b
+```
+
+`b` means backward.
+
+---
+
+# 14. Move Down One Line
+
+Shortcut:
+
+```text
+C-n
+```
+
+Meaning:
+
+```text
+Ctrl + n
+```
+
+`n` can be remembered as **next line**.
+
+---
+
+# 15. Move Up One Line
+
+Shortcut:
+
+```text
+C-p
+```
+
+Meaning:
+
+```text
+Ctrl + p
+```
+
+`p` can be remembered as **previous line**.
+
+---
+
+# 16. Navigation Shortcut Summary
+
+```text
+C-f  -> Forward one character
+C-b  -> Backward one character
+C-n  -> Next line
+C-p  -> Previous line
+```
+
+These four commands are fundamental Emacs navigation commands.
+
+---
+
+# 17. Move to Beginning of Line
+
+Shortcut:
+
+```text
+C-a
+```
+
+Meaning:
+
+```text
+Ctrl + a
+```
+
+This moves the cursor to the beginning of the current line.
+
+Example:
+
+```text
+        Linux is powerful
+        ^
+```
+
+---
+
+# 18. Move to End of Line
+
+Shortcut:
+
+```text
+C-e
+```
+
+Meaning:
+
+```text
+Ctrl + e
+```
+
+This moves the cursor to the end of the current line.
+
+Example:
+
+```text
+Linux is powerful
+                 ^
+```
+
+---
+
+# 19. Move Forward One Word
+
+Shortcut:
+
+```text
+M-f
+```
+
+Meaning:
+
+```text
+Alt + f
+```
+
+This moves the cursor forward by one word.
+
+---
+
+# 20. Move Backward One Word
+
+Shortcut:
+
+```text
+M-b
+```
+
+Meaning:
+
+```text
+Alt + b
+```
+
+This moves the cursor backward by one word.
+
+---
+
+# 21. Move to Beginning of Buffer
+
+Shortcut:
+
+```text
+M-<
+```
+
+Usually:
+
+```text
+Alt + <
+```
+
+This moves to the beginning of the buffer.
+
+---
+
+# 22. Move to End of Buffer
+
+Shortcut:
+
+```text
+M->
+```
+
+Usually:
+
+```text
+Alt + >
+```
+
+This moves to the end of the buffer.
+
+---
+
+# 23. Navigation Summary
+
+```text
+C-f    -> Forward character
+C-b    -> Backward character
+C-n    -> Next line
+C-p    -> Previous line
+
+C-a    -> Beginning of line
+C-e    -> End of line
+
+M-f    -> Forward one word
+M-b    -> Backward one word
+
+M-<    -> Beginning of buffer
+M->    -> End of buffer
+```
+
+---
+
+# 24. Searching for Text
+
+Emacs provides an incremental search feature.
+
+Shortcut:
+
+```text
+C-s
+```
+
+This means:
+
+```text
+Ctrl + s
+```
+
+After pressing `C-s`, type the text you want to find.
+
+Example:
+
+```text
+C-s
+```
+
+Then type:
+
+```text
+Linux
+```
+
+Emacs searches for `Linux` while you type.
+
+---
+
+# 25. Searching Backward
+
+Use:
+
+```text
+C-r
+```
+
+Meaning:
+
+```text
+Ctrl + r
+```
+
+This performs an incremental search backward.
+
+### Example
+
+If the buffer contains:
+
+```text
+Linux
+Python
+Linux Commands
+Networking
+Linux Security
+```
+
+Using:
+
+```text
+C-r
+```
+
+and searching for:
+
+```text
+Linux
+```
+
+moves backward through matching occurrences.
+
+---
+
+# 26. Real-World Search Example
+
+Suppose we have a large log file:
+
+```text
+server.log
+```
+
+Open it:
+
+```bash
+emacs server.log
+```
+
+Instead of manually reading thousands of lines, use:
+
+```text
+C-s
+```
+
+and search for:
+
+```text
+ERROR
+```
+
+This helps quickly locate error messages.
+
+---
+
+# 27. Canceling a Command
+
+If you accidentally start a command or search and want to cancel it, use:
+
+```text
+C-g
+```
+
+Meaning:
+
+```text
+Ctrl + g
+```
+
+This is commonly used to cancel the current Emacs command.
+
+### Real-World Example
+
+Suppose you press:
+
+```text
+C-s
+```
+
+and start searching for something, but you change your mind.
+
+Press:
+
+```text
+C-g
+```
+
+to cancel.
+
+---
+
+# 28. Inserting Text
+
+Emacs allows normal text insertion.
+
+Simply move the cursor to the required location and start typing.
+
+Example:
+
+```text
+Linux is an operating system.
+```
+
+Move the cursor after:
+
+```text
+Linux
+```
+
+and type:
+
+```text
+powerful
+```
+
+The text will be inserted at the cursor position.
+
+---
+
+# 29. Deleting Characters
+
+Use:
+
+```text
+C-d
+```
+
+to delete the character under the cursor.
+
+The Backspace key can also be used to delete the character before the cursor.
+
+---
+
+# 30. Delete Previous Character
+
+The Backspace key removes the character before the cursor.
+
+Example:
+
+```text
+Linuux
+    ^
+```
+
+Press Backspace to remove the unwanted character.
+
+Result:
+
+```text
+Linux
+```
+
+---
+
+# 31. Deleting Words
+
+Use:
+
+```text
+M-d
+```
+
+to delete the word after the cursor.
+
+To delete the previous word, use:
+
+```text
+M-Backspace
+```
+
+---
+
+# 32. Real-World Editing Example
+
+Suppose we have:
+
+```text
+Python is difficult to learn.
+```
+
+We want:
+
+```text
+Python is easy to learn.
+```
+
+Move the cursor to the word:
+
+```text
+difficult
+```
+
+Delete it and type:
+
+```text
+easy
+```
+
+This demonstrates basic text editing.
+
+---
+
+# 33. Cut and Copy Concepts in Emacs
+
+Emacs uses the concepts:
+
+```text
+Kill
+Yank
+```
+
+These are similar to:
+
+```text
+Cut
+Paste
+```
+
+### Kill
+
+Removing text and storing it for later use is called **killing**.
+
+### Yank
+
+Putting the killed text back is called **yanking**.
+
+---
+
+# 34. Kill a Line
+
+Use:
+
+```text
+C-k
+```
+
+This kills text from the cursor position to the end of the line.
+
+Example:
+
+```text
+Linux is a powerful operating system.
+     ^
+```
+
+Press:
+
+```text
+C-k
+```
+
+The text after the cursor is removed.
+
+---
+
+# 35. Yank Text
+
+Use:
+
+```text
+C-y
+```
+
+This yanks previously killed text back into the buffer.
+
+This is similar to pasting.
+
+---
+
+# 36. Real-World Kill and Yank Example
+
+Suppose you have:
+
+```text
+Name: Niranjan
+Course: MCA
+City: Bangalore
+```
+
+You want to move:
+
+```text
+Course: MCA
+```
+
+to another location.
+
+You can kill the relevant text and then use:
+
+```text
+C-y
+```
+
+to insert it at the desired location.
+
+---
+
+# 37. Undo Changes
+
+Use:
+
+```text
+C-x u
+```
+
+or:
+
+```text
+C-_
+```
+
+to undo changes.
+
+The easiest command to remember is:
+
+```text
+C-x u
+```
+
+### Real-World Example
+
+If you accidentally delete an important paragraph, use:
+
+```text
+C-x u
+```
+
+to undo the deletion.
+
+---
+
+# 38. Redo
+
+Emacs can also redo changes through its undo system.
+
+Repeated undo/redo operations allow you to move through previous editing states.
+
+The exact behavior depends on the Emacs version and undo system, so the safest beginner approach is to use:
+
+```text
+C-x u
+```
+
+and understand Emacs's undo history.
+
+---
+
+# 39. Selecting Text
+
+Emacs uses the concept of a **mark** to define a region.
+
+Start a region with:
+
+```text
+C-Space
+```
+
+Then move the cursor.
+
+The area between the mark and cursor becomes the selected region.
+
+---
+
+# 40. Kill Selected Text
+
+After selecting a region, use:
+
+```text
+C-w
+```
+
+to kill the selected text.
+
+This is similar to cutting selected text.
+
+---
+
+# 41. Copy Selected Text
+
+After selecting a region, use:
+
+```text
+M-w
+```
+
+to copy the selected text.
+
+Then use:
+
+```text
+C-y
+```
+
+to yank/paste it.
+
+---
+
+# 42. Editing Command Summary
+
+```text
+C-d       -> Delete character
+Backspace -> Delete previous character
+M-d       -> Delete next word
+M-Backspace -> Delete previous word
+
+C-k       -> Kill text to end of line
+C-w       -> Kill selected region
+M-w       -> Copy selected region
+C-y       -> Yank / paste
+
+C-x u     -> Undo
+C-g       -> Cancel command
+```
+
+---
+
+# 43. Emacs Help Commands
+
+Emacs contains a built-in help system.
+
+One of the most important commands is:
+
+```text
+C-h
+```
+
+This opens the Emacs help system.
+
+---
+
+# 44. General Help
+
+Press:
+
+```text
+C-h ?
+```
+
+This displays help about available help options.
+
+It is useful when you do not remember the exact help command.
+
+---
+
+# 45. Help for a Command
+
+Use:
+
+```text
+C-h k
+```
+
+This means:
+
+```text
+Ctrl + h
+Ctrl + k
+```
+
+It asks you to enter a key sequence and then explains what that key does.
+
+### Example
+
+Press:
+
+```text
+C-h k
+```
+
+Then press:
+
+```text
+C-x C-s
+```
+
+Emacs displays information about the save command.
+
+This is extremely useful for learning Emacs.
+
+---
+
+# 46. Help for a Function
+
+Use:
+
+```text
+C-h f
+```
+
+This displays documentation for an Emacs function.
+
+Example:
+
+```text
+C-h f
+```
+
+Then enter:
+
+```text
+save-buffer
+```
+
+Emacs displays information about that function.
+
+---
+
+# 47. Help for a Variable
+
+Use:
+
+```text
+C-h v
+```
+
+This displays information about an Emacs variable.
+
+Variables control many aspects of Emacs behavior.
+
+---
+
+# 48. Find Key Binding
+
+Use:
+
+```text
+C-h b
+```
+
+This displays the current buffer's key bindings.
+
+This is useful when learning keyboard shortcuts.
+
+---
+
+# 49. Describe Mode
+
+Use:
+
+```text
+C-h m
+```
+
+This describes the current major and minor modes.
+
+For example, if editing a Python file, Emacs may show information about the active programming mode.
+
+---
+
+# 50. Apropos Search
+
+Use:
+
+```text
+C-h a
+```
+
+This allows you to search for commands related to a keyword.
+
+For example, searching for:
+
+```text
+save
+```
+
+can show commands related to saving.
+
+---
+
+# 51. Help Command Summary
+
+```text
+C-h ? -> Help about help
+C-h k -> Describe a key
+C-h f -> Describe a function
+C-h v -> Describe a variable
+C-h b -> Show key bindings
+C-h m -> Describe current mode
+C-h a -> Search commands by keyword
+```
+
+---
+
+# 52. Exiting Emacs
+
+To exit Emacs, use:
+
+```text
+C-x C-c
+```
+
+Meaning:
+
+```text
+Ctrl + x
+Ctrl + c
+```
+
+If there are unsaved changes, Emacs asks whether you want to save them.
+
+---
+
+# 53. Exiting with Unsaved Changes
+
+Suppose we edit:
+
+```text
+notes.txt
+```
+
+and make changes without saving.
+
+When we use:
+
+```text
+C-x C-c
+```
+
+Emacs may ask:
+
+```text
+Save file?
+```
+
+We can choose:
+
+```text
+y -> Save
+n -> Don't save
+```
+
+---
+
+# 54. Save and Exit Workflow
+
+A common workflow is:
+
+```text
+Open file
+   ↓
+Edit file
+   ↓
+C-x C-s
+   ↓
+Save
+   ↓
+C-x C-c
+   ↓
+Exit Emacs
+```
+
+---
+
+# 55. Real-World Example: Creating Linux Notes
+
+Open a file:
+
+```bash
+emacs linux_notes.txt
+```
+
+Enter:
+
+```text
+Linux Learning Notes
+
+Today I learned:
+- pwd
+- ls
+- cd
+- mkdir
+- touch
+- cp
+- mv
+- rm
+```
+
+Save:
+
+```text
+C-x C-s
+```
+
+Exit:
+
+```text
+C-x C-c
+```
+
+Now the file is stored on the system.
+
+---
+
+# 56. Real-World Example: Editing a Configuration File
+
+Suppose we need to edit a configuration file:
+
+```bash
+emacs application.conf
+```
+
+We can:
+
+1. Open the file.
+2. Navigate using Emacs shortcuts.
+3. Search for a configuration option using `C-s`.
+4. Edit the required value.
+5. Save using `C-x C-s`.
+6. Exit using `C-x C-c`.
+
+This is one practical use of Emacs in Linux administration.
+
+---
+
+# 57. Real-World Example: Searching Logs
+
+Suppose we have:
+
+```bash
+emacs server.log
+```
+
+The log file contains thousands of lines.
+
+Instead of manually searching, use:
+
+```text
+C-s
+```
+
+Search for:
+
+```text
+ERROR
+```
+
+Then search for:
+
+```text
+WARNING
+```
+
+This allows us to quickly inspect important log entries.
+
+---
+
+# 58. Real-World Example: Editing Python Code
+
+Open a Python file:
+
+```bash
+emacs program.py
+```
+
+Example code:
+
+```python
+name = "Niranjan"
+
+print("Hello", name)
+```
+
+We can edit the code directly inside Emacs.
+
+Save:
+
+```text
+C-x C-s
+```
+
+Then exit:
+
+```text
+C-x C-c
+```
+
+Run the program from the terminal:
+
+```bash
+python3 program.py
+```
+
+---
+
+# 59. Emacs Important Commands Cheat Sheet
+
+## File Operations
+
+```text
+C-x C-f -> Open / find a file
+C-x C-s -> Save file
+C-x C-w -> Save as
+C-x C-c -> Exit Emacs
+```
+
+## Navigation
+
+```text
+C-f -> Forward character
+C-b -> Backward character
+C-n -> Next line
+C-p -> Previous line
+C-a -> Beginning of line
+C-e -> End of line
+M-f -> Forward word
+M-b -> Backward word
+M-< -> Beginning of buffer
+M-> -> End of buffer
+```
+
+## Searching
+
+```text
+C-s -> Search forward
+C-r -> Search backward
+C-g -> Cancel command
+```
+
+## Editing
+
+```text
+C-d -> Delete character
+C-k -> Kill to end of line
+C-w -> Kill selected region
+M-w -> Copy selected region
+C-y -> Yank / paste
+C-x u -> Undo
+```
+
+## Help
+
+```text
+C-h ? -> Help
+C-h k -> Describe key
+C-h f -> Describe function
+C-h v -> Describe variable
+C-h b -> Key bindings
+C-h m -> Describe mode
+C-h a -> Search commands
+```
+
+---
+
+# 60. Emacs vs Simple Text Editors
+
+Emacs is much more than a basic text editor.
+
+It can be used for:
+
+```text
+Text editing
+Programming
+File management
+Searching
+Project management
+Documentation
+Terminal interaction
+Customization
+```
+
+Because of its extensive functionality, Emacs is sometimes described as an **extensible editor** or even an **operating environment**.
+
+---
+
+# 61. Practice Exercise 1 - Create a File
+
+Open Emacs and create:
+
+```text
+linux_day05.txt
+```
+
+Add:
+
+```text
+Today I learned Emacs.
+Emacs is a powerful text editor.
+```
+
+Save the file.
+
+Then exit Emacs.
+
+---
+
+# 62. Practice Exercise 2 - Navigation
+
+Create a file containing:
+
+```text
+Linux
+Python
+Networking
+Cybersecurity
+Digital Forensics
+```
+
+Practice:
+
+```text
+C-f
+C-b
+C-n
+C-p
+C-a
+C-e
+```
+
+Observe how the cursor moves.
+
+---
+
+# 63. Practice Exercise 3 - Search
+
+Create a file containing:
+
+```text
+Linux is powerful.
+Python is popular.
+Linux is used in servers.
+Python is used in automation.
+Linux is important for cybersecurity.
+```
+
+Use:
+
+```text
+C-s
+```
+
+Search for:
+
+```text
+Linux
+```
+
+Then use:
+
+```text
+C-r
+```
+
+to search backward.
+
+---
+
+# 64. Practice Exercise 4 - Editing
+
+Create:
+
+```text
+message.txt
+```
+
+Add:
+
+```text
+Hello World
+Linux is difficult
+Python is difficult
+```
+
+Edit it to:
+
+```text
+Hello World
+Linux is powerful
+Python is easy to learn
+```
+
+Practice moving the cursor and deleting/inserting text.
+
+---
+
+# 65. Practice Exercise 5 - Kill and Yank
+
+Create:
+
+```text
+tasks.txt
+```
+
+Add:
+
+```text
+Learn Linux
+Learn Python
+Practice Networking
+Practice Cybersecurity
+```
+
+Practice:
+
+```text
+C-k
+C-w
+M-w
+C-y
+```
+
+Observe how text is removed, copied, and inserted.
+
+---
+
+# 66. Practice Exercise 6 - Undo
+
+Create:
+
+```text
+test.txt
+```
+
+Write:
+
+```text
+Linux
+Python
+Networking
+```
+
+Delete one line.
+
+Then use:
+
+```text
+C-x u
+```
+
+to undo your change.
+
+---
+
+# 67. Practice Exercise 7 - Help System
+
+Inside Emacs, practice:
+
+```text
+C-h k
+```
+
+Then press:
+
+```text
+C-x C-s
+```
+
+Find out what the command does.
+
+Then try:
+
+```text
+C-h f
+```
+
+and search for:
+
+```text
+save-buffer
+```
+
+---
+
+# 68. Practice Exercise 8 - Real-World Log Search
+
+Create:
+
+```text
+server.log
+```
+
+Add:
+
+```text
+INFO Server started
+INFO User logged in
+WARNING High memory usage
+ERROR Database connection failed
+INFO User logged out
+ERROR File not found
+```
+
+Open it using:
+
+```bash
+emacs server.log
+```
+
+Use:
+
+```text
+C-s
+```
+
+to find:
+
+```text
+ERROR
+```
+
+Then find:
+
+```text
+WARNING
+```
+
+This simulates searching through a real server log.
+
+---
+
+# 69. Practice Exercise 9 - Python File
+
+Create:
+
+```bash
+emacs hello.py
+```
+
+Add:
+
+```python
+name = "Niranjan"
+
+print("Hello", name)
+```
+
+Save using:
+
+```text
+C-x C-s
+```
+
+Exit using:
+
+```text
+C-x C-c
+```
+
+Run:
+
+```bash
+python3 hello.py
+```
+
+Expected output:
+
+```text
+Hello Niranjan
+```
+
+---
+
+# 70. Practice Exercise 10 - Complete Emacs Workflow
+
+Perform the following workflow:
+
+```text
+1. Open terminal
+2. Start Emacs
+3. Create a new file
+4. Enter some text
+5. Navigate through the text
+6. Search for a word
+7. Edit the word
+8. Delete some text
+9. Undo the deletion
+10. Save the file
+11. Exit Emacs
+12. Open the file again
+13. Verify the saved content
+```
+
+Command example:
+
+```bash
+emacs practice.txt
+```
+
+---
+
+# 71. What I Learned Today
+
+Today I learned about the **Emacs text editor** and how it can be used to create and modify files in Linux.
+
+The major concepts I practiced were:
+
+```text
+1. What is Emacs
+2. Opening Emacs
+3. Opening existing files
+4. Creating new files
+5. Understanding buffers
+6. Buffer navigation
+7. Character navigation
+8. Line navigation
+9. Word navigation
+10. Beginning and end of buffer navigation
+11. Searching text
+12. Editing text
+13. Deleting text
+14. Killing text
+15. Yanking text
+16. Copying text
+17. Undoing changes
+18. Saving files
+19. Save As
+20. Exiting Emacs
+21. Emacs help system
+22. Real-world file editing
+23. Searching server logs
+24. Editing Python files
+```
+
+# DAY 05 KEY TAKEAWAY
+
+The most important thing I learned today is that **Emacs is not just a simple text editor. It is a powerful and extensible environment that provides many keyboard-based commands for editing, navigating, searching, and managing text.**
+
+The basic workflow I learned is:
+
+```text
+Open
+  ↓
+Navigate
+  ↓
+Edit
+  ↓
+Search
+  ↓
+Save
+  ↓
+Exit
+```
+
+### Most Important Commands to Remember
+
+```text
+emacs filename     -> Open a file
+
+C-x C-f            -> Open/find file
+C-x C-s            -> Save file
+C-x C-w            -> Save as
+C-x C-c            -> Exit
+
+C-f                -> Forward
+C-b                -> Backward
+C-n                -> Next line
+C-p                -> Previous line
+C-a                -> Beginning of line
+C-e                -> End of line
+
+C-s                -> Search forward
+C-r                -> Search backward
+
+C-k                -> Kill to end of line
+C-y                -> Yank/paste
+C-x u              -> Undo
+C-g                -> Cancel
+
+C-h k              -> Help for key
+C-h f              -> Help for function
+C-h b              -> Key bindings
+C-h m              -> Describe mode
+```
+
+## Day 05 Completed: Emacs Text Editor
