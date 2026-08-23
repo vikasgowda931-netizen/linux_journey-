@@ -1,0 +1,1535 @@
+# LINUX LEARNING - DAY 06
+
+## Topic: User Management, Users and Groups
+
+Today I learned about **User Management, Users, and Groups in Linux** from LinuxJourney. I learned how Linux manages users, groups, permissions, and access to system resources.
+
+These concepts are very important for **Linux administration, cybersecurity, system security, and digital forensics**.
+
+---
+
+# 1. What is User Management in Linux?
+
+**User management** is the process of creating, modifying, deleting, and managing users on a Linux system.
+
+Linux is a **multi-user operating system**, which means multiple users can use the same system while having different permissions and access levels.
+
+For example:
+
+```text
+Administrator
+     |
+     +---- Developer
+     |
+     +---- Tester
+     |
+     +---- Guest
+```
+
+Each user can have different access to files, directories, applications, and system resources.
+
+### Real-World Example
+
+Imagine a company with:
+
+* System Administrator
+* Developers
+* HR Employees
+* Security Team
+* Interns
+
+The administrator may have access to almost everything, while an intern may have access only to specific folders.
+
+Linux uses users and groups to control this access.
+
+---
+
+# 2. Why Does Linux Need Users?
+
+Linux uses users to identify **who is accessing the system**.
+
+Every user can have:
+
+* Username
+* User ID (UID)
+* Password
+* Home directory
+* Login shell
+* Group memberships
+
+### Real-World Example
+
+Suppose three employees use the same Linux server:
+
+```text
+Rahul
+Vikas
+Arun
+```
+
+Linux needs to know which person is accessing a file.
+
+For example:
+
+```text
+/home/rahul/project.txt
+/home/vikas/project.txt
+/home/arun/project.txt
+```
+
+Each user can have different permissions.
+
+---
+
+# 3. What is a User?
+
+A **user** represents an account that can access a Linux system.
+
+A user account contains information that helps Linux identify and manage that account.
+
+Example:
+
+```text
+Username: rahul
+UID: 1001
+Home: /home/rahul
+Shell: /bin/bash
+```
+
+---
+
+# 4. Types of Users in Linux
+
+Linux generally has two broad categories of users:
+
+### 1. Regular Users
+
+These accounts are normally used by people.
+
+Example:
+
+```text
+rahul
+vikas
+arun
+```
+
+### 2. System Users
+
+System users are usually created for services and applications.
+
+Examples can include users associated with services such as:
+
+```text
+www-data
+mysql
+sshd
+```
+
+These accounts help services run with limited privileges instead of using the root account.
+
+---
+
+# 5. Root User
+
+The **root user** is the superuser in Linux.
+
+The root account has extremely powerful privileges.
+
+Root can:
+
+* Create users.
+* Delete users.
+* Change permissions.
+* Install software.
+* Modify system files.
+* Manage services.
+* Access protected files.
+
+The root user has UID:
+
+```text
+0
+```
+
+### Check Current User
+
+```bash
+whoami
+```
+
+Example output:
+
+```text
+root
+```
+
+### Real-World Example
+
+Think of root as the **system administrator** of a company.
+
+A normal employee may not be allowed to modify company security settings, but the administrator can.
+
+---
+
+# 6. Check the Current User
+
+The `whoami` command displays the username of the current user.
+
+```bash
+whoami
+```
+
+Example:
+
+```text
+rahul
+```
+
+### Real-World Example
+
+If multiple people use the same server, `whoami` helps you identify which account you are currently using.
+
+---
+
+# 7. Check User ID with id
+
+The `id` command displays information about a user.
+
+```bash
+id
+```
+
+Example:
+
+```text
+uid=1001(rahul) gid=1001(rahul) groups=1001(rahul)
+```
+
+It can show:
+
+* UID
+* GID
+* Group memberships
+
+You can also check another user:
+
+```bash
+id rahul
+```
+
+---
+
+# 8. What is UID?
+
+**UID** stands for **User ID**.
+
+Linux internally identifies users using numbers rather than usernames.
+
+Example:
+
+```text
+rahul → UID 1001
+vikas → UID 1002
+arun  → UID 1003
+```
+
+The username is mainly for humans, while Linux uses the UID internally.
+
+### Real-World Example
+
+Think of a UID like an employee ID.
+
+For example:
+
+```text
+Rahul → Employee ID 1001
+Vikas → Employee ID 1002
+```
+
+Linux similarly uses UIDs to identify users.
+
+---
+
+# 9. What is GID?
+
+**GID** stands for **Group ID**.
+
+A GID identifies a group.
+
+Example:
+
+```text
+developers → GID 1001
+testers    → GID 1002
+```
+
+Linux uses GIDs to manage group permissions.
+
+---
+
+# 10. What is a Group?
+
+A **group** is a collection of users.
+
+Groups make it easier to manage permissions for multiple users.
+
+For example:
+
+```text
+Developers Group
+----------------
+Rahul
+Vikas
+Arun
+```
+
+Instead of assigning permissions individually to every developer, we can assign permissions to the group.
+
+### Real-World Example
+
+A company may have:
+
+```text
+Developers
+Security Team
+HR Team
+Managers
+```
+
+Each group can have access to specific directories.
+
+---
+
+# 11. Why Are Groups Useful?
+
+Suppose a company has 50 developers.
+
+All developers need access to:
+
+```text
+/projects
+```
+
+Without groups, an administrator might need to manage permissions for every user individually.
+
+With a group:
+
+```text
+developers
+     |
+     +--- Rahul
+     +--- Vikas
+     +--- Arun
+     +--- ...
+```
+
+The administrator can give the group access to `/projects`.
+
+All members can then inherit the appropriate group permissions.
+
+---
+
+# 12. Primary Group
+
+Every user normally has a **primary group**.
+
+Example:
+
+```text
+User: rahul
+Primary Group: rahul
+```
+
+You can see the primary group using:
+
+```bash
+id rahul
+```
+
+Example:
+
+```text
+uid=1001(rahul) gid=1001(rahul) groups=1001(rahul),developers
+```
+
+Here:
+
+```text
+UID → 1001
+Primary GID → 1001
+Other group → developers
+```
+
+---
+
+# 13. Secondary Groups
+
+A user can belong to additional groups called **secondary groups**.
+
+Example:
+
+```text
+rahul
+ |
+ +--- developers
+ +--- security
+ +--- docker
+```
+
+The user may have permissions from multiple groups.
+
+Check them using:
+
+```bash
+groups rahul
+```
+
+---
+
+# 14. Check Your Groups
+
+Use:
+
+```bash
+groups
+```
+
+Example:
+
+```text
+rahul sudo developers
+```
+
+This shows the groups associated with the current user.
+
+---
+
+# 15. /etc/passwd
+
+One of the most important files related to users is:
+
+```text
+/etc/passwd
+```
+
+It contains information about user accounts.
+
+You can view it using:
+
+```bash
+cat /etc/passwd
+```
+
+A typical entry looks similar to:
+
+```text
+rahul:x:1001:1001:Rahul:/home/rahul:/bin/bash
+```
+
+The fields are separated by `:`.
+
+---
+
+# 16. Understanding /etc/passwd
+
+Example:
+
+```text
+rahul:x:1001:1001:Rahul:/home/rahul:/bin/bash
+```
+
+The fields represent:
+
+```text
+Username
+Password placeholder
+UID
+GID
+User information
+Home directory
+Login shell
+```
+
+So:
+
+```text
+rahul
+```
+
+is the username.
+
+```text
+1001
+```
+
+is the UID.
+
+```text
+1001
+```
+
+is the GID.
+
+```text
+/home/rahul
+```
+
+is the home directory.
+
+```text
+/bin/bash
+```
+
+is the login shell.
+
+---
+
+# 17. Why Is /etc/passwd Important?
+
+The `/etc/passwd` file is important for user management and Linux administration.
+
+It can help you determine:
+
+* Which users exist.
+* Their UIDs.
+* Their GIDs.
+* Their home directories.
+* Their login shells.
+
+### Real-World Example
+
+During security investigation, an administrator can inspect `/etc/passwd` to identify user accounts present on a system.
+
+---
+
+# 18. /etc/shadow
+
+Another important Linux file is:
+
+```text
+/etc/shadow
+```
+
+It contains password-related authentication information.
+
+Because this file contains sensitive authentication data, access is normally restricted.
+
+Check its permissions using:
+
+```bash
+ls -l /etc/shadow
+```
+
+Do not modify this file manually unless you know exactly what you are doing.
+
+---
+
+# 19. /etc/group
+
+The file:
+
+```text
+/etc/group
+```
+
+contains information about groups.
+
+View it using:
+
+```bash
+cat /etc/group
+```
+
+Example:
+
+```text
+developers:x:1002:rahul,vikas
+```
+
+This indicates a group called `developers`.
+
+---
+
+# 20. Creating a User
+
+The `useradd` command can be used to create a user.
+
+Example:
+
+```bash
+sudo useradd rahul
+```
+
+This creates a user named:
+
+```text
+rahul
+```
+
+### Real-World Example
+
+A company hires a new developer named Rahul.
+
+The administrator can create an account:
+
+```bash
+sudo useradd rahul
+```
+
+---
+
+# 21. Creating a User with a Home Directory
+
+A common option is:
+
+```bash
+sudo useradd -m rahul
+```
+
+The `-m` option creates a home directory for the user.
+
+Example:
+
+```text
+/home/rahul
+```
+
+### Verify
+
+```bash
+ls /home
+```
+
+You may see:
+
+```text
+rahul
+```
+
+---
+
+# 22. Setting a User Password
+
+The `passwd` command is used to set or change a user's password.
+
+```bash
+sudo passwd rahul
+```
+
+The system will ask you to enter a password.
+
+### Real-World Example
+
+When a new employee joins a company, the administrator creates the account and sets an initial password.
+
+---
+
+# 23. Creating a User with useradd
+
+Example:
+
+```bash
+sudo useradd -m -s /bin/bash rahul
+```
+
+Here:
+
+```text
+-m       → Create home directory
+-s       → Specify login shell
+/bin/bash → Bash shell
+rahul    → Username
+```
+
+---
+
+# 24. usermod Command
+
+The `usermod` command modifies an existing user account.
+
+Example:
+
+```bash
+sudo usermod -aG developers rahul
+```
+
+This adds Rahul to the `developers` group.
+
+### Important
+
+The `-aG` combination means:
+
+```text
+-a → append
+-G → supplementary groups
+```
+
+Using `-aG` helps preserve existing supplementary group memberships.
+
+---
+
+# 25. Changing a User's Shell
+
+The shell can be changed using:
+
+```bash
+sudo usermod -s /bin/bash rahul
+```
+
+Another shell might be:
+
+```text
+/bin/zsh
+```
+
+---
+
+# 26. Changing a User's Home Directory
+
+Example:
+
+```bash
+sudo usermod -d /home/newhome rahul
+```
+
+The `-d` option specifies the home directory.
+
+---
+
+# 27. Deleting a User
+
+The `userdel` command removes a user account.
+
+```bash
+sudo userdel rahul
+```
+
+This removes the user account, but depending on the command/options used, the home directory may remain.
+
+---
+
+# 28. Delete a User and Home Directory
+
+To remove the user's home directory as well:
+
+```bash
+sudo userdel -r rahul
+```
+
+The `-r` option removes the user's home directory and associated mail spool where applicable.
+
+### Important
+
+Be careful when using:
+
+```bash
+userdel -r
+```
+
+because deleting a user's home directory can permanently remove their files.
+
+---
+
+# 29. Creating a Group
+
+The `groupadd` command creates a new group.
+
+```bash
+sudo groupadd developers
+```
+
+This creates:
+
+```text
+developers
+```
+
+### Real-World Example
+
+A company creates a new development team.
+
+```text
+developers
+```
+
+All developers can then be added to this group.
+
+---
+
+# 30. Adding a User to a Group
+
+Use:
+
+```bash
+sudo usermod -aG developers rahul
+```
+
+Now Rahul belongs to the developers group.
+
+Verify:
+
+```bash
+groups rahul
+```
+
+---
+
+# 31. Removing a User from a Group
+
+On many Linux distributions, the `gpasswd` command can be used:
+
+```bash
+sudo gpasswd -d rahul developers
+```
+
+This removes Rahul from the `developers` group.
+
+---
+
+# 32. Deleting a Group
+
+The `groupdel` command deletes a group.
+
+```bash
+sudo groupdel developers
+```
+
+### Important
+
+Be careful when deleting groups because other users may depend on them for access control.
+
+---
+
+# 33. Switch User with su
+
+The `su` command means **switch user**.
+
+Example:
+
+```bash
+su rahul
+```
+
+This switches to the `rahul` user.
+
+To switch to a login shell for another user:
+
+```bash
+su - rahul
+```
+
+The `-` loads the target user's login environment.
+
+---
+
+# 34. Using sudo
+
+`sudo` means **superuser do**.
+
+It allows an authorized user to execute a command with elevated privileges.
+
+Example:
+
+```bash
+sudo apt update
+```
+
+Another example:
+
+```bash
+sudo useradd rahul
+```
+
+### Real-World Example
+
+A normal employee should not be able to modify system configuration.
+
+An authorized administrator can temporarily use elevated privileges:
+
+```bash
+sudo systemctl restart nginx
+```
+
+This is safer than always operating as root.
+
+---
+
+# 35. Why sudo is Important for Security
+
+Using `sudo` follows the principle of **least privilege**.
+
+Users should have only the privileges they need.
+
+For example:
+
+```text
+Normal User
+    |
+    +--- Read personal files
+    +--- Run applications
+    +--- Limited system access
+
+Administrator
+    |
+    +--- System configuration
+    +--- User management
+    +--- Software installation
+```
+
+This reduces the risk of accidental or unauthorized changes.
+
+---
+
+# 36. Checking Logged-In Users
+
+The `who` command shows users currently logged into the system.
+
+```bash
+who
+```
+
+Example:
+
+```text
+rahul   pts/0
+vikas   pts/1
+```
+
+---
+
+# 37. Using the w Command
+
+The `w` command provides information about logged-in users and what they are doing.
+
+```bash
+w
+```
+
+It can show information such as:
+
+* Username
+* Terminal
+* Login time
+* Idle time
+* Current activity
+
+---
+
+# 38. Using the last Command
+
+The `last` command displays information about previous logins.
+
+```bash
+last
+```
+
+This can be useful for system administration and security investigations.
+
+### Real-World Example
+
+If an administrator suspects unauthorized login activity, they can inspect login history using:
+
+```bash
+last
+```
+
+---
+
+# 39. User Home Directory
+
+Normal users usually have a home directory.
+
+Example:
+
+```text
+/home/rahul
+/home/vikas
+/home/arun
+```
+
+The home directory stores personal files and configuration for that user.
+
+### Check Your Home Directory
+
+```bash
+echo $HOME
+```
+
+Example:
+
+```text
+/home/rahul
+```
+
+---
+
+# 40. The HOME Environment Variable
+
+Linux uses the `$HOME` environment variable to identify the current user's home directory.
+
+```bash
+echo $HOME
+```
+
+Example:
+
+```text
+/home/rahul
+```
+
+---
+
+# 41. The Shell
+
+A shell is a program that allows users to interact with the operating system through commands.
+
+Examples:
+
+```text
+Bash
+Zsh
+Fish
+```
+
+A common shell is:
+
+```text
+/bin/bash
+```
+
+Check your shell:
+
+```bash
+echo $SHELL
+```
+
+---
+
+# 42. User Management and File Permissions
+
+Users and groups are closely connected to Linux file permissions.
+
+Example:
+
+```bash
+ls -l
+```
+
+Output may look like:
+
+```text
+-rw-r--r-- 1 rahul developers 1200 file.txt
+```
+
+Here:
+
+```text
+rahul      → File owner
+developers → Group owner
+```
+
+The permission section:
+
+```text
+-rw-r--r--
+```
+
+controls access for:
+
+```text
+Owner
+Group
+Others
+```
+
+---
+
+# 43. Owner, Group, and Others
+
+Linux permissions are divided into three categories:
+
+```text
+Owner
+Group
+Others
+```
+
+For example:
+
+```text
+-rwxr-xr--
+```
+
+Can be interpreted as:
+
+```text
+Owner  → rwx
+Group  → r-x
+Others → r--
+```
+
+Where:
+
+```text
+r = read
+w = write
+x = execute
+```
+
+---
+
+# 44. Real-World User and Group Example
+
+Imagine a company server:
+
+```text
+Company Server
+|
++-- Developers
+|    +-- Rahul
+|    +-- Vikas
+|
++-- Security
+|    +-- Arun
+|    +-- Kiran
+|
++-- HR
+     +-- Priya
+     +-- Anjali
+```
+
+Directories could be:
+
+```text
+/projects
+/security
+/hr
+```
+
+Permissions can then be assigned according to groups.
+
+For example:
+
+```text
+Developers → /projects
+Security   → /security
+HR         → /hr
+```
+
+This prevents unnecessary access.
+
+---
+
+# 45. User Management in Cybersecurity
+
+User management is extremely important in cybersecurity.
+
+It helps administrators:
+
+* Control access.
+* Prevent unauthorized access.
+* Separate responsibilities.
+* Monitor login activity.
+* Protect sensitive files.
+* Manage privileged accounts.
+* Investigate suspicious activity.
+
+### Example
+
+Suppose an attacker obtains a normal user's credentials.
+
+If the account has limited permissions, the attacker's ability to modify the entire system is also limited.
+
+This demonstrates the importance of **least privilege**.
+
+---
+
+# 46. User Management in Digital Forensics
+
+User information can also be useful during forensic investigations.
+
+Investigators may examine:
+
+```text
+/etc/passwd
+/etc/group
+/etc/shadow
+```
+
+and login history to understand:
+
+* What accounts existed.
+* Which groups users belonged to.
+* Which accounts had elevated privileges.
+* Login activity.
+* Possible suspicious accounts.
+
+---
+
+# 47. Important Commands Learned
+
+```bash
+whoami
+id
+groups
+cat /etc/passwd
+cat /etc/group
+ls -l /etc/shadow
+useradd
+passwd
+usermod
+userdel
+groupadd
+groupdel
+gpasswd
+su
+sudo
+who
+w
+last
+echo $HOME
+echo $SHELL
+```
+
+---
+
+# 48. Practice Exercises
+
+## Exercise 1: Check Current User
+
+Run:
+
+```bash
+whoami
+```
+
+Find out which user account you are currently using.
+
+---
+
+## Exercise 2: Check User Information
+
+Run:
+
+```bash
+id
+```
+
+Identify:
+
+```text
+UID
+GID
+Groups
+```
+
+---
+
+## Exercise 3: Check Your Groups
+
+Run:
+
+```bash
+groups
+```
+
+List all groups associated with your current user.
+
+---
+
+## Exercise 4: Explore /etc/passwd
+
+Run:
+
+```bash
+cat /etc/passwd
+```
+
+Find:
+
+* Three usernames.
+* Their UIDs.
+* Their home directories.
+* Their shells.
+
+---
+
+## Exercise 5: Explore /etc/group
+
+Run:
+
+```bash
+cat /etc/group
+```
+
+Find three groups and identify their members if listed.
+
+---
+
+## Exercise 6: Create a Test User
+
+If you have administrator privileges:
+
+```bash
+sudo useradd -m testuser
+```
+
+Check:
+
+```bash
+id testuser
+```
+
+---
+
+## Exercise 7: Set a Password
+
+```bash
+sudo passwd testuser
+```
+
+Set a test password.
+
+---
+
+## Exercise 8: Create a Group
+
+```bash
+sudo groupadd testgroup
+```
+
+Verify:
+
+```bash
+getent group testgroup
+```
+
+---
+
+## Exercise 9: Add User to Group
+
+```bash
+sudo usermod -aG testgroup testuser
+```
+
+Check:
+
+```bash
+groups testuser
+```
+
+---
+
+## Exercise 10: Check Login History
+
+Run:
+
+```bash
+last
+```
+
+Observe the login history of your system.
+
+---
+
+# 49. Mini Practice Project
+
+## Linux User and Group Management Lab
+
+Create a small company structure.
+
+### Step 1: Create groups
+
+```bash
+sudo groupadd developers
+sudo groupadd security
+sudo groupadd testers
+```
+
+### Step 2: Create users
+
+```bash
+sudo useradd -m rahul
+sudo useradd -m vikas
+sudo useradd -m arun
+```
+
+### Step 3: Add users to groups
+
+```bash
+sudo usermod -aG developers rahul
+sudo usermod -aG developers vikas
+sudo usermod -aG security arun
+```
+
+### Step 4: Check users
+
+```bash
+id rahul
+id vikas
+id arun
+```
+
+### Step 5: Check groups
+
+```bash
+groups rahul
+groups vikas
+groups arun
+```
+
+### Step 6: Check the user database
+
+```bash
+cat /etc/passwd
+```
+
+### Step 7: Check group information
+
+```bash
+cat /etc/group
+```
+
+This exercise demonstrates how Linux can manage users and groups in a real company environment.
+
+---
+
+# 50. Important Concepts to Remember
+
+```text
+User
+    ↓
+UID
+    ↓
+Primary Group
+    ↓
+Secondary Groups
+    ↓
+Permissions
+    ↓
+Access Control
+```
+
+The basic relationship is:
+
+```text
+User → Group → Permissions → Resources
+```
+
+For example:
+
+```text
+Rahul
+  ↓
+Developers
+  ↓
+Read/Write access
+  ↓
+/projects
+```
+
+---
+
+# 51. Key Takeaways
+
+Today I learned:
+
+* Linux is a multi-user operating system.
+* Users identify people or services on a Linux system.
+* Root is the superuser and has extensive privileges.
+* UID uniquely identifies a user.
+* GID identifies a group.
+* Groups allow multiple users to share permissions.
+* Users have primary and secondary groups.
+* `/etc/passwd` stores user account information.
+* `/etc/shadow` stores password-related authentication information.
+* `/etc/group` stores group information.
+* `useradd` creates users.
+* `passwd` manages passwords.
+* `usermod` modifies users.
+* `userdel` deletes users.
+* `groupadd` creates groups.
+* `groupdel` deletes groups.
+* `gpasswd` can manage group membership.
+* `su` switches users.
+* `sudo` allows authorized users to execute privileged commands.
+* `whoami` identifies the current user.
+* `id` displays UID, GID, and group information.
+* `groups` displays group membership.
+* `who` shows currently logged-in users.
+* `w` shows logged-in users and their activity.
+* `last` displays login history.
+* User and group management is an important part of Linux security.
+* Proper user management follows the principle of least privilege.
+
+---
+
+# 52. Day 06 Summary
+
+**Learning Platform:** LinuxJourney
+
+**Topic:** User Management, Users and Groups
+
+**Main Concepts Covered:**
+
+```text
+Linux Users
+User Management
+Root User
+Regular Users
+System Users
+UID
+GID
+Groups
+Primary Groups
+Secondary Groups
+/etc/passwd
+/etc/shadow
+/etc/group
+useradd
+passwd
+usermod
+userdel
+groupadd
+groupdel
+gpasswd
+su
+sudo
+whoami
+id
+groups
+who
+w
+last
+HOME
+Shell
+File Ownership
+User Permissions
+Group Permissions
+Least Privilege
+Cybersecurity Applications
+Digital Forensics Applications
+Practice Exercises
+Mini Project
+```
+
+## Final Understanding
+
+Linux uses **users and groups to control who can access system resources and what they are allowed to do**.
+
+The most important relationship to remember is:
+
+```text
+USER
+  ↓
+GROUP
+  ↓
+PERMISSIONS
+  ↓
+ACCESS TO FILES AND RESOURCES
+```
+
+Understanding user management is essential for becoming comfortable with Linux and is especially useful for **Linux administration, cybersecurity, penetration testing, and digital forensics**.
+
+**Day 06 Completed — Linux User Management, Users and Groups ✅**
