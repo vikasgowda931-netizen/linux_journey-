@@ -1,0 +1,1644 @@
+# LINUX LEARNING - DAY 07
+
+## Topic: Root, /etc/passwd and User Management in Linux
+
+Today I learned about **Linux user management**, especially the **root user**, `/etc/passwd`, `/etc/shadow`, user accounts, groups, user IDs, and important commands used to manage users.
+
+I also practiced these concepts using real-world examples.
+
+---
+
+# 1. What is User Management in Linux?
+
+Linux is a **multi-user operating system**.
+
+This means multiple users can have accounts on the same Linux system.
+
+For example, imagine a company server:
+
+```text
+Linux Server
+│
+├── root
+├── administrator
+├── developer
+├── analyst
+└── guest
+```
+
+Each user can have different:
+
+* Username
+* Password
+* User ID
+* Group membership
+* Home directory
+* Permissions
+* Shell
+
+User management is the process of:
+
+* Creating users
+* Deleting users
+* Changing users
+* Managing passwords
+* Managing groups
+* Controlling permissions
+* Managing user access
+
+---
+
+# 2. What is Root User?
+
+The **root user** is the superuser in Linux.
+
+The root user has almost complete control over the system.
+
+The root user can:
+
+* Create users
+* Delete users
+* Install software
+* Modify system files
+* Change permissions
+* Change ownership
+* Stop services
+* Modify network configuration
+* Access protected files
+* Manage other users
+
+The root user has a UID of:
+
+```text
+0
+```
+
+You can check the current user:
+
+```bash
+whoami
+```
+
+Example output:
+
+```text
+root
+```
+
+If you are logged in as root, you have administrative privileges.
+
+---
+
+# 3. Real-World Example of Root
+
+Imagine a company building.
+
+There are normal employees and there is a building administrator.
+
+Normal employees may be allowed to:
+
+```text
+Enter office
+Use computers
+Access their files
+```
+
+But the administrator may be allowed to:
+
+```text
+Create employee accounts
+Change access
+Open restricted rooms
+Remove employee access
+```
+
+Similarly, in Linux:
+
+```text
+Normal User → Limited permissions
+
+Root User → Administrative privileges
+```
+
+---
+
+# 4. Why Should We Avoid Using Root All the Time?
+
+Although root has powerful privileges, using root for everything is dangerous.
+
+For example:
+
+```bash
+rm -rf /
+```
+
+A command like this executed with sufficient privileges can cause catastrophic damage.
+
+Therefore, it is safer to:
+
+```text
+Use normal user account
+        ↓
+Use sudo when administrative privileges are required
+```
+
+Example:
+
+```bash
+sudo apt update
+```
+
+Instead of logging in as root permanently.
+
+---
+
+# 5. What is sudo?
+
+`sudo` means:
+
+```text
+SuperUser DO
+```
+
+It allows an authorized user to execute a command with elevated privileges.
+
+Example:
+
+```bash
+sudo apt update
+```
+
+Another example:
+
+```bash
+sudo systemctl restart ssh
+```
+
+The user temporarily gets the required privileges for that command.
+
+---
+
+# 6. Real-World Example of sudo
+
+Suppose you are a developer in a company.
+
+You are allowed to install approved software but you should not have unrestricted administrator access.
+
+You might run:
+
+```bash
+sudo apt install git
+```
+
+The system asks for authentication and then executes the command with elevated privileges.
+
+This follows the principle:
+
+```text
+Normal access by default
+        +
+Administrative access only when needed
+```
+
+---
+
+# 7. Checking the Current User
+
+Use:
+
+```bash
+whoami
+```
+
+Example:
+
+```bash
+whoami
+```
+
+Output:
+
+```text
+niranjan
+```
+
+This tells you the username of the current account.
+
+---
+
+# 8. Using id Command
+
+The `id` command displays information about a user.
+
+```bash
+id
+```
+
+Example output:
+
+```text
+uid=1000(niranjan) gid=1000(niranjan) groups=1000(niranjan),27(sudo)
+```
+
+This information tells us:
+
+```text
+uid  → User ID
+gid  → Primary Group ID
+groups → Groups the user belongs to
+```
+
+---
+
+# 9. What is UID?
+
+UID means:
+
+```text
+User ID
+```
+
+Linux internally identifies users using numbers.
+
+Example:
+
+```text
+Username → niranjan
+UID      → 1000
+```
+
+Root has:
+
+```text
+UID = 0
+```
+
+Normal users commonly have UIDs starting from a higher range, depending on the Linux distribution and configuration.
+
+---
+
+# 10. What is GID?
+
+GID means:
+
+```text
+Group ID
+```
+
+Groups are used to organize users and control access.
+
+Example:
+
+```text
+User:
+niranjan
+
+UID:
+1000
+
+Primary Group:
+developers
+
+GID:
+1001
+```
+
+---
+
+# 11. What is /etc/passwd?
+
+The `/etc/passwd` file contains information about user accounts on a Linux system.
+
+It is one of the most important files for understanding Linux user management.
+
+View it using:
+
+```bash
+cat /etc/passwd
+```
+
+Example:
+
+```text
+root:x:0:0:root:/root:/bin/bash
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+```
+
+Each line represents a user account.
+
+---
+
+# 12. Structure of /etc/passwd
+
+A `/etc/passwd` entry contains **7 fields** separated by colons (`:`).
+
+Example:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+```
+
+The structure is:
+
+```text
+username:password_placeholder:UID:GID:GECOS:home_directory:login_shell
+```
+
+---
+
+# 13. Field 1 - Username
+
+Example:
+
+```text
+niranjan
+```
+
+The first field is the username.
+
+Example:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+^^^^^^^
+```
+
+This identifies the user account.
+
+---
+
+# 14. Field 2 - Password Placeholder
+
+Example:
+
+```text
+x
+```
+
+Older Unix systems could store password hashes in this field.
+
+Modern Linux systems normally store password hashes in `/etc/shadow`, so `/etc/passwd` commonly contains:
+
+```text
+x
+```
+
+This does **not** mean the user's password is literally `x`.
+
+---
+
+# 15. Field 3 - UID
+
+Example:
+
+```text
+1000
+```
+
+The third field represents the User ID.
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+          ↑
+         UID
+```
+
+Root:
+
+```text
+root:x:0:0:root:/root:/bin/bash
+       ↑
+      UID 0
+```
+
+---
+
+# 16. Field 4 - GID
+
+The fourth field is the user's primary Group ID.
+
+Example:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+               ↑
+              GID
+```
+
+Here:
+
+```text
+UID = 1000
+GID = 1000
+```
+
+---
+
+# 17. Field 5 - GECOS
+
+The fifth field contains additional information about the user.
+
+Example:
+
+```text
+Niranjan
+```
+
+It can contain information such as:
+
+```text
+Full name
+Office information
+Phone number
+Other descriptive information
+```
+
+Example:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+                         ↑
+                       GECOS
+```
+
+---
+
+# 18. Field 6 - Home Directory
+
+The sixth field specifies the user's home directory.
+
+Example:
+
+```text
+/home/niranjan
+```
+
+Example entry:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+                                  ↑
+                           Home Directory
+```
+
+When the user logs in, this normally becomes their working home directory.
+
+You can check it using:
+
+```bash
+echo $HOME
+```
+
+Example:
+
+```text
+/home/niranjan
+```
+
+---
+
+# 19. Field 7 - Login Shell
+
+The seventh field specifies the user's default login shell.
+
+Example:
+
+```text
+/bin/bash
+```
+
+Complete entry:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+                                              ↑
+                                         Login Shell
+```
+
+Other shells may include:
+
+```text
+/bin/sh
+/bin/bash
+/bin/zsh
+/bin/fish
+```
+
+A user may also have a non-login shell such as:
+
+```text
+/usr/sbin/nologin
+```
+
+which is often used for service accounts that should not be used for interactive login.
+
+---
+
+# 20. Understanding a Complete /etc/passwd Entry
+
+Consider:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+```
+
+Break it down:
+
+```text
+Username       = niranjan
+Password field = x
+UID            = 1000
+GID            = 1000
+GECOS          = Niranjan
+Home directory = /home/niranjan
+Shell          = /bin/bash
+```
+
+---
+
+# 21. Viewing Specific Users From /etc/passwd
+
+Use:
+
+```bash
+grep '^root:' /etc/passwd
+```
+
+Example:
+
+```text
+root:x:0:0:root:/root:/bin/bash
+```
+
+For another user:
+
+```bash
+grep '^niranjan:' /etc/passwd
+```
+
+This searches for the exact username at the beginning of a line.
+
+---
+
+# 22. Using getent passwd
+
+Another useful command is:
+
+```bash
+getent passwd
+```
+
+This displays account information from the system's configured account databases.
+
+To search for one user:
+
+```bash
+getent passwd niranjan
+```
+
+Example output:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+```
+
+---
+
+# 23. What is /etc/shadow?
+
+`/etc/shadow` stores password-related information for local user accounts, including password hashes and password-aging information.
+
+View it with:
+
+```bash
+sudo cat /etc/shadow
+```
+
+You normally need elevated privileges to read it.
+
+Example structure:
+
+```text
+niranjan:$6$...:20000:0:99999:7:::
+```
+
+The exact format and hash algorithm can vary by system.
+
+---
+
+# 24. Difference Between /etc/passwd and /etc/shadow
+
+## /etc/passwd
+
+Contains information such as:
+
+```text
+Username
+UID
+GID
+Home directory
+Login shell
+```
+
+## /etc/shadow
+
+Contains sensitive password-related information such as:
+
+```text
+Password hash
+Password aging information
+Account expiration information
+```
+
+Simple comparison:
+
+```text
+/etc/passwd
+      ↓
+User account information
+
+/etc/shadow
+      ↓
+Password and account-aging information
+```
+
+---
+
+# 25. Why Is /etc/shadow Protected?
+
+Password hashes are sensitive information.
+
+Therefore, access to `/etc/shadow` is restricted.
+
+A normal user may receive:
+
+```text
+Permission denied
+```
+
+when trying to read it directly.
+
+An administrator can inspect it using appropriate privileges:
+
+```bash
+sudo cat /etc/shadow
+```
+
+Never share real password hashes publicly.
+
+---
+
+# 26. Creating a New User
+
+The `useradd` command can create a user.
+
+Example:
+
+```bash
+sudo useradd student
+```
+
+This creates the account.
+
+However, depending on the options and distribution, you may also want to create a home directory:
+
+```bash
+sudo useradd -m student
+```
+
+Here:
+
+```text
+-m
+```
+
+means create the user's home directory.
+
+---
+
+# 27. Creating a User With a Home Directory and Shell
+
+Example:
+
+```bash
+sudo useradd -m -s /bin/bash student
+```
+
+This means:
+
+```text
+-m        → Create home directory
+-s        → Specify login shell
+/bin/bash → Bash shell
+```
+
+---
+
+# 28. Setting a User Password
+
+Use:
+
+```bash
+sudo passwd student
+```
+
+The system will ask you to enter and confirm a password.
+
+Example:
+
+```text
+New password:
+Retype new password:
+passwd: password updated successfully
+```
+
+---
+
+# 29. Real-World User Creation Example
+
+Imagine a company hires a new developer named `developer1`.
+
+An administrator can create the account:
+
+```bash
+sudo useradd -m -s /bin/bash developer1
+```
+
+Then set a password:
+
+```bash
+sudo passwd developer1
+```
+
+The resulting account can have:
+
+```text
+Username:
+developer1
+
+Home:
+ /home/developer1
+
+Shell:
+/bin/bash
+```
+
+---
+
+# 30. Changing User Information
+
+The `usermod` command is used to modify user accounts.
+
+Example:
+
+```bash
+sudo usermod -s /bin/zsh student
+```
+
+This changes the user's login shell to Zsh.
+
+---
+
+# 31. Changing a User's Home Directory
+
+Example:
+
+```bash
+sudo usermod -d /home/newstudent student
+```
+
+The `-d` option specifies the home directory.
+
+To move existing home-directory contents as well, an administrator may use:
+
+```bash
+sudo usermod -d /home/newstudent -m student
+```
+
+---
+
+# 32. Locking a User Account
+
+Use:
+
+```bash
+sudo passwd -l student
+```
+
+This locks password-based access to the account.
+
+This can be useful when an employee temporarily leaves the organization.
+
+---
+
+# 33. Unlocking a User Account
+
+Use:
+
+```bash
+sudo passwd -u student
+```
+
+This unlocks the account's password.
+
+---
+
+# 34. Deleting a User
+
+Use:
+
+```bash
+sudo userdel student
+```
+
+This removes the user account.
+
+To remove the user's home directory as well:
+
+```bash
+sudo userdel -r student
+```
+
+Be careful with `-r` because it deletes the user's home directory and its contents.
+
+---
+
+# 35. What Are Groups?
+
+A group is a collection of users.
+
+Groups make permission management easier.
+
+Example:
+
+```text
+Developers
+│
+├── Alice
+├── Rahul
+└── Niranjan
+```
+
+Instead of giving permissions individually to every user, administrators can assign permissions to the group.
+
+---
+
+# 36. Viewing Groups
+
+Use:
+
+```bash
+groups
+```
+
+Example:
+
+```text
+niranjan sudo developers
+```
+
+This means the current user belongs to those groups.
+
+For another user:
+
+```bash
+groups niranjan
+```
+
+---
+
+# 37. Using id to View Groups
+
+```bash
+id niranjan
+```
+
+Example:
+
+```text
+uid=1000(niranjan) gid=1000(niranjan) groups=1000(niranjan),27(sudo),1001(developers)
+```
+
+This provides:
+
+```text
+UID
+Primary GID
+Supplementary groups
+```
+
+---
+
+# 38. Creating a Group
+
+Use:
+
+```bash
+sudo groupadd developers
+```
+
+This creates a group called:
+
+```text
+developers
+```
+
+---
+
+# 39. Adding a User to a Group
+
+Use:
+
+```bash
+sudo usermod -aG developers niranjan
+```
+
+Meaning:
+
+```text
+usermod → Modify user
+-a       → Append
+-G       → Supplementary group
+developers → Group name
+niranjan   → User
+```
+
+The `-a` is important because it appends the group instead of replacing the user's existing supplementary groups.
+
+---
+
+# 40. Real-World Group Example
+
+Imagine a company has:
+
+```text
+Developers
+Cybersecurity
+HR
+Finance
+```
+
+You can create groups:
+
+```bash
+sudo groupadd developers
+sudo groupadd cybersecurity
+sudo groupadd finance
+```
+
+Then add users to the appropriate groups.
+
+For example:
+
+```bash
+sudo usermod -aG developers niranjan
+```
+
+Now the user can receive permissions assigned to the `developers` group.
+
+---
+
+# 41. Removing a User From a Group
+
+On systems using GNU `usermod`, you can use:
+
+```bash
+sudo gpasswd -d niranjan developers
+```
+
+This removes `niranjan` from the `developers` group.
+
+---
+
+# 42. Viewing /etc/group
+
+The `/etc/group` file contains local group information.
+
+View it using:
+
+```bash
+cat /etc/group
+```
+
+Example:
+
+```text
+developers:x:1001:niranjan,rahul
+```
+
+The fields generally represent:
+
+```text
+group_name:password_placeholder:GID:group_members
+```
+
+---
+
+# 43. Important User Management Files
+
+Linux commonly uses several important files:
+
+```text
+/etc/passwd
+/etc/shadow
+/etc/group
+/etc/gshadow
+```
+
+Their basic purposes are:
+
+```text
+/etc/passwd
+    ↓
+User account information
+
+/etc/shadow
+    ↓
+Password hashes and password aging
+
+/etc/group
+    ↓
+Group information
+
+/etc/gshadow
+    ↓
+Secure group-related information
+```
+
+---
+
+# 44. Checking Whether a User Exists
+
+Use:
+
+```bash
+id username
+```
+
+Example:
+
+```bash
+id student
+```
+
+If the user exists, Linux displays information about the account.
+
+Another method:
+
+```bash
+getent passwd student
+```
+
+---
+
+# 45. Listing Users
+
+You can inspect local user entries using:
+
+```bash
+cat /etc/passwd
+```
+
+However, `/etc/passwd` may contain both human users and system/service accounts.
+
+A more accurate way to understand local account ranges is to inspect the UID values configured by the distribution rather than assuming every entry is a human user.
+
+---
+
+# 46. System Users
+
+Linux also has accounts used by services.
+
+Examples may include:
+
+```text
+www-data
+nobody
+daemon
+messagebus
+```
+
+These accounts are often used so services do not have to run as root.
+
+For example:
+
+```text
+Web Server
+    ↓
+www-data user
+```
+
+This helps reduce the impact of a compromised service.
+
+---
+
+# 47. Root vs Normal User
+
+| Feature                           | Root                            | Normal User                 |
+| --------------------------------- | ------------------------------- | --------------------------- |
+| UID                               | 0                               | Usually non-zero            |
+| Administrative access             | Very high                       | Limited                     |
+| Can manage users                  | Yes                             | Usually no                  |
+| Can modify protected system files | Yes                             | Usually no                  |
+| Home directory                    | `/root`                         | Usually `/home/username`    |
+| Typical shell                     | `/bin/bash` or configured shell | Distribution/user dependent |
+| Risk if compromised               | Very high                       | Usually more limited        |
+
+---
+
+# 48. Real-World Cybersecurity Example
+
+Suppose an attacker compromises a normal web-server account.
+
+If the web server runs as:
+
+```text
+root
+```
+
+the attacker may gain extremely powerful privileges.
+
+But if it runs as:
+
+```text
+www-data
+```
+
+with restricted permissions, the attacker's initial access may be more limited.
+
+This is an example of the **principle of least privilege**.
+
+---
+
+# 49. Principle of Least Privilege
+
+The principle of least privilege means:
+
+```text
+Give a user or process only the permissions it actually needs.
+```
+
+For example:
+
+A web server does not normally need unrestricted access to:
+
+```text
+/etc/shadow
+/root
+```
+
+Therefore, it should run with a restricted service account whenever possible.
+
+---
+
+# 50. Useful Commands Learned Today
+
+```bash
+whoami
+```
+
+Shows the current username.
+
+```bash
+id
+```
+
+Shows UID, GID and groups.
+
+```bash
+cat /etc/passwd
+```
+
+Displays passwd database entries.
+
+```bash
+getent passwd
+```
+
+Queries the passwd account database.
+
+```bash
+sudo cat /etc/shadow
+```
+
+Displays shadow information with appropriate privileges.
+
+```bash
+cat /etc/group
+```
+
+Displays group information.
+
+```bash
+groups
+```
+
+Displays the current user's groups.
+
+```bash
+sudo useradd -m username
+```
+
+Creates a user with a home directory.
+
+```bash
+sudo passwd username
+```
+
+Sets or changes a user's password.
+
+```bash
+sudo usermod
+```
+
+Modifies a user account.
+
+```bash
+sudo userdel username
+```
+
+Deletes a user.
+
+```bash
+sudo groupadd groupname
+```
+
+Creates a group.
+
+```bash
+sudo usermod -aG groupname username
+```
+
+Adds a user to a supplementary group.
+
+```bash
+sudo passwd -l username
+```
+
+Locks a user's password.
+
+```bash
+sudo passwd -u username
+```
+
+Unlocks a user's password.
+
+---
+
+# 51. Practice Exercise 1 - Identify Current User
+
+Run:
+
+```bash
+whoami
+```
+
+Question:
+
+```text
+What username are you currently using?
+```
+
+---
+
+# 52. Practice Exercise 2 - Find UID and GID
+
+Run:
+
+```bash
+id
+```
+
+Identify:
+
+```text
+UID:
+GID:
+Groups:
+```
+
+---
+
+# 53. Practice Exercise 3 - Analyze /etc/passwd
+
+Run:
+
+```bash
+cat /etc/passwd
+```
+
+Choose one account and identify its:
+
+```text
+Username:
+UID:
+GID:
+Home directory:
+Login shell:
+```
+
+---
+
+# 54. Practice Exercise 4 - Analyze Root
+
+Run:
+
+```bash
+grep '^root:' /etc/passwd
+```
+
+Identify:
+
+```text
+Username:
+UID:
+GID:
+Home directory:
+Shell:
+```
+
+Expected pattern:
+
+```text
+root:x:0:0:root:/root:/bin/bash
+```
+
+Remember that the exact shell can differ between systems.
+
+---
+
+# 55. Practice Exercise 5 - Analyze Your Own User
+
+Run:
+
+```bash
+getent passwd "$(whoami)"
+```
+
+Identify the seven fields:
+
+```text
+1. Username
+2. Password placeholder
+3. UID
+4. GID
+5. GECOS
+6. Home directory
+7. Login shell
+```
+
+---
+
+# 56. Practice Exercise 6 - Check Groups
+
+Run:
+
+```bash
+groups
+```
+
+Then run:
+
+```bash
+id
+```
+
+Compare the results.
+
+Question:
+
+```text
+Which groups does your account belong to?
+```
+
+---
+
+# 57. Practice Exercise 7 - Create a Test User
+
+If you are working in a safe lab VM:
+
+```bash
+sudo useradd -m testuser
+```
+
+Then set a password:
+
+```bash
+sudo passwd testuser
+```
+
+Check the account:
+
+```bash
+id testuser
+```
+
+Check its passwd entry:
+
+```bash
+getent passwd testuser
+```
+
+---
+
+# 58. Practice Exercise 8 - Create a Group
+
+Create:
+
+```bash
+sudo groupadd labusers
+```
+
+Then add the test user:
+
+```bash
+sudo usermod -aG labusers testuser
+```
+
+Check:
+
+```bash
+groups testuser
+```
+
+---
+
+# 59. Practice Exercise 9 - Delete the Test User
+
+After completing the lab:
+
+```bash
+sudo userdel -r testuser
+```
+
+Then verify:
+
+```bash
+id testuser
+```
+
+The command should report that the user does not exist.
+
+---
+
+# 60. Practice Exercise 10 - Mini User Management Lab
+
+Perform the following tasks in a Linux virtual machine:
+
+```text
+1. Create a user called developer1.
+2. Create a group called developers.
+3. Add developer1 to developers.
+4. Set a password for developer1.
+5. Check developer1's UID.
+6. Check developer1's groups.
+7. Find developer1's /etc/passwd entry.
+8. Check the user's home directory.
+9. Check the user's login shell.
+10. Remove developer1 after completing the lab.
+```
+
+Useful commands:
+
+```bash
+sudo useradd -m -s /bin/bash developer1
+sudo groupadd developers
+sudo usermod -aG developers developer1
+sudo passwd developer1
+id developer1
+getent passwd developer1
+groups developer1
+sudo userdel -r developer1
+```
+
+---
+
+# 61. Important Security Notes
+
+Never expose sensitive authentication information.
+
+Avoid sharing:
+
+```text
+/etc/shadow
+Password hashes
+Private keys
+Authentication tokens
+Real passwords
+```
+
+When practicing Linux user management, use a:
+
+```text
+Virtual Machine
+```
+
+or another isolated lab environment.
+
+Do not experiment with user deletion or account modification on a production system unless you are authorized and understand the consequences.
+
+---
+
+# 62. Day 07 Summary
+
+Today I learned that Linux is a multi-user operating system and that user management is an important part of Linux administration and cybersecurity.
+
+The most important concepts I learned were:
+
+```text
+Root
+sudo
+Users
+UID
+GID
+Groups
+/etc/passwd
+/etc/shadow
+/etc/group
+/etc/gshadow
+Home directories
+Login shells
+useradd
+usermod
+userdel
+passwd
+groupadd
+groups
+id
+getent
+```
+
+The most important `/etc/passwd` structure is:
+
+```text
+username:password_placeholder:UID:GID:GECOS:home_directory:login_shell
+```
+
+Example:
+
+```text
+niranjan:x:1000:1000:Niranjan:/home/niranjan:/bin/bash
+```
+
+And the most important security principle is:
+
+```text
+Use the least privilege necessary.
+```
+
+Root has powerful privileges, so administrative access should be used carefully.
+
+---
+
+# DAY 07 COMPLETE
+
+## What I Practiced
+
+```text
+✓ Understanding root
+✓ Understanding sudo
+✓ Understanding UID and GID
+✓ Reading /etc/passwd
+✓ Understanding the 7 passwd fields
+✓ Understanding /etc/shadow
+✓ Understanding /etc/group
+✓ Creating users
+✓ Setting passwords
+✓ Modifying users
+✓ Creating groups
+✓ Adding users to groups
+✓ Checking user information
+✓ Removing users
+✓ Understanding least privilege
+✓ Applying user management to cybersecurity
+```
+
+## Key Commands to Remember
+
+```bash
+whoami
+id
+groups
+getent passwd
+cat /etc/passwd
+sudo cat /etc/shadow
+cat /etc/group
+sudo useradd -m username
+sudo passwd username
+sudo usermod -aG groupname username
+sudo userdel -r username
+sudo groupadd groupname
+```
+
+Linux user management is important for:
+
+```text
+Linux Administration
+Cybersecurity
+System Administration
+Digital Forensics
+Server Security
+Access Control
+Privilege Management
+Incident Response
+```
