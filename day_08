@@ -1,0 +1,1168 @@
+# 🐧 LINUX LEARNING - DAY 08
+
+## Topic: `/etc/shadow` — Linux Password Management
+
+Today I learned about the `/etc/shadow` file in Linux, which stores password-related information for local Linux user accounts.
+
+---
+
+# 1. What is `/etc/shadow`?
+
+`/etc/shadow` is an important Linux system file that stores **secure information related to user passwords**.
+
+It contains information such as:
+
+* Username
+* Encrypted/hashed password
+* Last password change date
+* Minimum password age
+* Maximum password age
+* Password warning period
+* Password inactivity period
+* Account expiration information
+
+The actual password is **not stored as plain text**.
+
+### Command
+
+```bash
+cat /etc/shadow
+```
+
+On most Linux systems, normal users cannot read this file because it contains sensitive authentication information.
+
+You may need administrative privileges:
+
+```bash
+sudo cat /etc/shadow
+```
+
+### Real-world example
+
+Think of `/etc/shadow` like a **secure password database** inside a company.
+
+Instead of storing:
+
+```text
+RahulPassword123
+```
+
+the system stores a password hash such as:
+
+```text
+$y$j9T$example...
+```
+
+The original password cannot simply be read from the file.
+
+---
+
+# 2. Why does `/etc/shadow` exist?
+
+Older Linux systems traditionally stored password information in `/etc/passwd`.
+
+However, `/etc/passwd` needs to be readable by many programs and users.
+
+Storing password hashes there would expose sensitive information.
+
+Therefore, Linux separates the information:
+
+```text
+/etc/passwd
+       |
+       +---- General user/account information
+
+/etc/shadow
+       |
+       +---- Password and password-aging information
+```
+
+This is called **shadowing**.
+
+---
+
+# 3. `/etc/passwd` vs `/etc/shadow`
+
+| File          | Purpose                                               |
+| ------------- | ----------------------------------------------------- |
+| `/etc/passwd` | Stores general user account information               |
+| `/etc/shadow` | Stores password hashes and password-aging information |
+
+Example:
+
+```bash
+cat /etc/passwd
+```
+
+Example output:
+
+```text
+john:x:1001:1001:John:/home/john:/bin/bash
+```
+
+The `x` indicates that the password hash is stored in `/etc/shadow`.
+
+You can inspect it with:
+
+```bash
+sudo grep '^john:' /etc/shadow
+```
+
+---
+
+# 4. Understanding the `/etc/shadow` Format
+
+A typical entry looks similar to:
+
+```text
+john:$y$j9T$examplehash:20000:0:99999:7:::
+```
+
+The fields are separated by a colon `:`.
+
+General structure:
+
+```text
+username:password:lastchange:min:max:warn:inactive:expire:reserved
+```
+
+There are **9 fields**.
+
+---
+
+# 5. Field 1 — Username
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:0:99999:7:::
+```
+
+The first field is:
+
+```text
+john
+```
+
+It identifies the Linux user account.
+
+### Real-world example
+
+If a company has users:
+
+```text
+john
+alice
+admin
+developer
+```
+
+each user can have a corresponding entry in `/etc/shadow`.
+
+Command:
+
+```bash
+sudo grep '^john:' /etc/shadow
+```
+
+---
+
+# 6. Field 2 — Password Hash
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:0:99999:7:::
+```
+
+The second field contains the password hash.
+
+It does **not** normally contain the user's original password.
+
+Example:
+
+```text
+$y$j9T$examplehash
+```
+
+Modern Linux systems may use password hashing schemes such as yescrypt, depending on the distribution and configuration.
+
+You may also encounter formats associated with algorithms such as:
+
+```text
+$1$...
+$5$...
+$6$...
+```
+
+The prefix helps identify the hashing scheme.
+
+### Important
+
+A password hash is not the same thing as encryption.
+
+```text
+Password
+   |
+   v
+Hashing algorithm
+   |
+   v
+Password hash
+```
+
+The goal is that the original password cannot simply be recovered by reversing the hash.
+
+---
+
+# 7. Why Password Hashing Is Used
+
+Suppose a system stored:
+
+```text
+john:MyPassword123
+```
+
+If an attacker obtained the file, they would immediately know the password.
+
+Instead, Linux stores something like:
+
+```text
+john:$6$randomsalt$hashedvalue
+```
+
+The system verifies a login by hashing the password entered by the user and comparing the resulting value with the stored password hash.
+
+### Login process
+
+```text
+User enters password
+        |
+        v
+Linux hashes the password
+        |
+        v
+Compare with stored hash
+        |
+     +--+--+
+     |     |
+   Match  No Match
+     |     |
+   Login  Reject
+```
+
+---
+
+# 8. Field 3 — Last Password Change
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:0:99999:7:::
+                           ^
+```
+
+The third field represents the number of days since **January 1, 1970** when the password was last changed.
+
+This value is often called the password's **last-change date**.
+
+You can use:
+
+```bash
+sudo chage -l john
+```
+
+to see the information in a human-readable format.
+
+### Real-world example
+
+A company may require employees to change passwords periodically.
+
+Linux can use this field to determine when the password was last changed.
+
+---
+
+# 9. Field 4 — Minimum Password Age
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:1:99999:7:::
+                              ^
+```
+
+This field specifies the minimum number of days that must pass before the user can change their password again.
+
+For example:
+
+```text
+1
+```
+
+means the user must wait at least one day before changing the password again.
+
+### Real-world example
+
+A company may prevent users from repeatedly changing their password in order to immediately reuse an old password.
+
+---
+
+# 10. Field 5 — Maximum Password Age
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:1:90:7:::
+                                 ^
+```
+
+This specifies the maximum number of days the password can be used before it must be changed.
+
+For example:
+
+```text
+90
+```
+
+means the password expires after 90 days.
+
+### Real-world example
+
+A company's security policy might require employees to change passwords every 90 days.
+
+---
+
+# 11. Field 6 — Password Warning Period
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:1:90:7:::
+                                    ^
+```
+
+This specifies how many days before password expiration the user should receive a warning.
+
+For example:
+
+```text
+7
+```
+
+means Linux can warn the user **7 days before** the password expires.
+
+### Real-world example
+
+Imagine your password expires on December 30.
+
+With a warning period of 7 days, you may start receiving warnings around December 23.
+
+---
+
+# 12. Field 7 — Password Inactivity Period
+
+This field specifies how many days after a password expires before the account becomes inactive.
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:1:90:7:14::
+                                           ^
+```
+
+A value of:
+
+```text
+14
+```
+
+means the account may become inactive 14 days after password expiration.
+
+---
+
+# 13. Field 8 — Account Expiration Date
+
+This field specifies the date on which the account expires.
+
+The value is generally represented as the number of days since:
+
+```text
+January 1, 1970
+```
+
+An empty value usually means no account expiration date is configured.
+
+### Real-world example
+
+Imagine a temporary employee is hired for 30 days.
+
+An administrator can configure the account to expire after the employee's contract ends.
+
+---
+
+# 14. Field 9 — Reserved Field
+
+The final field is reserved for future use.
+
+Normally, it is empty.
+
+Example:
+
+```text
+john:$y$j9T$examplehash:20000:0:99999:7:::
+                                             ^
+```
+
+---
+
+# 15. Understanding All 9 Fields
+
+The structure is:
+
+```text
+username:
+password:
+last password change:
+minimum password age:
+maximum password age:
+warning period:
+inactivity period:
+account expiration:
+reserved
+```
+
+In one line:
+
+```text
+username:password:lastchange:min:max:warn:inactive:expire:reserved
+```
+
+---
+
+# 16. Important `/etc/shadow` Symbols
+
+The password field can contain special values.
+
+## `!`
+
+Example:
+
+```text
+john:!:20000:0:99999:7:::
+```
+
+This commonly indicates that password-based login is disabled/locked for that account.
+
+It does not necessarily mean the entire account is disabled; other authentication methods may still be possible.
+
+---
+
+## `*`
+
+Example:
+
+```text
+john:*:20000:0:99999:7:::
+```
+
+This generally prevents password authentication because the value cannot be used as a normal password hash.
+
+The exact behavior can depend on the authentication configuration.
+
+---
+
+## Empty Password Field
+
+An empty password field can have security implications and should not be intentionally configured unless you understand the authentication policy.
+
+Never manually edit `/etc/shadow` casually.
+
+---
+
+# 17. How to View `/etc/shadow`
+
+Use:
+
+```bash
+sudo cat /etc/shadow
+```
+
+However, displaying the entire file is usually unnecessary.
+
+A safer way to inspect one account is:
+
+```bash
+sudo grep '^username:' /etc/shadow
+```
+
+Example:
+
+```bash
+sudo grep '^john:' /etc/shadow
+```
+
+---
+
+# 18. Using `less` with `/etc/shadow`
+
+Instead of displaying the entire file:
+
+```bash
+sudo less /etc/shadow
+```
+
+You can navigate through the file.
+
+Useful keys:
+
+```text
+Space     → Next page
+b         → Previous page
+/word     → Search
+q         → Quit
+```
+
+---
+
+# 19. Checking Password Aging Information
+
+The `chage` command is extremely useful.
+
+Command:
+
+```bash
+sudo chage -l username
+```
+
+Example:
+
+```bash
+sudo chage -l john
+```
+
+You may see information such as:
+
+```text
+Last password change                                    : Aug 20, 2026
+Password expires                                        : Nov 18, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change         : 0
+Maximum number of days between password change         : 90
+Number of days of warning before password expires      : 7
+```
+
+This is much easier to understand than reading the raw `/etc/shadow` fields.
+
+---
+
+# 20. Setting Password Aging
+
+Administrators can use `chage` to configure password policies.
+
+Example:
+
+```bash
+sudo chage -M 90 john
+```
+
+This sets the maximum password age to 90 days.
+
+Example:
+
+```bash
+sudo chage -m 1 john
+```
+
+This sets the minimum password age to 1 day.
+
+Example:
+
+```bash
+sudo chage -W 7 john
+```
+
+This sets the password expiration warning period to 7 days.
+
+Example:
+
+```bash
+sudo chage -I 14 john
+```
+
+This configures 14 days of inactivity after password expiration.
+
+---
+
+# 21. Setting Account Expiration
+
+Example:
+
+```bash
+sudo chage -E 2026-12-31 john
+```
+
+This sets an account expiration date.
+
+### Real-world example
+
+A temporary employee's account could be configured to expire when their contract ends.
+
+---
+
+# 22. Changing a User's Password
+
+Use:
+
+```bash
+sudo passwd john
+```
+
+The administrator can then set a new password.
+
+For the current user:
+
+```bash
+passwd
+```
+
+The password hash in `/etc/shadow` will be updated.
+
+---
+
+# 23. Locking a User Account
+
+Command:
+
+```bash
+sudo passwd -l john
+```
+
+This locks password-based authentication for the account.
+
+Another commonly used command is:
+
+```bash
+sudo usermod -L john
+```
+
+### Real-world example
+
+If an employee leaves a company temporarily, an administrator may lock their account instead of deleting it.
+
+---
+
+# 24. Unlocking a User Account
+
+Command:
+
+```bash
+sudo passwd -u john
+```
+
+or:
+
+```bash
+sudo usermod -U john
+```
+
+This can unlock password-based access depending on the account's configuration.
+
+---
+
+# 25. Checking File Permissions
+
+Use:
+
+```bash
+ls -l /etc/shadow
+```
+
+A typical system may show something similar to:
+
+```text
+-rw-r----- 1 root shadow ... /etc/shadow
+```
+
+The exact permissions can differ between Linux distributions.
+
+The important security principle is:
+
+```text
+/etc/shadow
+     |
+     +---- Restricted access
+     |
+     +---- Usually owned by root
+```
+
+---
+
+# 26. Why `/etc/shadow` Must Be Protected
+
+If an attacker obtains password hashes, they may attempt **offline password guessing**.
+
+For example:
+
+```text
+/etc/shadow
+     |
+     v
+Password hashes stolen
+     |
+     v
+Offline password guessing
+     |
+     v
+Weak passwords may eventually be discovered
+```
+
+This is why:
+
+* Strong passwords are important
+* Password hashes must be protected
+* `/etc/shadow` permissions must be restrictive
+* Administrators should avoid unnecessary exposure of the file
+
+---
+
+# 27. `/etc/shadow` in Cybersecurity
+
+Understanding `/etc/shadow` is important in:
+
+* Linux administration
+* System security
+* Digital forensics
+* Incident response
+* Penetration testing
+* CTFs
+* Cybersecurity investigations
+
+### Defensive security
+
+Security administrators can inspect:
+
+```bash
+sudo ls -l /etc/shadow
+```
+
+and:
+
+```bash
+sudo chage -l username
+```
+
+to understand account security and password policies.
+
+### Digital forensics
+
+During an authorized forensic investigation, analysts may examine `/etc/shadow` to understand:
+
+* Which accounts exist
+* Password-aging configuration
+* Whether password authentication is locked
+* Account expiration settings
+
+---
+
+# 28. `/etc/shadow` in CTFs
+
+In authorized CTF environments, `/etc/shadow` can be an important Linux artifact.
+
+For example, a challenge may provide a Linux filesystem or disk image containing:
+
+```text
+/etc/passwd
+/etc/shadow
+```
+
+An investigator can examine these files to understand the user accounts and authentication configuration.
+
+### Important
+
+Only perform password auditing or recovery against systems and files that you own or are explicitly authorized to test.
+
+---
+
+# 29. Relationship Between `/etc/passwd` and `/etc/shadow`
+
+Think of them as two parts of a user-account database.
+
+```text
+              Linux User Account
+                     |
+          +----------+----------+
+          |                     |
+          v                     v
+    /etc/passwd            /etc/shadow
+          |                     |
+          v                     v
+  Account information      Password information
+```
+
+`/etc/passwd` commonly contains:
+
+```text
+username
+password placeholder
+UID
+GID
+GECOS/full name
+home directory
+login shell
+```
+
+`/etc/shadow` commonly contains:
+
+```text
+username
+password hash
+password aging information
+account expiration information
+```
+
+---
+
+# 30. Real-World Scenario
+
+Imagine a company called `TechCorp`.
+
+Three employees have Linux accounts:
+
+```text
+alice
+bob
+charlie
+```
+
+The administrator wants:
+
+* Passwords to expire every 90 days
+* Users to receive warnings 7 days before expiration
+* Temporary accounts to have expiration dates
+
+The administrator can configure:
+
+```bash
+sudo chage -M 90 alice
+sudo chage -W 7 alice
+
+sudo chage -M 90 bob
+sudo chage -W 7 bob
+```
+
+For a temporary user:
+
+```bash
+sudo chage -E 2026-12-31 charlie
+```
+
+The configuration is reflected in the account's password-aging information.
+
+---
+
+# 31. Useful Commands Summary
+
+### View `/etc/shadow`
+
+```bash
+sudo cat /etc/shadow
+```
+
+### View with `less`
+
+```bash
+sudo less /etc/shadow
+```
+
+### Find one user
+
+```bash
+sudo grep '^john:' /etc/shadow
+```
+
+### Check password aging
+
+```bash
+sudo chage -l john
+```
+
+### Change password
+
+```bash
+sudo passwd john
+```
+
+### Lock account password
+
+```bash
+sudo passwd -l john
+```
+
+### Unlock account password
+
+```bash
+sudo passwd -u john
+```
+
+### Set maximum password age
+
+```bash
+sudo chage -M 90 john
+```
+
+### Set minimum password age
+
+```bash
+sudo chage -m 1 john
+```
+
+### Set warning period
+
+```bash
+sudo chage -W 7 john
+```
+
+### Set inactivity period
+
+```bash
+sudo chage -I 14 john
+```
+
+### Set account expiration
+
+```bash
+sudo chage -E 2026-12-31 john
+```
+
+### Check permissions
+
+```bash
+ls -l /etc/shadow
+```
+
+---
+
+# 32. Important Security Best Practices
+
+1. Never make `/etc/shadow` world-readable.
+
+2. Avoid manually editing `/etc/shadow`.
+
+3. Use `passwd`, `chage`, and account-management tools.
+
+4. Use strong passwords.
+
+5. Restrict unnecessary administrative access.
+
+6. Regularly review user accounts.
+
+7. Disable or remove unused accounts according to your organization's policy.
+
+8. Protect password hashes because stolen hashes can be attacked offline.
+
+9. Never test password-cracking techniques against systems without authorization.
+
+---
+
+# 33. Practice Exercises
+
+## Exercise 1 — Locate `/etc/shadow`
+
+Run:
+
+```bash
+ls -l /etc/shadow
+```
+
+Question:
+
+* Who owns the file?
+* What permissions does it have?
+
+---
+
+## Exercise 2 — View Your Account Information
+
+Run:
+
+```bash
+grep "^$(whoami):" /etc/passwd
+```
+
+Then:
+
+```bash
+sudo grep "^$(whoami):" /etc/shadow
+```
+
+Compare the information.
+
+---
+
+## Exercise 3 — Check Password Aging
+
+Run:
+
+```bash
+sudo chage -l $(whoami)
+```
+
+Identify:
+
+* Last password change
+* Password expiration
+* Minimum password age
+* Maximum password age
+* Warning period
+* Account expiration
+
+---
+
+## Exercise 4 — Understand the Fields
+
+Take one authorized test account entry from `/etc/shadow` and identify:
+
+```text
+1. Username
+2. Password field
+3. Last password change
+4. Minimum password age
+5. Maximum password age
+6. Warning period
+7. Inactivity period
+8. Account expiration
+9. Reserved field
+```
+
+---
+
+## Exercise 5 — Check File Permissions
+
+Run:
+
+```bash
+ls -l /etc/shadow
+```
+
+Question:
+
+Why should ordinary users not have unrestricted read access to this file?
+
+---
+
+## Exercise 6 — Password Policy
+
+On a test Linux VM, create a test user:
+
+```bash
+sudo useradd testuser
+```
+
+Set a password:
+
+```bash
+sudo passwd testuser
+```
+
+Check its password information:
+
+```bash
+sudo chage -l testuser
+```
+
+---
+
+## Exercise 7 — Configure Password Expiration
+
+On your test account, configure:
+
+```text
+Maximum password age = 90 days
+Warning period = 7 days
+```
+
+Commands:
+
+```bash
+sudo chage -M 90 testuser
+sudo chage -W 7 testuser
+```
+
+Verify:
+
+```bash
+sudo chage -l testuser
+```
+
+---
+
+# 34. Quick Revision
+
+```text
+/etc/shadow
+     |
+     +-- Stores password-related information
+     |
+     +-- Contains password hashes
+     |
+     +-- Contains password aging information
+     |
+     +-- Contains account expiration information
+     |
+     +-- Should have restricted permissions
+```
+
+The 9 fields are:
+
+```text
+1. Username
+2. Password
+3. Last password change
+4. Minimum password age
+5. Maximum password age
+6. Warning period
+7. Inactivity period
+8. Account expiration
+9. Reserved
+```
+
+Important commands:
+
+```bash
+cat /etc/shadow
+sudo grep '^username:' /etc/shadow
+sudo chage -l username
+sudo passwd username
+sudo passwd -l username
+sudo passwd -u username
+sudo chage -M 90 username
+sudo chage -W 7 username
+ls -l /etc/shadow
+```
+
+---
+
+# 🎯 Day 08 Key Takeaway
+
+`/etc/shadow` is one of the most important Linux authentication-related files.
+
+It does not normally store users' passwords as plain text. Instead, it stores password hashes along with information used for password aging and account expiration.
+
+Understanding `/etc/shadow` is useful for:
+
+```text
+Linux Administration
+        ↓
+System Security
+        ↓
+Digital Forensics
+        ↓
+Incident Response
+        ↓
+Cybersecurity
+        ↓
+CTF / Security Labs
+```
+
+**Always practice account-management and password-security commands on your own Linux VM or an authorized lab environment.**
