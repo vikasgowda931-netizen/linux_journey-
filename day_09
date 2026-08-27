@@ -1,0 +1,1660 @@
+# LINUX LEARNING - DAY 09
+
+## Topic: Linux User Management Tools
+
+Today I learned about **Linux User Management** using LinuxJourney. User management is an important Linux administration and cybersecurity skill because Linux systems use users and groups to control access to files, directories, processes, and system resources.
+
+---
+
+# 1. WHAT IS USER MANAGEMENT?
+
+User management means creating, modifying, deleting, and controlling user accounts on a Linux system.
+
+A Linux system can have multiple users, for example:
+
+```text
+root
+john
+alice
+developer
+student
+```
+
+Each user can have different permissions and access to system resources.
+
+### Real-World Example
+
+Imagine a company has a Linux server used by:
+
+```text
+Administrator
+Developer
+HR
+Intern
+```
+
+Instead of allowing everyone to use the same account, the administrator creates separate accounts for each person.
+
+This allows the administrator to control:
+
+* Who can log in
+* Which files users can access
+* Which commands they can execute
+* Which groups they belong to
+* Which administrative privileges they have
+
+---
+
+# 2. COMMON USER MANAGEMENT TOOLS
+
+Important Linux user-management commands include:
+
+```text
+whoami
+id
+who
+w
+groups
+useradd
+adduser
+passwd
+usermod
+userdel
+su
+sudo
+getent
+```
+
+These commands are used for different user-management tasks.
+
+---
+
+# 3. whoami COMMAND
+
+## What is whoami?
+
+The `whoami` command displays the username of the currently logged-in user.
+
+### Syntax
+
+```bash
+whoami
+```
+
+### Example
+
+```bash
+whoami
+```
+
+Example output:
+
+```text
+student
+```
+
+### Real-World Example
+
+If you are working on a shared Linux server and want to know which account you are currently using:
+
+```bash
+whoami
+```
+
+This is useful because you should know which account you are using before performing administrative operations.
+
+---
+
+# 4. id COMMAND
+
+## What is id?
+
+The `id` command displays information about a user.
+
+It can show:
+
+* UID
+* GID
+* Primary group
+* Supplementary groups
+
+### Example
+
+```bash
+id john
+```
+
+Example output:
+
+```text
+uid=1001(john) gid=1001(john) groups=1001(john),27(sudo)
+```
+
+### Explanation
+
+```text
+uid=1001
+```
+
+The user's User ID.
+
+```text
+gid=1001
+```
+
+The user's primary Group ID.
+
+```text
+groups=...
+```
+
+Groups the user belongs to.
+
+### Real-World Example
+
+An administrator can use:
+
+```bash
+id john
+```
+
+to check whether John belongs to an administrative group such as `sudo`.
+
+---
+
+# 5. UID
+
+UID means:
+
+**User ID**
+
+Linux identifies users internally using numerical IDs.
+
+Example:
+
+```text
+john -> UID 1001
+alice -> UID 1002
+```
+
+You can check a user's UID using:
+
+```bash
+id john
+```
+
+### Real-World Example
+
+Suppose a file belongs to UID 1001.
+
+The administrator can investigate which account corresponds to UID 1001.
+
+UIDs are important when troubleshooting file ownership and permissions.
+
+---
+
+# 6. GID
+
+GID means:
+
+**Group ID**
+
+A group also has a numerical ID.
+
+Example:
+
+```text
+john -> UID 1001
+developers -> GID 1002
+```
+
+You can see group information using:
+
+```bash
+id john
+```
+
+Example:
+
+```text
+uid=1001(john) gid=1001(john) groups=1001(john),1002(developers)
+```
+
+---
+
+# 7. WHO COMMAND
+
+## What is who?
+
+The `who` command displays users currently logged into the system.
+
+### Example
+
+```bash
+who
+```
+
+Example output:
+
+```text
+john     pts/0    2026-08-27 20:10
+alice    pts/1    2026-08-27 20:25
+```
+
+### Real-World Example
+
+Suppose you are an administrator of a production server.
+
+You want to know who is currently logged in.
+
+You can use:
+
+```bash
+who
+```
+
+This can help you identify active login sessions.
+
+---
+
+# 8. w COMMAND
+
+## What is w?
+
+The `w` command provides information about logged-in users and what they are doing.
+
+### Example
+
+```bash
+w
+```
+
+It can display:
+
+* Username
+* Terminal
+* Login time
+* Idle time
+* Current activity
+
+### Real-World Example
+
+If an administrator notices unusual activity on a server, they can run:
+
+```bash
+w
+```
+
+to inspect active sessions.
+
+---
+
+# 9. groups COMMAND
+
+## What is groups?
+
+The `groups` command displays the groups that a user belongs to.
+
+### Example
+
+```bash
+groups john
+```
+
+Example output:
+
+```text
+john : john developers
+```
+
+This means John belongs to:
+
+```text
+john
+developers
+```
+
+### Real-World Example
+
+Suppose a company has a group called:
+
+```text
+developers
+```
+
+Only developers should access development files.
+
+The administrator can check whether John belongs to that group:
+
+```bash
+groups john
+```
+
+---
+
+# 10. USERADD COMMAND
+
+## What is useradd?
+
+`useradd` is used to create a new Linux user account.
+
+### Syntax
+
+```bash
+sudo useradd username
+```
+
+### Example
+
+```bash
+sudo useradd john
+```
+
+This creates a user called:
+
+```text
+john
+```
+
+You can verify the user with:
+
+```bash
+id john
+```
+
+---
+
+# 11. USERADD WITH HOME DIRECTORY
+
+The `-m` option creates a home directory for the user.
+
+### Example
+
+```bash
+sudo useradd -m john
+```
+
+This normally creates:
+
+```text
+/home/john
+```
+
+### Real-World Example
+
+When a new employee joins a company, an administrator can create their account and home directory:
+
+```bash
+sudo useradd -m employee1
+```
+
+The user can then store their personal files inside:
+
+```text
+/home/employee1
+```
+
+---
+
+# 12. USERADD WITH LOGIN SHELL
+
+You can specify the user's login shell.
+
+### Example
+
+```bash
+sudo useradd -m -s /bin/bash john
+```
+
+Here:
+
+```text
+-m
+```
+
+creates the home directory.
+
+```text
+-s /bin/bash
+```
+
+sets Bash as the login shell.
+
+### Real-World Example
+
+For a normal Linux user who needs an interactive Bash terminal:
+
+```bash
+sudo useradd -m -s /bin/bash developer
+```
+
+---
+
+# 13. ADDUSER COMMAND
+
+On many Debian/Ubuntu-based systems, `adduser` provides an interactive way to create users.
+
+### Example
+
+```bash
+sudo adduser john
+```
+
+It may ask for information such as:
+
+```text
+Password
+Full Name
+Room Number
+Work Phone
+Home Phone
+Other
+```
+
+### Real-World Example
+
+For beginners or administrators who want guided user creation, `adduser` can be easier to use than `useradd`.
+
+---
+
+# 14. DIFFERENCE BETWEEN useradd AND adduser
+
+### useradd
+
+```bash
+sudo useradd john
+```
+
+Usually provides a lower-level command for creating the account.
+
+### adduser
+
+```bash
+sudo adduser john
+```
+
+Usually provides a more interactive interface on systems where it is available.
+
+The exact behavior and availability can depend on the Linux distribution.
+
+---
+
+# 15. passwd COMMAND
+
+## What is passwd?
+
+The `passwd` command is used to create or change a user's password.
+
+### Change Your Own Password
+
+```bash
+passwd
+```
+
+### Set Another User's Password
+
+An administrator can use:
+
+```bash
+sudo passwd john
+```
+
+### Real-World Example
+
+When a new employee receives a Linux account, an administrator can set an initial password:
+
+```bash
+sudo passwd employee1
+```
+
+---
+
+# 16. PASSWORD SECURITY
+
+Passwords should be:
+
+* Long
+* Difficult to guess
+* Unique
+* Not based on personal information
+
+Avoid weak passwords such as:
+
+```text
+123456
+password
+admin
+qwerty
+```
+
+A stronger password should use a suitable combination of characters and should not be reused across important accounts.
+
+---
+
+# 17. USERMOD COMMAND
+
+## What is usermod?
+
+`usermod` is used to modify an existing Linux user account.
+
+It can be used to change:
+
+* Username
+* Home directory
+* Login shell
+* Group membership
+* Other account settings
+
+---
+
+# 18. ADD USER TO A GROUP
+
+Suppose we have:
+
+```text
+john
+developers
+```
+
+We can add John to the developers group:
+
+```bash
+sudo usermod -aG developers john
+```
+
+### Explanation
+
+```text
+-a
+```
+
+means append.
+
+```text
+-G
+```
+
+specifies supplementary groups.
+
+```text
+developers
+```
+
+is the group.
+
+```text
+john
+```
+
+is the user.
+
+### Verify
+
+```bash
+groups john
+```
+
+### Real-World Example
+
+Suppose John joins the development team.
+
+The administrator can add him to the development group:
+
+```bash
+sudo usermod -aG developers john
+```
+
+Now group-based permissions can be used to control access to development resources.
+
+---
+
+# 19. WHY -aG IS IMPORTANT
+
+Use:
+
+```bash
+sudo usermod -aG developers john
+```
+
+rather than:
+
+```bash
+sudo usermod -G developers john
+```
+
+The `-a` means append the group instead of replacing the user's existing supplementary group memberships.
+
+This is an important concept when managing Linux users.
+
+---
+
+# 20. CHANGE USER'S LOGIN SHELL
+
+The `-s` option can change the login shell.
+
+### Example
+
+```bash
+sudo usermod -s /bin/bash john
+```
+
+This changes John's login shell to Bash.
+
+You can inspect the account information with:
+
+```bash
+getent passwd john
+```
+
+---
+
+# 21. CHANGE USER'S HOME DIRECTORY
+
+The `-d` option can change the configured home directory.
+
+### Example
+
+```bash
+sudo usermod -d /home/newjohn john
+```
+
+To also move the existing home-directory contents:
+
+```bash
+sudo usermod -d /home/newjohn -m john
+```
+
+Here:
+
+```text
+-d
+```
+
+specifies the new home directory.
+
+```text
+-m
+```
+
+moves the existing contents.
+
+---
+
+# 22. RENAME A USER
+
+The `-l` option can change the login name.
+
+### Example
+
+```bash
+sudo usermod -l newjohn john
+```
+
+This changes:
+
+```text
+john
+```
+
+to:
+
+```text
+newjohn
+```
+
+User renaming should be performed carefully because other files, scripts, services, or configurations may reference the old username.
+
+---
+
+# 23. USERDEL COMMAND
+
+## What is userdel?
+
+`userdel` is used to delete a Linux user account.
+
+### Example
+
+```bash
+sudo userdel john
+```
+
+This removes the user account.
+
+Depending on the command options, the user's home directory may remain.
+
+---
+
+# 24. DELETE USER AND HOME DIRECTORY
+
+The `-r` option removes the user's home directory and associated mail spool where applicable.
+
+### Example
+
+```bash
+sudo userdel -r john
+```
+
+### Real-World Example
+
+Suppose an employee permanently leaves an organization.
+
+After following the organization's account-offboarding process, an administrator may remove the account:
+
+```bash
+sudo userdel -r employee1
+```
+
+### Important
+
+Be careful with:
+
+```bash
+sudo userdel -r username
+```
+
+because it can permanently delete the user's home-directory data.
+
+---
+
+# 25. su COMMAND
+
+## What is su?
+
+`su` means:
+
+**substitute user**
+
+It allows you to switch to another user account.
+
+### Example
+
+```bash
+su john
+```
+
+To start a login shell for the user:
+
+```bash
+su - john
+```
+
+The `-` loads the target user's login environment.
+
+### Real-World Example
+
+An administrator may want to test what a particular user's environment looks like:
+
+```bash
+su - john
+```
+
+---
+
+# 26. EXIT FROM su
+
+After switching users:
+
+```bash
+su - john
+```
+
+you can return to the previous account using:
+
+```bash
+exit
+```
+
+---
+
+# 27. sudo COMMAND
+
+## What is sudo?
+
+`sudo` allows an authorized user to execute a command with elevated privileges.
+
+### Example
+
+```bash
+sudo apt update
+```
+
+### Real-World Example
+
+A normal user may not have permission to install system software.
+
+An authorized administrator can use:
+
+```bash
+sudo apt install nginx
+```
+
+This executes the command with elevated privileges.
+
+---
+
+# 28. DIFFERENCE BETWEEN su AND sudo
+
+### su
+
+Switches to another user.
+
+```bash
+su - john
+```
+
+### sudo
+
+Runs a specific command with elevated privileges.
+
+```bash
+sudo command
+```
+
+Example:
+
+```bash
+sudo apt update
+```
+
+Easy way to remember:
+
+```text
+su
+=
+switch user
+
+sudo
+=
+execute command with elevated privileges
+```
+
+---
+
+# 29. /etc/passwd
+
+Linux stores basic local user-account information in:
+
+```text
+/etc/passwd
+```
+
+You can view it with:
+
+```bash
+cat /etc/passwd
+```
+
+A typical entry may look like:
+
+```text
+john:x:1001:1001:John Doe:/home/john:/bin/bash
+```
+
+The fields are separated by `:`.
+
+They represent:
+
+```text
+Username
+Password placeholder
+UID
+GID
+Comment/GECOS
+Home directory
+Login shell
+```
+
+### Important
+
+The `x` does not contain the actual password.
+
+On typical Linux systems, password hashes and related account-security information are stored in:
+
+```text
+/etc/shadow
+```
+
+with restricted permissions.
+
+---
+
+# 30. UNDERSTANDING /etc/passwd
+
+Example:
+
+```text
+john:x:1001:1001:John Doe:/home/john:/bin/bash
+```
+
+Breakdown:
+
+```text
+john
+```
+
+Username.
+
+```text
+x
+```
+
+Password field placeholder.
+
+```text
+1001
+```
+
+UID.
+
+```text
+1001
+```
+
+Primary GID.
+
+```text
+John Doe
+```
+
+User information/comment field.
+
+```text
+/home/john
+```
+
+Home directory.
+
+```text
+/bin/bash
+```
+
+Login shell.
+
+---
+
+# 31. getent passwd
+
+`getent` retrieves information from the system's configured account databases.
+
+### Example
+
+```bash
+getent passwd john
+```
+
+Example output:
+
+```text
+john:x:1001:1001:John Doe:/home/john:/bin/bash
+```
+
+This is useful because Linux systems can obtain account information from sources other than only the local `/etc/passwd` file.
+
+---
+
+# 32. getent group
+
+You can also retrieve group information.
+
+### Example
+
+```bash
+getent group developers
+```
+
+Example output:
+
+```text
+developers:x:1002:john,alice
+```
+
+This displays information about the `developers` group.
+
+---
+
+# 33. LISTING USERNAMES
+
+One way to view account entries is:
+
+```bash
+cat /etc/passwd
+```
+
+To display only usernames:
+
+```bash
+cut -d: -f1 /etc/passwd
+```
+
+### Explanation
+
+```text
+-d:
+```
+
+sets `:` as the delimiter.
+
+```text
+-f1
+```
+
+selects the first field.
+
+Example output:
+
+```text
+root
+daemon
+bin
+sys
+sync
+john
+alice
+```
+
+---
+
+# 34. USERS AND GROUPS
+
+Linux uses groups to make permission management easier.
+
+Example:
+
+```text
+developers
+    |
+    +-- john
+    +-- alice
+    +-- bob
+```
+
+Instead of assigning access individually to John, Alice, and Bob, an administrator can assign permissions to the `developers` group.
+
+Users who belong to that group can receive access according to the permissions configured on the relevant files and directories.
+
+---
+
+# 35. REAL-WORLD COMPANY EXAMPLE
+
+Imagine a company has a Linux development server.
+
+Employees:
+
+```text
+John
+Alice
+Bob
+```
+
+Create their accounts:
+
+```bash
+sudo useradd -m john
+sudo useradd -m alice
+sudo useradd -m bob
+```
+
+Set passwords:
+
+```bash
+sudo passwd john
+sudo passwd alice
+sudo passwd bob
+```
+
+Create the development group:
+
+```bash
+sudo groupadd developers
+```
+
+Add users to the group:
+
+```bash
+sudo usermod -aG developers john
+sudo usermod -aG developers alice
+sudo usermod -aG developers bob
+```
+
+Check group membership:
+
+```bash
+groups john
+groups alice
+groups bob
+```
+
+Now the administrator can manage development access using the group.
+
+---
+
+# 36. REAL-WORLD CYBERSECURITY EXAMPLE
+
+User management is important in cybersecurity because unauthorized accounts or excessive privileges can increase security risk.
+
+An administrator can inspect accounts using:
+
+```bash
+cat /etc/passwd
+```
+
+Check a particular account:
+
+```bash
+id username
+```
+
+Check logged-in users:
+
+```bash
+who
+```
+
+Check active sessions:
+
+```bash
+w
+```
+
+Check group memberships:
+
+```bash
+groups username
+```
+
+These commands can help during basic system administration and security auditing.
+
+---
+
+# 37. CHECKING YOUR OWN ACCOUNT
+
+Run:
+
+```bash
+whoami
+```
+
+Then:
+
+```bash
+id
+```
+
+Then:
+
+```bash
+groups
+```
+
+Example:
+
+```text
+whoami
+student
+```
+
+Then:
+
+```text
+id
+uid=1000(student) gid=1000(student) groups=1000(student),27(sudo)
+```
+
+Then:
+
+```text
+groups
+student sudo
+```
+
+This tells you the current username, UID, GID, and group memberships.
+
+---
+
+# 38. USER MANAGEMENT WORKFLOW
+
+A typical workflow for creating a test user could be:
+
+### Step 1 - Create User
+
+```bash
+sudo useradd -m john
+```
+
+### Step 2 - Set Password
+
+```bash
+sudo passwd john
+```
+
+### Step 3 - Check User
+
+```bash
+id john
+```
+
+### Step 4 - Create Group
+
+```bash
+sudo groupadd developers
+```
+
+### Step 5 - Add User to Group
+
+```bash
+sudo usermod -aG developers john
+```
+
+### Step 6 - Verify Group
+
+```bash
+groups john
+```
+
+### Step 7 - Switch to User
+
+```bash
+su - john
+```
+
+### Step 8 - Check Current User
+
+```bash
+whoami
+```
+
+### Step 9 - Return to Previous User
+
+```bash
+exit
+```
+
+---
+
+# 39. IMPORTANT USER MANAGEMENT COMMANDS
+
+```bash
+whoami
+```
+
+Shows the current username.
+
+```bash
+id
+```
+
+Shows UID, GID, and group information.
+
+```bash
+who
+```
+
+Shows currently logged-in users.
+
+```bash
+w
+```
+
+Shows logged-in users and their activity.
+
+```bash
+groups
+```
+
+Shows group membership.
+
+```bash
+useradd
+```
+
+Creates a user.
+
+```bash
+adduser
+```
+
+Creates a user interactively on systems that provide it.
+
+```bash
+passwd
+```
+
+Changes a password.
+
+```bash
+usermod
+```
+
+Modifies a user.
+
+```bash
+userdel
+```
+
+Deletes a user.
+
+```bash
+su
+```
+
+Switches users.
+
+```bash
+sudo
+```
+
+Runs commands with elevated privileges when authorized.
+
+```bash
+getent passwd
+```
+
+Queries user-account information.
+
+```bash
+getent group
+```
+
+Queries group information.
+
+---
+
+# 40. PRACTICE EXERCISES
+
+## Exercise 1 - Check Current User
+
+Run:
+
+```bash
+whoami
+```
+
+Question:
+
+What username are you currently using?
+
+---
+
+## Exercise 2 - Check User Information
+
+Run:
+
+```bash
+id
+```
+
+Identify:
+
+```text
+UID:
+GID:
+Groups:
+```
+
+---
+
+## Exercise 3 - Check Logged-In Users
+
+Run:
+
+```bash
+who
+```
+
+Find out which users are currently logged into your system.
+
+---
+
+## Exercise 4 - Check User Activity
+
+Run:
+
+```bash
+w
+```
+
+Identify:
+
+```text
+Username
+Login time
+Terminal
+Current activity
+```
+
+---
+
+## Exercise 5 - Check Groups
+
+Run:
+
+```bash
+groups
+```
+
+Find all groups associated with your account.
+
+---
+
+## Exercise 6 - Create a Test User
+
+On your own Linux virtual machine:
+
+```bash
+sudo useradd -m testuser
+```
+
+Verify:
+
+```bash
+id testuser
+```
+
+---
+
+## Exercise 7 - Set Password
+
+Set a password:
+
+```bash
+sudo passwd testuser
+```
+
+Switch to the account:
+
+```bash
+su - testuser
+```
+
+Check:
+
+```bash
+whoami
+```
+
+Finally:
+
+```bash
+exit
+```
+
+---
+
+## Exercise 8 - Create a Group
+
+Create a group:
+
+```bash
+sudo groupadd security
+```
+
+Add the test user:
+
+```bash
+sudo usermod -aG security testuser
+```
+
+Verify:
+
+```bash
+groups testuser
+```
+
+---
+
+## Exercise 9 - Investigate User Information
+
+Run:
+
+```bash
+getent passwd testuser
+```
+
+Identify:
+
+```text
+Username
+UID
+GID
+Home directory
+Login shell
+```
+
+---
+
+## Exercise 10 - Delete Test User
+
+After completing the practice:
+
+```bash
+sudo userdel -r testuser
+```
+
+Verify:
+
+```bash
+id testuser
+```
+
+The command should indicate that the user no longer exists.
+
+---
+
+# 41. IMPORTANT SAFETY NOTE
+
+Practice user-management commands inside your own Linux virtual machine or another system where you have permission.
+
+Be careful with commands such as:
+
+```bash
+sudo userdel -r username
+```
+
+because they can permanently remove the user's home-directory data.
+
+Do not experiment with user deletion, privilege changes, or account modifications on production systems without authorization.
+
+---
+
+# 42. DAY 09 SUMMARY
+
+Today I learned about Linux user-management tools and how Linux manages users, groups, identities, and privileges.
+
+The important commands I learned are:
+
+```text
+whoami
+id
+who
+w
+groups
+useradd
+adduser
+passwd
+usermod
+userdel
+su
+sudo
+getent
+```
+
+I also learned important concepts such as:
+
+```text
+User
+UID
+Group
+GID
+Home Directory
+Login Shell
+User Account
+Group Membership
+Privileges
+/etc/passwd
+/etc/shadow
+```
+
+User management is an important Linux administration skill and is also useful for cybersecurity because security depends heavily on controlling:
+
+```text
+WHO can access WHAT
+```
+
+---
+
+# 43. KEY TAKEAWAYS
+
+1. Linux supports multiple user accounts.
+2. Every user has a UID.
+3. Every group has a GID.
+4. Users have a primary group and can belong to supplementary groups.
+5. `whoami` shows the current user.
+6. `id` shows UID, GID, and group information.
+7. `who` shows currently logged-in users.
+8. `w` provides information about active sessions.
+9. `groups` shows group membership.
+10. `useradd` creates user accounts.
+11. `adduser` provides an interactive account-creation method on systems that support it.
+12. `passwd` manages passwords.
+13. `usermod` modifies existing users.
+14. `userdel` removes user accounts.
+15. `su` allows you to switch users.
+16. `sudo` allows authorized users to run commands with elevated privileges.
+17. `/etc/passwd` contains basic account information.
+18. `/etc/shadow` stores password hashes and related account-security information on typical Linux systems.
+19. Groups make permission management easier for multiple users.
+20. Proper user management is essential for Linux security.
+21. User accounts should follow the principle of least privilege.
+22. Administrative commands should always be used carefully.
+
+---
+
+# 44. DAY 09 CHECKLIST
+
+* [x] Understand Linux users
+* [x] Understand UID
+* [x] Understand GID
+* [x] Understand groups
+* [x] Learn `whoami`
+* [x] Learn `id`
+* [x] Learn `who`
+* [x] Learn `w`
+* [x] Learn `groups`
+* [x] Learn `useradd`
+* [x] Learn `adduser`
+* [x] Learn `passwd`
+* [x] Learn `usermod`
+* [x] Learn `userdel`
+* [x] Learn `su`
+* [x] Learn `sudo`
+* [x] Learn `getent`
+* [x] Understand `/etc/passwd`
+* [x] Understand `/etc/shadow`
+* [x] Practice creating users
+* [x] Practice modifying users
+* [x] Practice group management
+* [x] Practice deleting test users
+* [x] Understand real-world user administration
+* [x] Understand basic cybersecurity applications
+
+# END OF DAY 09
