@@ -1,0 +1,1856 @@
+# 🐧 LINUX LEARNING – DAY 12
+
+## Modifying File Permissions in Linux
+
+Today I learned about **modifying file and directory permissions in Linux** using commands such as:
+
+* `chmod`
+* Symbolic notation
+* Numeric/octal notation
+* `chown`
+* `chgrp`
+* `umask`
+* Recursive permission modification
+* Real-world permission scenarios
+* Linux permissions from a cybersecurity perspective
+
+---
+
+# 1. What Are Linux Permissions?
+
+Linux is a multi-user operating system. Multiple users can access the same system, so Linux needs a mechanism to control:
+
+* Who can read a file?
+* Who can modify a file?
+* Who can execute a file?
+* Who can access a directory?
+
+Linux uses **permissions** to control access to files and directories.
+
+For example:
+
+```bash
+-rw-r--r-- 1 user user 1200 Aug 30 notes.txt
+```
+
+The permission section is:
+
+```text
+-rw-r--r--
+```
+
+It can be divided into:
+
+```text
+- rw- r-- r--
+  |   |   |
+  |   |   └── Others
+  |   └────── Group
+  └────────── Owner
+```
+
+---
+
+# 2. Three Types of Users
+
+Linux permissions are divided into three categories.
+
+## Owner
+
+The user who owns the file.
+
+Symbol:
+
+```text
+u
+```
+
+`u` = user/owner
+
+---
+
+## Group
+
+A group of users associated with the file.
+
+Symbol:
+
+```text
+g
+```
+
+`g` = group
+
+---
+
+## Others
+
+Everyone else on the system.
+
+Symbol:
+
+```text
+o
+```
+
+`o` = others
+
+---
+
+# 3. Three Types of Permissions
+
+Linux has three basic permissions.
+
+| Permission | Symbol | Meaning            | Numeric Value |
+| ---------- | ------ | ------------------ | ------------: |
+| Read       | `r`    | View/read contents |             4 |
+| Write      | `w`    | Modify contents    |             2 |
+| Execute    | `x`    | Execute/access     |             1 |
+
+---
+
+# 4. Understanding Permission Groups
+
+Consider:
+
+```text
+-rwxr-xr--
+```
+
+Break it into groups:
+
+```text
+- rwx r-x r--
+  │   │   │
+  │   │   └── Others
+  │   └────── Group
+  └────────── Owner
+```
+
+Owner:
+
+```text
+rwx
+```
+
+Group:
+
+```text
+r-x
+```
+
+Others:
+
+```text
+r--
+```
+
+Therefore:
+
+```text
+Owner  = read + write + execute
+Group  = read + execute
+Others = read
+```
+
+---
+
+# 5. Why Do We Modify Permissions?
+
+Permissions are modified to control access.
+
+For example, suppose we have:
+
+```text
+company-passwords.txt
+```
+
+We don't want every user to read it.
+
+We can modify its permissions so that only the owner can read and modify it.
+
+Example:
+
+```bash
+chmod 600 company-passwords.txt
+```
+
+Now:
+
+```text
+-rw-------
+```
+
+Only the owner can read and write the file.
+
+---
+
+# 6. chmod Command
+
+The most important command for modifying permissions is:
+
+```bash
+chmod
+```
+
+`chmod` means:
+
+```text
+change mode
+```
+
+It changes the permissions of files and directories.
+
+Basic syntax:
+
+```bash
+chmod [permissions] [file]
+```
+
+Example:
+
+```bash
+chmod 644 notes.txt
+```
+
+---
+
+# 7. Symbolic Permission Notation
+
+Instead of numbers, we can use letters.
+
+The main symbols are:
+
+```text
+u = owner
+g = group
+o = others
+a = all
+
+r = read
+w = write
+x = execute
+```
+
+Operators:
+
+```text
++ = add permission
+- = remove permission
+= = set exact permission
+```
+
+---
+
+# 8. Adding a Permission
+
+Suppose:
+
+```bash
+ls -l notes.txt
+```
+
+Output:
+
+```text
+-rw-r--r-- notes.txt
+```
+
+Give the owner execute permission:
+
+```bash
+chmod u+x notes.txt
+```
+
+Now:
+
+```text
+-rwxr--r--
+```
+
+The owner now has:
+
+```text
+read
+write
+execute
+```
+
+---
+
+# 9. Removing a Permission
+
+Remove write permission from the owner:
+
+```bash
+chmod u-w notes.txt
+```
+
+Example:
+
+Before:
+
+```text
+-rw-r--r--
+```
+
+After:
+
+```text
+-r--r--r--
+```
+
+The owner can no longer modify the file.
+
+---
+
+# 10. Giving Permission to a Group
+
+Suppose we want to give the group write permission:
+
+```bash
+chmod g+w notes.txt
+```
+
+Now the group can modify the file.
+
+---
+
+# 11. Removing Group Permission
+
+Remove group write permission:
+
+```bash
+chmod g-w notes.txt
+```
+
+---
+
+# 12. Giving Permission to Others
+
+Give others read permission:
+
+```bash
+chmod o+r notes.txt
+```
+
+---
+
+# 13. Removing Permission from Others
+
+Remove read permission from others:
+
+```bash
+chmod o-r notes.txt
+```
+
+---
+
+# 14. Giving Permission to Everyone
+
+We can use:
+
+```text
+a
+```
+
+which means all users.
+
+Example:
+
+```bash
+chmod a+x script.sh
+```
+
+This gives execute permission to:
+
+```text
+owner
+group
+others
+```
+
+---
+
+# 15. Setting Exact Permissions
+
+The `=` operator sets exact permissions.
+
+Example:
+
+```bash
+chmod u=rwx notes.txt
+```
+
+The owner gets exactly:
+
+```text
+rwx
+```
+
+Example:
+
+```bash
+chmod g=rx notes.txt
+```
+
+The group gets exactly:
+
+```text
+r-x
+```
+
+Example:
+
+```bash
+chmod o= notes.txt
+```
+
+Others get no permissions.
+
+---
+
+# 16. Multiple Permission Changes
+
+We can modify multiple categories at once.
+
+Example:
+
+```bash
+chmod u+rwx,g+rx,o-rwx script.sh
+```
+
+Meaning:
+
+```text
+Owner  → read + write + execute
+Group  → read + execute
+Others → remove all permissions
+```
+
+---
+
+# 17. Numeric / Octal Permissions
+
+Linux also supports numeric permissions.
+
+Remember:
+
+```text
+Read    = 4
+Write   = 2
+Execute = 1
+```
+
+We add the values together.
+
+---
+
+# 18. Calculating Permission Numbers
+
+## Read only
+
+```text
+r = 4
+```
+
+Therefore:
+
+```text
+4
+```
+
+---
+
+## Write only
+
+```text
+w = 2
+```
+
+Therefore:
+
+```text
+2
+```
+
+---
+
+## Execute only
+
+```text
+x = 1
+```
+
+Therefore:
+
+```text
+1
+```
+
+---
+
+## Read + Write
+
+```text
+4 + 2 = 6
+```
+
+Therefore:
+
+```text
+rw- = 6
+```
+
+---
+
+## Read + Execute
+
+```text
+4 + 1 = 5
+```
+
+Therefore:
+
+```text
+r-x = 5
+```
+
+---
+
+## Write + Execute
+
+```text
+2 + 1 = 3
+```
+
+Therefore:
+
+```text
+-wx = 3
+```
+
+---
+
+## Read + Write + Execute
+
+```text
+4 + 2 + 1 = 7
+```
+
+Therefore:
+
+```text
+rwx = 7
+```
+
+---
+
+# 19. Common Permission Numbers
+
+| Number | Permission |
+| -----: | ---------- |
+|    `0` | `---`      |
+|    `1` | `--x`      |
+|    `2` | `-w-`      |
+|    `3` | `-wx`      |
+|    `4` | `r--`      |
+|    `5` | `r-x`      |
+|    `6` | `rw-`      |
+|    `7` | `rwx`      |
+
+---
+
+# 20. chmod 755
+
+A very common permission is:
+
+```bash
+chmod 755 script.sh
+```
+
+Break it down:
+
+```text
+7 = rwx
+5 = r-x
+5 = r-x
+```
+
+Therefore:
+
+```text
+Owner  = rwx
+Group  = r-x
+Others = r-x
+```
+
+Result:
+
+```text
+-rwxr-xr-x
+```
+
+This is commonly used for executable scripts and programs.
+
+---
+
+# 21. chmod 644
+
+Command:
+
+```bash
+chmod 644 notes.txt
+```
+
+Breakdown:
+
+```text
+6 = rw-
+4 = r--
+4 = r--
+```
+
+Therefore:
+
+```text
+Owner  = rw-
+Group  = r--
+Others = r--
+```
+
+Result:
+
+```text
+-rw-r--r--
+```
+
+This is commonly used for normal text files and many web files.
+
+---
+
+# 22. chmod 600
+
+Command:
+
+```bash
+chmod 600 secret.txt
+```
+
+Breakdown:
+
+```text
+6 = rw-
+0 = ---
+0 = ---
+```
+
+Result:
+
+```text
+-rw-------
+```
+
+Only the owner can:
+
+```text
+read
+write
+```
+
+This is useful for private files.
+
+---
+
+# 23. chmod 700
+
+Command:
+
+```bash
+chmod 700 private_script.sh
+```
+
+Result:
+
+```text
+-rwx------
+```
+
+Only the owner can:
+
+```text
+read
+write
+execute
+```
+
+---
+
+# 24. chmod 777
+
+Command:
+
+```bash
+chmod 777 file
+```
+
+Result:
+
+```text
+-rwxrwxrwx
+```
+
+Everyone gets:
+
+```text
+read
+write
+execute
+```
+
+### ⚠️ Security Warning
+
+Avoid using:
+
+```bash
+chmod 777
+```
+
+unless there is a specific, understood reason.
+
+Giving everyone write access can create serious security problems.
+
+For example, if a web application directory is writable by everyone, an attacker who gains limited access might be able to modify files or inject malicious content.
+
+The principle should be:
+
+> Give users only the permissions they actually need.
+
+This is called the **Principle of Least Privilege**.
+
+---
+
+# 25. Modifying Directory Permissions
+
+Permissions also apply to directories.
+
+Example:
+
+```bash
+mkdir project
+```
+
+Give the owner full access:
+
+```bash
+chmod 700 project
+```
+
+Now only the owner can access the directory.
+
+---
+
+# 26. Why Execute Permission Matters for Directories
+
+For directories, `x` means something different from executing a program.
+
+For a directory:
+
+```text
+r = list directory contents
+w = create/delete/rename entries
+x = enter/traverse the directory
+```
+
+Example:
+
+```bash
+chmod 700 private/
+```
+
+The owner can enter and use the directory, while others cannot.
+
+---
+
+# 27. Directory Read vs Execute
+
+Consider a directory:
+
+```text
+drwx------
+```
+
+The owner has:
+
+```text
+rwx
+```
+
+If a user has `r` but not `x`, they may be able to see directory names in some circumstances but cannot properly access files inside.
+
+If a user has `x` but not `r`, they may access a known path inside the directory but cannot normally list its contents.
+
+This is why directory permissions need to be understood differently from file permissions.
+
+---
+
+# 28. Recursive Permission Modification
+
+Suppose we have:
+
+```text
+project/
+├── file1.txt
+├── file2.txt
+└── scripts/
+    └── backup.sh
+```
+
+We can modify permissions recursively using:
+
+```bash
+chmod -R 755 project/
+```
+
+`-R` means:
+
+```text
+recursive
+```
+
+It applies the operation to the directory and its contents.
+
+### ⚠️ Be Careful
+
+Using:
+
+```bash
+chmod -R 777 /
+```
+
+would be extremely dangerous.
+
+Never blindly use recursive permission changes on important system directories.
+
+---
+
+# 29. Changing File Ownership with chown
+
+Permissions determine what users can do.
+
+Ownership determines who the owner is.
+
+The command:
+
+```bash
+chown
+```
+
+means:
+
+```text
+change owner
+```
+
+Syntax:
+
+```bash
+chown username filename
+```
+
+Example:
+
+```bash
+sudo chown alice report.txt
+```
+
+Now `alice` becomes the owner.
+
+---
+
+# 30. Changing Owner and Group
+
+We can change both:
+
+```bash
+sudo chown alice:developers report.txt
+```
+
+Meaning:
+
+```text
+Owner = alice
+Group = developers
+```
+
+---
+
+# 31. Changing Group with chgrp
+
+The command:
+
+```bash
+chgrp
+```
+
+means:
+
+```text
+change group
+```
+
+Example:
+
+```bash
+sudo chgrp developers project.txt
+```
+
+Now the file belongs to the `developers` group.
+
+---
+
+# 32. chown Recursively
+
+We can recursively change ownership:
+
+```bash
+sudo chown -R alice:developers project/
+```
+
+This changes the ownership of the directory and its contents.
+
+Again, be careful when using `-R`.
+
+---
+
+# 33. Understanding umask
+
+Another important concept is:
+
+```bash
+umask
+```
+
+`umask` controls the default permissions for newly created files and directories.
+
+Check the current umask:
+
+```bash
+umask
+```
+
+Example:
+
+```text
+0022
+```
+
+This affects the default permissions of newly created objects.
+
+---
+
+# 34. Real-World Example: Company Project
+
+Imagine a company has:
+
+```text
+company-project/
+```
+
+The team contains:
+
+```text
+alice
+bob
+charlie
+```
+
+We want:
+
+```text
+Owner  → full access
+Group  → read + execute
+Others → no access
+```
+
+We can use:
+
+```bash
+chmod 750 company-project
+```
+
+Permissions:
+
+```text
+7 = rwx
+5 = r-x
+0 = ---
+```
+
+Result:
+
+```text
+rwxr-x---
+```
+
+This means:
+
+```text
+Owner  → full access
+Group  → read + execute
+Others → no access
+```
+
+---
+
+# 35. Real-World Example: Private SSH Key
+
+SSH private keys are sensitive.
+
+A private key should not normally be readable by everyone.
+
+Example:
+
+```bash
+chmod 600 ~/.ssh/id_rsa
+```
+
+This gives:
+
+```text
+Owner  → read + write
+Group  → no access
+Others → no access
+```
+
+If permissions are too open, SSH may refuse to use the private key.
+
+---
+
+# 36. Real-World Example: Shell Script
+
+Suppose we create:
+
+```bash
+backup.sh
+```
+
+Initially it may not be executable.
+
+Try:
+
+```bash
+./backup.sh
+```
+
+You may get:
+
+```text
+Permission denied
+```
+
+Give the owner execute permission:
+
+```bash
+chmod u+x backup.sh
+```
+
+Now:
+
+```bash
+./backup.sh
+```
+
+can execute.
+
+---
+
+# 37. Real-World Example: Shared Team Directory
+
+Suppose developers work inside:
+
+```text
+/opt/project
+```
+
+We might want:
+
+```text
+Owner  → full access
+Group  → full access
+Others → no access
+```
+
+Use:
+
+```bash
+chmod 770 /opt/project
+```
+
+Permissions:
+
+```text
+rwxrwx---
+```
+
+This allows the owner and group to work with the directory while preventing access from others.
+
+---
+
+# 38. Real-World Example: Public Website File
+
+Suppose:
+
+```text
+index.html
+```
+
+needs to be readable by the web server and users but only modified by the owner.
+
+A common permission could be:
+
+```bash
+chmod 644 index.html
+```
+
+Result:
+
+```text
+-rw-r--r--
+```
+
+Owner:
+
+```text
+read + write
+```
+
+Group:
+
+```text
+read
+```
+
+Others:
+
+```text
+read
+```
+
+---
+
+# 39. Real-World Example: Protecting a Configuration File
+
+Suppose we have:
+
+```text
+database.conf
+```
+
+and it contains sensitive configuration information.
+
+We could restrict access:
+
+```bash
+chmod 600 database.conf
+```
+
+Result:
+
+```text
+-rw-------
+```
+
+Only the owner can read or modify it.
+
+---
+
+# 40. Checking Permissions
+
+Use:
+
+```bash
+ls -l
+```
+
+Example:
+
+```text
+-rwxr-x--- 1 alice developers 1200 backup.sh
+```
+
+We can understand:
+
+```text
+Owner = alice
+Group = developers
+Owner permissions = rwx
+Group permissions = r-x
+Others permissions = ---
+```
+
+---
+
+# 41. Checking a Specific File
+
+```bash
+ls -l secret.txt
+```
+
+Example:
+
+```text
+-rw------- 1 alice alice 250 secret.txt
+```
+
+This means:
+
+```text
+Owner = alice
+Group = alice
+
+Owner  → read + write
+Group  → no permissions
+Others → no permissions
+```
+
+---
+
+# 42. Practical Permission Lab
+
+Create a directory:
+
+```bash
+mkdir permission_lab
+```
+
+Enter it:
+
+```bash
+cd permission_lab
+```
+
+Create a file:
+
+```bash
+touch secret.txt
+```
+
+Check permissions:
+
+```bash
+ls -l secret.txt
+```
+
+Change permissions:
+
+```bash
+chmod 600 secret.txt
+```
+
+Check again:
+
+```bash
+ls -l secret.txt
+```
+
+Expected:
+
+```text
+-rw-------
+```
+
+---
+
+# 43. Practice chmod Symbolic Mode
+
+Create a file:
+
+```bash
+touch test.txt
+```
+
+Add execute permission to owner:
+
+```bash
+chmod u+x test.txt
+```
+
+Add write permission to group:
+
+```bash
+chmod g+w test.txt
+```
+
+Remove read permission from others:
+
+```bash
+chmod o-r test.txt
+```
+
+Check:
+
+```bash
+ls -l test.txt
+```
+
+---
+
+# 44. Practice Numeric Mode
+
+Create:
+
+```bash
+touch file.txt
+```
+
+Set:
+
+```bash
+chmod 644 file.txt
+```
+
+Check:
+
+```bash
+ls -l file.txt
+```
+
+Then:
+
+```bash
+chmod 755 file.txt
+```
+
+Check again:
+
+```bash
+ls -l file.txt
+```
+
+Then:
+
+```bash
+chmod 600 file.txt
+```
+
+Check again.
+
+Observe how the permissions change.
+
+---
+
+# 45. Permission Conversion Practice
+
+Convert the following into numeric permissions.
+
+### Example 1
+
+```text
+rwxr-xr-x
+```
+
+Calculation:
+
+```text
+rwx = 7
+r-x = 5
+r-x = 5
+```
+
+Answer:
+
+```text
+755
+```
+
+---
+
+### Example 2
+
+```text
+rw-r--r--
+```
+
+Calculation:
+
+```text
+rw- = 6
+r-- = 4
+r-- = 4
+```
+
+Answer:
+
+```text
+644
+```
+
+---
+
+### Example 3
+
+```text
+rwx------
+```
+
+Calculation:
+
+```text
+rwx = 7
+--- = 0
+--- = 0
+```
+
+Answer:
+
+```text
+700
+```
+
+---
+
+### Example 4
+
+```text
+rw-------
+```
+
+Answer:
+
+```text
+600
+```
+
+---
+
+# 46. Practical Challenge
+
+Create:
+
+```bash
+mkdir security_lab
+cd security_lab
+touch public.txt private.txt script.sh
+```
+
+Set:
+
+### public.txt
+
+Everyone should be able to read it, but only the owner should modify it.
+
+```bash
+chmod 644 public.txt
+```
+
+### private.txt
+
+Only the owner should read and modify it.
+
+```bash
+chmod 600 private.txt
+```
+
+### script.sh
+
+Owner should have full permissions and everyone else should only be able to read and execute it.
+
+```bash
+chmod 755 script.sh
+```
+
+Check:
+
+```bash
+ls -l
+```
+
+Expected permissions:
+
+```text
+public.txt  → rw-r--r--
+private.txt → rw-------
+script.sh   → rwxr-xr-x
+```
+
+---
+
+# 47. Common chmod Commands
+
+```bash
+chmod 755 script.sh
+```
+
+```bash
+chmod 644 file.txt
+```
+
+```bash
+chmod 600 secret.txt
+```
+
+```bash
+chmod 700 private/
+```
+
+```bash
+chmod u+x script.sh
+```
+
+```bash
+chmod u-w file.txt
+```
+
+```bash
+chmod g+w file.txt
+```
+
+```bash
+chmod o-r file.txt
+```
+
+```bash
+chmod a+x script.sh
+```
+
+```bash
+chmod -R 755 directory/
+```
+
+---
+
+# 48. Common Permission Mistakes
+
+## Mistake 1: Using chmod 777 Everywhere
+
+Bad practice:
+
+```bash
+chmod 777 project/
+```
+
+Why?
+
+Because everyone gets:
+
+```text
+read
+write
+execute
+```
+
+This can create security vulnerabilities.
+
+---
+
+## Mistake 2: Changing System Permissions Without Understanding Them
+
+Avoid blindly running commands such as:
+
+```bash
+chmod -R ...
+```
+
+on system directories.
+
+Incorrect permission changes can break applications and operating-system components.
+
+---
+
+## Mistake 3: Forgetting Directory Execute Permission
+
+For directories, `x` is required for traversal/access.
+
+So:
+
+```text
+r
+```
+
+alone does not provide the same access as:
+
+```text
+rx
+```
+
+---
+
+# 49. Linux Permissions and Cybersecurity
+
+Understanding Linux permissions is extremely important in cybersecurity.
+
+Security professionals frequently investigate:
+
+```text
+Who owns this file?
+Who can read it?
+Who can modify it?
+Who can execute it?
+Is sensitive data exposed?
+Can an unprivileged user modify an important file?
+Are permissions unnecessarily broad?
+```
+
+For example, during a security assessment, you may discover:
+
+```text
+-rwxrwxrwx
+```
+
+on a sensitive executable.
+
+That means:
+
+```text
+Owner  → read/write/execute
+Group  → read/write/execute
+Others → read/write/execute
+```
+
+If an unprivileged user can modify an important executable, that could create a serious security risk.
+
+---
+
+# 50. Principle of Least Privilege
+
+One of the most important security concepts is:
+
+> Give users and processes only the permissions they need.
+
+For example:
+
+Instead of:
+
+```bash
+chmod 777 database.conf
+```
+
+use something more restrictive such as:
+
+```bash
+chmod 600 database.conf
+```
+
+if only the owner needs access.
+
+Instead of giving everyone access to a project:
+
+```text
+777
+```
+
+use an appropriate owner/group configuration and restrictive permissions.
+
+---
+
+# 51. Useful Commands to Remember
+
+### View permissions
+
+```bash
+ls -l
+```
+
+### Change permissions
+
+```bash
+chmod
+```
+
+### Change owner
+
+```bash
+chown
+```
+
+### Change group
+
+```bash
+chgrp
+```
+
+### View default permission mask
+
+```bash
+umask
+```
+
+### View detailed file information
+
+```bash
+stat filename
+```
+
+---
+
+# 52. Quick Revision
+
+Linux permissions consist of:
+
+```text
+Owner
+Group
+Others
+```
+
+Permissions:
+
+```text
+Read    = r = 4
+Write   = w = 2
+Execute = x = 1
+```
+
+Symbolic users:
+
+```text
+u = owner
+g = group
+o = others
+a = all
+```
+
+Operators:
+
+```text
++ = add
+- = remove
+= = set
+```
+
+Important commands:
+
+```bash
+chmod
+chown
+chgrp
+umask
+ls -l
+stat
+```
+
+Common permissions:
+
+```text
+600 → rw-------
+644 → rw-r--r--
+700 → rwx------
+750 → rwxr-x---
+755 → rwxr-xr-x
+770 → rwxrwx---
+```
+
+---
+
+# 53. Cybersecurity Takeaway
+
+Linux permissions are one of the fundamental security mechanisms in Linux.
+
+As a cybersecurity learner, I need to understand permissions because they help me:
+
+* Protect sensitive files
+* Restrict unauthorized access
+* Secure scripts
+* Protect configuration files
+* Control shared resources
+* Understand Linux privilege boundaries
+* Investigate suspicious permissions
+* Identify potentially dangerous file configurations
+* Apply the principle of least privilege
+* Understand file-related security vulnerabilities
+
+---
+
+# 54. What I Practiced Today
+
+Today I practiced:
+
+```bash
+ls -l
+chmod
+chmod u+x
+chmod u-w
+chmod g+w
+chmod o-r
+chmod 644
+chmod 600
+chmod 700
+chmod 755
+chmod 770
+chmod -R
+chown
+chgrp
+umask
+stat
+```
+
+I also practiced converting:
+
+```text
+rwxr-xr-x → 755
+rw-r--r-- → 644
+rw------- → 600
+rwx------ → 700
+rwxr-x--- → 750
+rwxrwx--- → 770
+```
+
+---
+
+# 🎯 Day 12 Summary
+
+Today I learned how Linux controls access to files and directories using permissions.
+
+The most important command I learned is:
+
+```bash
+chmod
+```
+
+I learned both:
+
+```text
+Symbolic permissions
+```
+
+and:
+
+```text
+Numeric/Octal permissions
+```
+
+I also learned how ownership and groups work using:
+
+```bash
+chown
+chgrp
+```
+
+and how default permissions are influenced by:
+
+```bash
+umask
+```
+
+Most importantly, I learned that Linux permissions are not just commands to memorize. They are an important part of **Linux security and cybersecurity**.
+
+## Key Concept
+
+```text
+Linux Permissions
+       │
+       ├── Owner
+       ├── Group
+       └── Others
+             │
+             ├── Read
+             ├── Write
+             └── Execute
+```
+
+My main security takeaway:
+
+> **Never give more permissions than necessary. Follow the Principle of Least Privilege.**
+
+# 🚀 Day 12 Completed!
