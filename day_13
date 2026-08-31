@@ -1,0 +1,1844 @@
+# 🐧 LINUX LEARNING — DAY 13
+
+## Linux File Ownership & Permissions
+
+**Learning Source:** Linux Journey
+**Topic:** File Ownership and Permissions
+**Focus:** Understanding how Linux controls who can access files and directories.
+
+---
+
+# 📌 1. What is File Ownership?
+
+In Linux, every file and directory has an **owner** and a **group**.
+
+Linux uses ownership and permissions to control:
+
+* Who can read a file
+* Who can modify a file
+* Who can execute a file
+* Who can access a directory
+
+Think about a real-world office.
+
+Imagine a company has a confidential file:
+
+```text
+employee_salary.txt
+```
+
+The company might have rules like:
+
+```text
+Owner      → HR Manager
+Group      → HR Department
+Others     → Everyone else
+```
+
+Linux provides a similar access-control system.
+
+---
+
+# 📌 2. Why Does Linux Need Ownership and Permissions?
+
+Imagine a Linux server with hundreds of users.
+
+Without permissions, any user could potentially:
+
+* Read another user's private files
+* Modify system configuration
+* Delete important files
+* Execute unauthorized programs
+* Access sensitive information
+
+Permissions provide a security boundary.
+
+For example:
+
+```text
+/home/alice/private.txt
+```
+
+Alice might be allowed to read and modify it.
+
+Bob might be denied access.
+
+This is one of the fundamental security mechanisms in Linux.
+
+---
+
+# 📌 3. The Three Types of Users
+
+Linux permissions are mainly divided into three categories:
+
+```text
+User
+Group
+Others
+```
+
+### User
+
+The **user** is the owner of the file.
+
+Example:
+
+```text
+alice
+```
+
+### Group
+
+A group is a collection of users.
+
+Example:
+
+```text
+developers
+```
+
+Users:
+
+```text
+alice
+bob
+charlie
+```
+
+could belong to the `developers` group.
+
+### Others
+
+Everyone else who is not:
+
+* the file owner
+* a member of the file's group
+
+is considered `others`.
+
+---
+
+# 📌 4. The Three Basic Permissions
+
+Linux provides three basic permissions:
+
+```text
+r → read
+w → write
+x → execute
+```
+
+---
+
+## 🔹 Read Permission — `r`
+
+Read allows you to view the contents of a file.
+
+For example:
+
+```bash
+cat report.txt
+```
+
+If you have read permission, you can view the contents.
+
+Real-world example:
+
+```text
+Read permission = You are allowed to look at a document.
+```
+
+---
+
+## 🔹 Write Permission — `w`
+
+Write allows you to modify the contents of a file.
+
+Example:
+
+```bash
+nano report.txt
+```
+
+You can change the contents if you have write permission.
+
+Real-world example:
+
+```text
+Write permission = You are allowed to edit the document.
+```
+
+---
+
+## 🔹 Execute Permission — `x`
+
+Execute allows a file to be executed as a program/script.
+
+For example:
+
+```bash
+./script.sh
+```
+
+If the script has execute permission, Linux can execute it.
+
+Real-world example:
+
+```text
+Execute permission = You are allowed to run the program.
+```
+
+---
+
+# 📌 5. Understanding `ls -l`
+
+One of the most important commands for permissions is:
+
+```bash
+ls -l
+```
+
+Example:
+
+```text
+-rwxr-xr-- 1 alice developers 1200 Aug 31 20:10 script.sh
+```
+
+Let's break this down.
+
+```text
+-rwxr-xr-- 1 alice developers 1200 Aug 31 20:10 script.sh
+│        │       │        │
+│        │       │        └── File name
+│        │       └────────── Group
+│        └────────────────── Owner
+└─────────────────────────── Permissions
+```
+
+---
+
+# 📌 6. Understanding the Permission String
+
+Consider:
+
+```text
+-rwxr-xr--
+```
+
+Break it into:
+
+```text
+- rwx r-x r--
+  │   │   │
+  │   │   └── Others
+  │   └────── Group
+  └────────── Owner
+```
+
+So:
+
+```text
+Owner  → rwx
+Group  → r-x
+Others → r--
+```
+
+---
+
+# 📌 7. What Does the First Character Mean?
+
+The first character indicates the file type.
+
+Examples:
+
+```text
+-    Regular file
+d    Directory
+l    Symbolic link
+```
+
+Example:
+
+```text
+-rwxr-xr--
+```
+
+The first character is:
+
+```text
+-
+```
+
+Therefore, it is a regular file.
+
+Example:
+
+```text
+drwxr-xr-x
+```
+
+The first character is:
+
+```text
+d
+```
+
+Therefore, it is a directory.
+
+---
+
+# 📌 8. Permission Structure
+
+Linux permission strings follow this pattern:
+
+```text
+---------- 
+```
+
+There are 10 characters.
+
+Example:
+
+```text
+-rwxr-xr--
+```
+
+Structure:
+
+```text
+1   2-4   5-7   8-10
+
+-   rwx   r-x   r--
+│    │     │     │
+│    │     │     └── Others
+│    │     └──────── Group
+│    └────────────── Owner
+└─────────────────── File type
+```
+
+---
+
+# 📌 9. Permission Examples
+
+### Example 1
+
+```text
+-rwx------
+```
+
+Owner:
+
+```text
+rwx
+```
+
+Group:
+
+```text
+---
+```
+
+Others:
+
+```text
+---
+```
+
+Meaning:
+
+```text
+Owner  → Read + Write + Execute
+Group  → No permission
+Others → No permission
+```
+
+---
+
+### Example 2
+
+```text
+-rw-r--r--
+```
+
+Owner:
+
+```text
+rw-
+```
+
+Group:
+
+```text
+r--
+```
+
+Others:
+
+```text
+r--
+```
+
+Meaning:
+
+```text
+Owner  → Read + Write
+Group  → Read
+Others → Read
+```
+
+---
+
+### Example 3
+
+```text
+-rwxr-xr-x
+```
+
+Meaning:
+
+```text
+Owner  → Read + Write + Execute
+Group  → Read + Execute
+Others → Read + Execute
+```
+
+This is commonly seen for executable programs and scripts.
+
+---
+
+# 📌 10. Directory Permissions Are Slightly Different
+
+Permissions on directories are extremely important.
+
+For a directory:
+
+```text
+r = list directory contents
+w = create/delete/rename entries
+x = enter/traverse the directory
+```
+
+This is different from how permissions are usually interpreted for regular files.
+
+Example:
+
+```text
+drwxr-x---
+```
+
+Owner:
+
+```text
+rwx
+```
+
+Group:
+
+```text
+r-x
+```
+
+Others:
+
+```text
+---
+```
+
+The owner can:
+
+* list files
+* create files
+* delete files
+* enter the directory
+
+The group can:
+
+* list files
+* enter the directory
+
+Others cannot access the directory.
+
+---
+
+# 📌 11. Real-World Directory Example
+
+Imagine:
+
+```text
+/company
+    |
+    ├── public
+    ├── employees
+    └── finance
+```
+
+Suppose:
+
+```text
+finance
+```
+
+contains:
+
+```text
+salary.xlsx
+taxes.txt
+budget.txt
+```
+
+We might want:
+
+```text
+Finance team → Full access
+Other employees → No access
+```
+
+Linux permissions can help implement this.
+
+For example:
+
+```text
+drwxrwx--- finance
+```
+
+This means:
+
+```text
+Owner  → rwx
+Group  → rwx
+Others → ---
+```
+
+If the finance users belong to the finance group, they can access the directory while others cannot.
+
+---
+
+# 📌 12. Checking Ownership
+
+Use:
+
+```bash
+ls -l
+```
+
+Example:
+
+```text
+-rw-r--r-- 1 alice developers 500 report.txt
+```
+
+Here:
+
+```text
+Owner = alice
+Group = developers
+```
+
+You can also use:
+
+```bash
+stat report.txt
+```
+
+This provides detailed information about:
+
+* file permissions
+* owner
+* group
+* file size
+* timestamps
+* inode information
+
+---
+
+# 📌 13. Changing File Ownership
+
+The command:
+
+```bash
+chown
+```
+
+means:
+
+```text
+change owner
+```
+
+Syntax:
+
+```bash
+chown USER file
+```
+
+Example:
+
+```bash
+sudo chown alice report.txt
+```
+
+Now Alice becomes the owner.
+
+---
+
+# 📌 14. Changing Owner and Group
+
+You can change both:
+
+```bash
+sudo chown alice:developers report.txt
+```
+
+Meaning:
+
+```text
+Owner → alice
+Group → developers
+```
+
+Check:
+
+```bash
+ls -l report.txt
+```
+
+---
+
+# 📌 15. Changing Only the Group
+
+Use:
+
+```bash
+chgrp
+```
+
+Example:
+
+```bash
+sudo chgrp developers report.txt
+```
+
+Now the group ownership changes to:
+
+```text
+developers
+```
+
+---
+
+# 📌 16. Why `sudo` Is Often Required
+
+Changing ownership of files you don't own generally requires elevated privileges.
+
+Example:
+
+```bash
+sudo chown alice report.txt
+```
+
+`sudo` means:
+
+```text
+Execute this command with elevated privileges.
+```
+
+You should be careful with `sudo` because it can perform administrative operations.
+
+---
+
+# 📌 17. Changing Permissions with `chmod`
+
+The command:
+
+```bash
+chmod
+```
+
+means:
+
+```text
+change mode
+```
+
+It is used to change file and directory permissions.
+
+Example:
+
+```bash
+chmod 755 script.sh
+```
+
+---
+
+# 📌 18. Symbolic Permission Method
+
+Instead of numbers, we can use:
+
+```text
+u = user/owner
+g = group
+o = others
+a = all
+```
+
+Permissions:
+
+```text
+r = read
+w = write
+x = execute
+```
+
+Example:
+
+```bash
+chmod u+x script.sh
+```
+
+This adds execute permission to the owner.
+
+---
+
+# 📌 19. Adding Permissions
+
+Add write permission for the owner:
+
+```bash
+chmod u+w file.txt
+```
+
+Add read permission for the group:
+
+```bash
+chmod g+r file.txt
+```
+
+Add execute permission for others:
+
+```bash
+chmod o+x script.sh
+```
+
+Add execute permission for everyone:
+
+```bash
+chmod a+x script.sh
+```
+
+---
+
+# 📌 20. Removing Permissions
+
+Remove write permission from others:
+
+```bash
+chmod o-w file.txt
+```
+
+Remove execute permission from the group:
+
+```bash
+chmod g-x script.sh
+```
+
+Remove all permissions from others:
+
+```bash
+chmod o-rwx file.txt
+```
+
+---
+
+# 📌 21. Numeric Permission System
+
+Linux also allows permissions to be represented using numbers.
+
+The values are:
+
+```text
+Read    = 4
+Write   = 2
+Execute = 1
+```
+
+Therefore:
+
+```text
+rwx = 4 + 2 + 1 = 7
+rw- = 4 + 2     = 6
+r-x = 4 + 1     = 5
+-wx = 2 + 1     = 3
+r-- = 4         = 4
+-w- = 2         = 2
+--x = 1         = 1
+--- = 0
+```
+
+---
+
+# 📌 22. Understanding `chmod 755`
+
+Consider:
+
+```bash
+chmod 755 script.sh
+```
+
+Break `755` into:
+
+```text
+7 5 5
+│ │ │
+│ │ └── Others
+│ └──── Group
+└────── Owner
+```
+
+`7`:
+
+```text
+4 + 2 + 1
+rwx
+```
+
+`5`:
+
+```text
+4 + 1
+r-x
+```
+
+Therefore:
+
+```text
+755
+```
+
+means:
+
+```text
+Owner  → rwx
+Group  → r-x
+Others → r-x
+```
+
+Permission string:
+
+```text
+-rwxr-xr-x
+```
+
+---
+
+# 📌 23. Understanding `chmod 644`
+
+Consider:
+
+```bash
+chmod 644 file.txt
+```
+
+Break it down:
+
+```text
+6 = rw-
+4 = r--
+4 = r--
+```
+
+Therefore:
+
+```text
+Owner  → Read + Write
+Group  → Read
+Others → Read
+```
+
+Permission:
+
+```text
+-rw-r--r--
+```
+
+This is a common permission setting for ordinary files that should be writable by the owner but readable by others.
+
+---
+
+# 📌 24. Common Permission Values
+
+```text
+600 → rw-------
+644 → rw-r--r--
+700 → rwx------
+755 → rwxr-xr-x
+777 → rwxrwxrwx
+```
+
+### 600
+
+```text
+Owner  → Read + Write
+Group  → Nothing
+Others → Nothing
+```
+
+Useful for private files.
+
+### 700
+
+```text
+Owner  → Read + Write + Execute
+Group  → Nothing
+Others → Nothing
+```
+
+Useful for private directories or scripts.
+
+### 644
+
+```text
+Owner  → Read + Write
+Group  → Read
+Others → Read
+```
+
+### 755
+
+```text
+Owner  → Read + Write + Execute
+Group  → Read + Execute
+Others → Read + Execute
+```
+
+### 777
+
+Everyone gets:
+
+```text
+Read + Write + Execute
+```
+
+This is generally dangerous for sensitive files and should not be used casually.
+
+---
+
+# 🔐 25. Why `777` Can Be Dangerous
+
+Suppose:
+
+```bash
+chmod 777 important.sh
+```
+
+Now:
+
+```text
+Owner  → rwx
+Group  → rwx
+Others → rwx
+```
+
+Any user who can access the file may be able to modify it.
+
+Imagine a script running with elevated privileges.
+
+If an untrusted user can modify that script, they may be able to alter what the privileged process executes.
+
+This is one reason incorrect Linux permissions can become a serious security problem.
+
+---
+
+# 📌 26. Practical Example — Private File
+
+Create:
+
+```bash
+touch secret.txt
+```
+
+Check:
+
+```bash
+ls -l secret.txt
+```
+
+Change permissions:
+
+```bash
+chmod 600 secret.txt
+```
+
+Check again:
+
+```bash
+ls -l secret.txt
+```
+
+You should see something similar to:
+
+```text
+-rw------- secret.txt
+```
+
+Meaning:
+
+```text
+Owner  → Read + Write
+Group  → No access
+Others → No access
+```
+
+This is appropriate for information that should be private to the owner.
+
+---
+
+# 📌 27. Practical Example — Script
+
+Create:
+
+```bash
+nano backup.sh
+```
+
+Put:
+
+```bash
+#!/bin/bash
+
+echo "Starting backup..."
+echo "Backup completed."
+```
+
+Initially, you may not be able to execute it directly.
+
+Try:
+
+```bash
+./backup.sh
+```
+
+You may receive:
+
+```text
+Permission denied
+```
+
+Give the owner execute permission:
+
+```bash
+chmod u+x backup.sh
+```
+
+Now:
+
+```bash
+./backup.sh
+```
+
+Output:
+
+```text
+Starting backup...
+Backup completed.
+```
+
+---
+
+# 📌 28. Understanding the Shebang
+
+This line:
+
+```bash
+#!/bin/bash
+```
+
+is called a **shebang**.
+
+It tells the operating system which interpreter should be used to execute the script.
+
+For example:
+
+```bash
+#!/usr/bin/python3
+```
+
+means the script should be interpreted using Python 3.
+
+The shebang alone doesn't grant execute permission.
+
+You still need appropriate permissions:
+
+```bash
+chmod +x script.sh
+```
+
+---
+
+# 📌 29. Real-World Example — Company Project
+
+Imagine a company has:
+
+```text
+project/
+├── public/
+├── source/
+├── config/
+└── secrets/
+```
+
+Different access requirements might be:
+
+```text
+public/  → Everyone can read
+source/  → Developers can modify
+config/  → Administrators can modify
+secrets/ → Only administrators can access
+```
+
+Linux ownership and permissions can help enforce these rules.
+
+For example:
+
+```text
+public/
+    Owner  → rwx
+    Group  → r-x
+    Others → r-x
+
+source/
+    Owner  → rwx
+    Group  → rwx
+    Others → r-x
+
+secrets/
+    Owner  → rwx
+    Group  → ---
+    Others → ---
+```
+
+The exact permissions should always be chosen according to the application's needs.
+
+---
+
+# 📌 30. Users and Groups
+
+Linux groups make permissions easier to manage.
+
+Suppose a company has 50 developers.
+
+Instead of giving permissions individually to 50 users, create:
+
+```text
+developers
+```
+
+Then add developers to the group.
+
+Now a directory could belong to:
+
+```text
+Owner → projectmanager
+Group → developers
+```
+
+Permissions:
+
+```text
+drwxrwx---
+```
+
+This means:
+
+```text
+Project manager → Full access
+Developers      → Full access
+Others          → No access
+```
+
+This is much easier to manage.
+
+---
+
+# 📌 31. Useful User/Group Commands
+
+View the current user:
+
+```bash
+whoami
+```
+
+View your groups:
+
+```bash
+groups
+```
+
+View user information:
+
+```bash
+id
+```
+
+View currently logged-in users:
+
+```bash
+who
+```
+
+View detailed login/session information:
+
+```bash
+w
+```
+
+---
+
+# 📌 32. Checking File Information with `stat`
+
+Run:
+
+```bash
+stat file.txt
+```
+
+You may see information such as:
+
+```text
+File: file.txt
+Size: 100
+Access: (0644/-rw-r--r--)
+Uid: (1000/alice)
+Gid: (1000/developers)
+```
+
+This gives detailed information about:
+
+* permissions
+* owner
+* group
+* file size
+* timestamps
+* inode
+
+---
+
+# 📌 33. Ownership vs Permissions
+
+These two concepts are different.
+
+### Ownership
+
+Answers:
+
+> Who owns this file?
+
+Example:
+
+```text
+Owner → alice
+Group → developers
+```
+
+### Permissions
+
+Answers:
+
+> What can those users do with the file?
+
+Example:
+
+```text
+Owner  → rwx
+Group  → r-x
+Others → ---
+```
+
+So:
+
+```text
+Ownership = WHO
+Permissions = WHAT THEY CAN DO
+```
+
+This is an important distinction.
+
+---
+
+# 📌 34. Linux Permission Decision
+
+When someone tries to access a file, Linux considers the relationship between the user and the file.
+
+Conceptually:
+
+```text
+User attempts access
+        ↓
+Is user the owner?
+        ↓
+      YES
+        ↓
+Use OWNER permissions
+```
+
+If not the owner, Linux considers group membership and then the permissions applicable to others.
+
+A simplified mental model is:
+
+```text
+User
+ ↓
+Owner? ── YES → Owner permissions
+ ↓ NO
+Applicable group? → Group permissions
+ ↓
+Otherwise → Others permissions
+```
+
+---
+
+# 🔐 35. Cybersecurity Importance
+
+Linux permissions are extremely important in cybersecurity.
+
+Security professionals use them to help protect:
+
+* configuration files
+* passwords
+* SSH keys
+* logs
+* databases
+* application files
+* scripts
+* system files
+* backups
+
+Incorrect permissions can cause:
+
+```text
+Information disclosure
+Unauthorized modification
+Privilege escalation
+Data tampering
+Application compromise
+```
+
+---
+
+# 📌 36. Example — SSH Private Key
+
+SSH private keys are sensitive.
+
+A private key should generally not be readable by other users.
+
+For example:
+
+```bash
+chmod 600 ~/.ssh/id_ed25519
+```
+
+This means:
+
+```text
+Owner  → Read + Write
+Group  → No access
+Others → No access
+```
+
+SSH may also reject private keys that are too permissive.
+
+---
+
+# 📌 37. Example — Configuration File
+
+Imagine:
+
+```text
+database.conf
+```
+
+contains sensitive database configuration.
+
+You don't want every user to modify it.
+
+You could use appropriate ownership and permissions such as:
+
+```text
+Owner → administrator
+Group → application
+Others → no access
+```
+
+The exact permissions depend on which processes/users genuinely need access.
+
+The security principle is:
+
+> Give users and processes only the access they actually need.
+
+This is called the **principle of least privilege**.
+
+---
+
+# 📌 38. Principle of Least Privilege
+
+This is an important cybersecurity concept.
+
+It means:
+
+> A user or process should receive only the permissions required to perform its job.
+
+For example:
+
+Bad:
+
+```text
+Everyone → Read + Write + Execute
+```
+
+Better:
+
+```text
+Application → Required access only
+Administrator → Administrative access
+Normal users → Minimum required access
+```
+
+This reduces the potential damage if an account or application is compromised.
+
+---
+
+# 📌 39. Common Commands to Remember
+
+### View permissions
+
+```bash
+ls -l
+```
+
+### Detailed file information
+
+```bash
+stat file.txt
+```
+
+### Change permissions
+
+```bash
+chmod
+```
+
+### Change owner
+
+```bash
+chown
+```
+
+### Change group
+
+```bash
+chgrp
+```
+
+### Show current user
+
+```bash
+whoami
+```
+
+### Show user ID and groups
+
+```bash
+id
+```
+
+### Show groups
+
+```bash
+groups
+```
+
+---
+
+# 🧪 40. Hands-On Practice
+
+Create a practice directory:
+
+```bash
+mkdir permission-lab
+cd permission-lab
+```
+
+Create files:
+
+```bash
+touch public.txt
+touch private.txt
+touch script.sh
+```
+
+Check:
+
+```bash
+ls -l
+```
+
+---
+
+## Exercise 1
+
+Set:
+
+```text
+private.txt → 600
+```
+
+Command:
+
+```bash
+chmod 600 private.txt
+```
+
+Check:
+
+```bash
+ls -l private.txt
+```
+
+---
+
+## Exercise 2
+
+Set:
+
+```text
+public.txt → 644
+```
+
+Command:
+
+```bash
+chmod 644 public.txt
+```
+
+Check:
+
+```bash
+ls -l public.txt
+```
+
+---
+
+## Exercise 3
+
+Make the script executable:
+
+```bash
+chmod u+x script.sh
+```
+
+Check:
+
+```bash
+ls -l script.sh
+```
+
+---
+
+## Exercise 4
+
+Set the script to:
+
+```text
+755
+```
+
+Command:
+
+```bash
+chmod 755 script.sh
+```
+
+Check:
+
+```bash
+ls -l script.sh
+```
+
+---
+
+## Exercise 5
+
+Remove execute permission:
+
+```bash
+chmod u-x script.sh
+```
+
+Check:
+
+```bash
+ls -l script.sh
+```
+
+---
+
+## Exercise 6
+
+Add execute permission again:
+
+```bash
+chmod u+x script.sh
+```
+
+---
+
+# 🧠 41. Permission Conversion Practice
+
+Try converting these yourself.
+
+### Question 1
+
+```text
+rwxr-xr-x
+```
+
+Answer:
+
+```text
+755
+```
+
+### Question 2
+
+```text
+rw-r--r--
+```
+
+Answer:
+
+```text
+644
+```
+
+### Question 3
+
+```text
+rw-------
+```
+
+Answer:
+
+```text
+600
+```
+
+### Question 4
+
+```text
+rwx------
+```
+
+Answer:
+
+```text
+700
+```
+
+### Question 5
+
+```text
+rwxrwx---
+```
+
+Answer:
+
+```text
+770
+```
+
+---
+
+# 🧠 42. Important Mental Model
+
+Remember:
+
+```text
+             Linux Permission
+                    │
+        ┌───────────┼───────────┐
+        ↓           ↓           ↓
+      USER        GROUP       OTHERS
+        │           │           │
+        ↓           ↓           ↓
+       rwx         r-x         r--
+```
+
+And:
+
+```text
+r = Read
+w = Write
+x = Execute
+```
+
+For numeric permissions:
+
+```text
+r = 4
+w = 2
+x = 1
+```
+
+Therefore:
+
+```text
+rwx = 7
+rw- = 6
+r-x = 5
+r-- = 4
+-wx = 3
+-w- = 2
+--x = 1
+--- = 0
+```
+
+---
+
+# 🔥 43. Quick Revision
+
+### Ownership
+
+```text
+Owner → User who owns the file
+Group → Group associated with the file
+```
+
+### Permissions
+
+```text
+r → Read
+w → Write
+x → Execute
+```
+
+### Permission categories
+
+```text
+u → User/Owner
+g → Group
+o → Others
+a → All
+```
+
+### Important commands
+
+```bash
+ls -l
+stat
+chmod
+chown
+chgrp
+whoami
+id
+groups
+```
+
+### Common permissions
+
+```text
+600 → rw-------
+644 → rw-r--r--
+700 → rwx------
+755 → rwxr-xr-x
+770 → rwxrwx---
+```
+
+---
+
+# 🎯 44. What I Learned Today
+
+Today I learned how Linux controls access to files and directories using **ownership and permissions**.
+
+I learned:
+
+* What file ownership means
+* User, group, and others
+* Read, write, and execute permissions
+* How to read `ls -l`
+* Permission strings
+* File vs directory permissions
+* `chmod`
+* Symbolic permissions
+* Numeric permissions
+* `chown`
+* `chgrp`
+* `stat`
+* Linux groups
+* Principle of least privilege
+* How permissions are important for cybersecurity
+* How incorrect permissions can lead to security problems
+* How to practice permissions using a Linux terminal
+
+---
+
+# 🚀 45. Cybersecurity Connection
+
+Linux permissions are not just a Linux administration topic.
+
+They are a fundamental cybersecurity skill.
+
+As a cybersecurity professional, I need to understand:
+
+```text
+Who owns a resource?
+        ↓
+Who belongs to its group?
+        ↓
+Who can read it?
+        ↓
+Who can modify it?
+        ↓
+Who can execute it?
+        ↓
+Can incorrect permissions expose sensitive data?
+        ↓
+Can an attacker modify something important?
+```
+
+Understanding Linux permissions will help me later with:
+
+* Linux privilege escalation
+* SOC analysis
+* Digital forensics
+* Incident response
+* Server security
+* Malware analysis
+* CTF challenges
+* Security auditing
+* System hardening
+* Security automation
+
+---
+
+# 🏁 DAY 13 COMPLETE
+
+**Linux Topic:** Ownership & Permissions
+**Learning Platform:** Linux Journey
+**Status:** ✅ Completed
+
+### Key takeaway:
+
+> **Linux ownership determines WHO controls a file, while permissions determine WHAT those users are allowed to do.**
+
+```text
+OWNERSHIP
+   ↓
+WHO?
+
+PERMISSIONS
+   ↓
+WHAT CAN THEY DO?
+
+Together
+   ↓
+LINUX ACCESS CONTROL
+```
