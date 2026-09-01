@@ -1,0 +1,1539 @@
+# 🐧 LINUX LEARNING — DAY 14
+
+## 📌 Topic: Linux `umask` — File Creation Permissions
+
+Today I learned about **`umask` in Linux**, how it controls the default permissions of newly created files and directories, how permission calculation works, and how it is used in real-world Linux systems.
+
+---
+
+# 1. What is `umask`?
+
+`umask` stands for:
+
+> **User File-Creation Mode Mask**
+
+It controls the **default permissions** given to newly created files and directories.
+
+Whenever we create a new file or directory, Linux starts with a set of default permissions and removes permissions according to the `umask`.
+
+### Simple idea
+
+Think of `umask` like a **security filter**.
+
+```text
+Default permissions
+        ↓
+      umask
+        ↓
+Permissions removed
+        ↓
+Final permissions
+```
+
+For example:
+
+```bash
+touch file.txt
+```
+
+Linux does not simply give `file.txt` any random permissions.
+
+The final permissions depend on the current `umask`.
+
+---
+
+# 2. Why is `umask` important?
+
+Imagine a company has 100 employees.
+
+Whenever a new employee creates a file, we don't want every file to automatically become writable by everyone.
+
+For example, this would be dangerous:
+
+```text
+-rwxrwxrwx
+```
+
+This means:
+
+```text
+Owner  → read + write + execute
+Group  → read + write + execute
+Others → read + write + execute
+```
+
+Anyone could potentially modify the file.
+
+`umask` helps prevent overly permissive default permissions.
+
+---
+
+# 3. Check Your Current `umask`
+
+Use:
+
+```bash
+umask
+```
+
+Example:
+
+```bash
+$ umask
+0022
+```
+
+The most important part here is:
+
+```text
+022
+```
+
+The leading `0` indicates octal notation.
+
+Another command:
+
+```bash
+umask -S
+```
+
+Example:
+
+```text
+u=rwx,g=rx,o=rx
+```
+
+This shows the mask in a human-readable symbolic format.
+
+---
+
+# 4. Understanding Linux Permissions
+
+Before understanding `umask`, we need to understand Linux permissions.
+
+Example:
+
+```text
+-rwxr-xr--
+```
+
+Break it into groups:
+
+```text
+-   rwx   r-x   r--
+    │     │     │
+    │     │     └── Others
+    │     └──────── Group
+    └────────────── Owner
+```
+
+There are three permission categories:
+
+```text
+u = user/owner
+g = group
+o = others
+```
+
+And three basic permissions:
+
+```text
+r = read
+w = write
+x = execute
+```
+
+---
+
+# 5. Permission Values
+
+Linux represents permissions using numbers.
+
+| Permission    | Value |
+| ------------- | ----: |
+| Read (`r`)    |     4 |
+| Write (`w`)   |     2 |
+| Execute (`x`) |     1 |
+
+We add them together.
+
+### Read + Write
+
+```text
+4 + 2 = 6
+```
+
+So:
+
+```text
+rw- = 6
+```
+
+### Read + Execute
+
+```text
+4 + 1 = 5
+```
+
+So:
+
+```text
+r-x = 5
+```
+
+### Write + Execute
+
+```text
+2 + 1 = 3
+```
+
+So:
+
+```text
+-wx = 3
+```
+
+### Read + Write + Execute
+
+```text
+4 + 2 + 1 = 7
+```
+
+So:
+
+```text
+rwx = 7
+```
+
+---
+
+# 6. Common Permission Numbers
+
+```text
+7 = rwx
+6 = rw-
+5 = r-x
+4 = r--
+3 = -wx
+2 = -w-
+1 = --x
+0 = ---
+```
+
+For example:
+
+```text
+755
+```
+
+means:
+
+```text
+Owner  = 7 = rwx
+Group  = 5 = r-x
+Others = 5 = r-x
+```
+
+Therefore:
+
+```text
+755 = rwxr-xr-x
+```
+
+---
+
+# 7. Default Permissions
+
+Linux uses different starting permission bases for files and directories.
+
+### Files
+
+Regular files normally start from:
+
+```text
+666
+```
+
+That means:
+
+```text
+rw-rw-rw-
+```
+
+Notice that there is **no execute permission** by default.
+
+### Directories
+
+Directories normally start from:
+
+```text
+777
+```
+
+That means:
+
+```text
+rwxrwxrwx
+```
+
+Then the `umask` removes permissions.
+
+---
+
+# 8. How `umask` Works
+
+Suppose:
+
+```bash
+umask
+```
+
+returns:
+
+```text
+0022
+```
+
+For a newly created file:
+
+```text
+Base permission = 666
+umask            = 022
+```
+
+The resulting permission is:
+
+```text
+644
+```
+
+So:
+
+```text
+666
+-022
+----
+644
+```
+
+The newly created file becomes:
+
+```text
+-rw-r--r--
+```
+
+---
+
+# 9. Real Example — Creating a File
+
+First check the umask:
+
+```bash
+umask
+```
+
+Suppose the output is:
+
+```text
+0022
+```
+
+Create a file:
+
+```bash
+touch example.txt
+```
+
+Check permissions:
+
+```bash
+ls -l example.txt
+```
+
+Possible output:
+
+```text
+-rw-r--r-- 1 user user 0 Sep 1 22:00 example.txt
+```
+
+The permissions are:
+
+```text
+644
+```
+
+Which means:
+
+```text
+Owner  → rw-
+Group  → r--
+Others → r--
+```
+
+---
+
+# 10. Why Did We Get 644?
+
+The file starts with:
+
+```text
+666
+```
+
+The umask is:
+
+```text
+022
+```
+
+The result is:
+
+```text
+644
+```
+
+Therefore:
+
+```text
+666 → rw-rw-rw-
+022 → ----w--w-
+644 → rw-r--r--
+```
+
+The write permission was removed from:
+
+```text
+Group
+Others
+```
+
+---
+
+# 11. Directory Example
+
+Now let's create a directory:
+
+```bash
+mkdir testdir
+```
+
+Check its permissions:
+
+```bash
+ls -ld testdir
+```
+
+With:
+
+```text
+umask = 022
+```
+
+you will normally get:
+
+```text
+drwxr-xr-x
+```
+
+Numerically:
+
+```text
+755
+```
+
+Why?
+
+Base directory permission:
+
+```text
+777
+```
+
+umask:
+
+```text
+022
+```
+
+Result:
+
+```text
+755
+```
+
+So:
+
+```text
+777 → rwxrwxrwx
+022 → ----w--w-
+755 → rwxr-xr-x
+```
+
+---
+
+# 12. File vs Directory Calculation
+
+This is extremely important.
+
+### File
+
+```text
+Base = 666
+```
+
+### Directory
+
+```text
+Base = 777
+```
+
+For example, with:
+
+```text
+umask = 022
+```
+
+File:
+
+```text
+666 → 644
+```
+
+Directory:
+
+```text
+777 → 755
+```
+
+Therefore:
+
+```text
+touch file.txt
+```
+
+usually creates:
+
+```text
+-rw-r--r--
+```
+
+while:
+
+```bash
+mkdir folder
+```
+
+usually creates:
+
+```text
+drwxr-xr-x
+```
+
+---
+
+# 13. Important Note About `umask` Calculation
+
+It is common to explain this as:
+
+```text
+666 - 022 = 644
+```
+
+and:
+
+```text
+777 - 022 = 755
+```
+
+This is useful for learning, but technically `umask` works by **masking/removing permission bits**, not ordinary decimal subtraction.
+
+The safer mental model is:
+
+> **Start with the default permission bits and remove the permission bits specified by the mask.**
+
+For example:
+
+```text
+666 = rw-rw-rw-
+022 = ----w--w-
+```
+
+Remove those write permissions:
+
+```text
+rw-r--r--
+```
+
+which is:
+
+```text
+644
+```
+
+---
+
+# 14. Changing `umask`
+
+We can temporarily change the umask using:
+
+```bash
+umask 077
+```
+
+Check it:
+
+```bash
+umask
+```
+
+Output:
+
+```text
+0077
+```
+
+Now create a file:
+
+```bash
+touch secret.txt
+```
+
+Check:
+
+```bash
+ls -l secret.txt
+```
+
+You will normally see:
+
+```text
+-rw------- 
+```
+
+or:
+
+```text
+600
+```
+
+---
+
+# 15. Why Does `umask 077` Produce 600?
+
+File base permission:
+
+```text
+666
+```
+
+Mask:
+
+```text
+077
+```
+
+The group and others permissions are removed.
+
+Result:
+
+```text
+600
+```
+
+Meaning:
+
+```text
+Owner  → rw-
+Group  → ---
+Others → ---
+```
+
+This is useful for sensitive files.
+
+---
+
+# 16. Real-World Example — Password/Secret Files
+
+Imagine a Linux server stores a configuration file containing sensitive information:
+
+```text
+database.conf
+```
+
+If the file is created with:
+
+```text
+644
+```
+
+then:
+
+```text
+Owner  → read/write
+Group  → read
+Others → read
+```
+
+Other users on the machine may be able to read it.
+
+For sensitive information, we may want:
+
+```text
+600
+```
+
+Meaning:
+
+```text
+Owner  → read/write
+Group  → no access
+Others → no access
+```
+
+A restrictive umask such as:
+
+```bash
+umask 077
+```
+
+helps make this the default for newly created regular files.
+
+---
+
+# 17. Real-World Example — Shared Company Server
+
+Imagine a company has a Linux server.
+
+The default umask is:
+
+```text
+022
+```
+
+An employee creates:
+
+```bash
+touch project.txt
+```
+
+The file becomes:
+
+```text
+644
+```
+
+Meaning:
+
+```text
+Owner  → read/write
+Group  → read
+Others → read
+```
+
+This may be appropriate when files are intended to be readable by everyone.
+
+But suppose the company wants new files to be accessible only to their owner.
+
+They could use:
+
+```bash
+umask 077
+```
+
+New files would normally become:
+
+```text
+600
+```
+
+This provides stronger default privacy.
+
+---
+
+# 18. Common `umask` Values
+
+## `umask 022`
+
+Very common default.
+
+New regular files:
+
+```text
+644
+```
+
+New directories:
+
+```text
+755
+```
+
+Useful when files should generally be readable by others.
+
+---
+
+## `umask 027`
+
+Typical result:
+
+Files:
+
+```text
+640
+```
+
+Directories:
+
+```text
+750
+```
+
+This means:
+
+```text
+Owner  → full appropriate access
+Group  → read/execute
+Others → no access
+```
+
+Useful in environments where group members need access but other users should not.
+
+---
+
+## `umask 077`
+
+New files:
+
+```text
+600
+```
+
+New directories:
+
+```text
+700
+```
+
+This is useful for private or sensitive data.
+
+---
+
+# 19. `umask` and Security
+
+`umask` is very important in cybersecurity because it controls **default file exposure**.
+
+Imagine an application creates log files:
+
+```text
+application.log
+```
+
+If the application creates files too permissively, another local user might read information they should not have access to.
+
+For example:
+
+```text
+644
+```
+
+allows:
+
+```text
+Owner  → read/write
+Group  → read
+Others → read
+```
+
+If logs contain sensitive information, this could create an information-disclosure problem.
+
+Using an appropriate restrictive umask can reduce this risk.
+
+---
+
+# 20. `umask` in Scripts
+
+Suppose we have a shell script:
+
+```bash
+#!/bin/bash
+
+umask 077
+
+touch secret.txt
+mkdir private
+```
+
+Now newly created files/directories will have restrictive default permissions.
+
+Check:
+
+```bash
+ls -l secret.txt
+```
+
+Expected:
+
+```text
+-rw-------
+```
+
+Check directory:
+
+```bash
+ls -ld private
+```
+
+Expected:
+
+```text
+drwx------
+```
+
+---
+
+# 21. `umask` is Usually Shell-Specific
+
+If you run:
+
+```bash
+umask 077
+```
+
+inside your current shell, it changes the umask for that shell and processes created from it.
+
+It does not magically change the umask of every process on the entire Linux system.
+
+For example:
+
+```bash
+umask 077
+```
+
+Then:
+
+```bash
+touch private.txt
+```
+
+The file follows the new mask.
+
+If you open another independent shell, its umask may be different depending on how that shell/session was configured.
+
+---
+
+# 22. Making `umask` Persistent
+
+If you want to configure a default umask for future shell sessions, it can be placed in appropriate shell startup configuration files.
+
+For example, depending on your shell and system:
+
+```text
+~/.bashrc
+~/.profile
+/etc/profile
+```
+
+You might add:
+
+```bash
+umask 077
+```
+
+However, system-wide configuration should be changed carefully because it can affect applications and users.
+
+---
+
+# 23. Checking `umask` Symbolically
+
+Run:
+
+```bash
+umask -S
+```
+
+Example:
+
+```text
+u=rwx,g=rx,o=rx
+```
+
+This represents the permissions that are **not masked**.
+
+For:
+
+```text
+umask 022
+```
+
+you can think of it as:
+
+```text
+User   → rwx
+Group  → r-x
+Others → r-x
+```
+
+---
+
+# 24. Setting `umask` Symbolically
+
+You can also use symbolic notation.
+
+Example:
+
+```bash
+umask u=rwx,g=rx,o=
+```
+
+Then:
+
+```bash
+umask
+```
+
+will show a corresponding numeric mask.
+
+Symbolic notation can be easier to understand because it directly describes the resulting permission mask.
+
+---
+
+# 25. `umask` Does NOT Change Existing Files
+
+This is very important.
+
+Suppose:
+
+```bash
+touch old.txt
+```
+
+and it has:
+
+```text
+644
+```
+
+Then you run:
+
+```bash
+umask 077
+```
+
+The existing file does **not** automatically become:
+
+```text
+600
+```
+
+`umask` affects **newly created files and directories**.
+
+It does not modify existing permissions.
+
+To change an existing file, use:
+
+```bash
+chmod
+```
+
+For example:
+
+```bash
+chmod 600 old.txt
+```
+
+---
+
+# 26. `umask` vs `chmod`
+
+These two commands are related but different.
+
+### `umask`
+
+Controls default permissions for:
+
+```text
+NEW files
+NEW directories
+```
+
+Example:
+
+```bash
+umask 077
+```
+
+### `chmod`
+
+Changes permissions of:
+
+```text
+EXISTING files/directories
+```
+
+Example:
+
+```bash
+chmod 600 secret.txt
+```
+
+Think:
+
+```text
+umask = default security rule
+
+chmod = manually change permissions
+```
+
+---
+
+# 27. Real-World Analogy
+
+Imagine a school.
+
+The school has a rule:
+
+> "Whenever a student creates a new notebook, it should automatically be private."
+
+That is similar to:
+
+```bash
+umask 077
+```
+
+Now imagine a notebook already exists and the teacher wants to change its privacy.
+
+That is similar to:
+
+```bash
+chmod 600 notebook
+```
+
+So:
+
+```text
+umask → default rule
+chmod → change an existing permission
+```
+
+---
+
+# 28. Practical Hands-On Lab
+
+## Step 1 — Check current umask
+
+```bash
+umask
+```
+
+---
+
+## Step 2 — Create a file
+
+```bash
+touch test.txt
+```
+
+Check:
+
+```bash
+ls -l test.txt
+```
+
+---
+
+## Step 3 — Create a directory
+
+```bash
+mkdir testdir
+```
+
+Check:
+
+```bash
+ls -ld testdir
+```
+
+---
+
+## Step 4 — Change umask
+
+```bash
+umask 077
+```
+
+---
+
+## Step 5 — Create another file
+
+```bash
+touch private.txt
+```
+
+Check:
+
+```bash
+ls -l private.txt
+```
+
+---
+
+## Step 6 — Create another directory
+
+```bash
+mkdir private_dir
+```
+
+Check:
+
+```bash
+ls -ld private_dir
+```
+
+You should observe much more restrictive permissions.
+
+---
+
+# 29. Compare Different `umask` Values
+
+You can experiment with:
+
+```bash
+umask 022
+touch file022
+ls -l file022
+```
+
+Then:
+
+```bash
+umask 027
+touch file027
+ls -l file027
+```
+
+Then:
+
+```bash
+umask 077
+touch file077
+ls -l file077
+```
+
+Compare the permissions.
+
+A typical result:
+
+```text
+umask     file permission
+
+022       644
+027       640
+077       600
+```
+
+For directories:
+
+```text
+umask     directory permission
+
+022       755
+027       750
+077       700
+```
+
+---
+
+# 30. Important Commands to Remember
+
+### Check umask
+
+```bash
+umask
+```
+
+### Human-readable umask
+
+```bash
+umask -S
+```
+
+### Set umask
+
+```bash
+umask 022
+```
+
+### Private files
+
+```bash
+umask 077
+```
+
+### Check file permissions
+
+```bash
+ls -l filename
+```
+
+### Check directory permissions
+
+```bash
+ls -ld dirname
+```
+
+### Change existing permissions
+
+```bash
+chmod 600 filename
+```
+
+---
+
+# 31. Important Difference: File and Directory
+
+Remember this table:
+
+| Object       | Starting Permission |
+| ------------ | ------------------: |
+| Regular file |               `666` |
+| Directory    |               `777` |
+
+Then `umask` removes permissions.
+
+Example:
+
+```text
+umask = 022
+```
+
+File:
+
+```text
+666 → 644
+```
+
+Directory:
+
+```text
+777 → 755
+```
+
+---
+
+# 32. Cybersecurity Perspective
+
+As someone learning cybersecurity, understanding `umask` is important because insecure default permissions can lead to:
+
+* Information disclosure
+* Unauthorized file access
+* Data exposure
+* Accidental modification
+* Sensitive configuration leakage
+* Local privilege/security issues
+
+For example, an application that creates sensitive files with:
+
+```text
+666
+```
+
+could potentially allow unwanted users to modify them.
+
+A restrictive default such as:
+
+```bash
+umask 077
+```
+
+can help ensure that newly created files are private by default.
+
+However, `umask` is only one part of Linux security. We also need to understand:
+
+```text
+chmod
+chown
+groups
+ACLs
+SELinux/AppArmor
+sudo
+```
+
+---
+
+# 33. Mini Challenge
+
+### Challenge 1
+
+Check your current umask:
+
+```bash
+umask
+```
+
+---
+
+### Challenge 2
+
+Set:
+
+```bash
+umask 077
+```
+
+Create:
+
+```bash
+touch secret.txt
+```
+
+Find its permissions.
+
+---
+
+### Challenge 3
+
+Create:
+
+```bash
+mkdir secret
+```
+
+Find its permissions.
+
+---
+
+### Challenge 4
+
+Set:
+
+```bash
+umask 022
+```
+
+Create:
+
+```bash
+touch public.txt
+mkdir public
+```
+
+Compare the permissions with the previous challenge.
+
+---
+
+### Challenge 5
+
+Explain the difference between:
+
+```bash
+umask 077
+```
+
+and:
+
+```bash
+chmod 600 secret.txt
+```
+
+Answer:
+
+```text
+umask → controls default permissions of newly created files/directories.
+
+chmod → changes permissions of an existing file/directory.
+```
+
+---
+
+# 34. Quick Revision
+
+```text
+umask
+   ↓
+User File-Creation Mode Mask
+   ↓
+Controls default permissions
+   ↓
+Applied when new files/directories are created
+```
+
+Default bases:
+
+```text
+Files       → 666
+Directories → 777
+```
+
+Common masks:
+
+```text
+022 → files 644, directories 755
+027 → files 640, directories 750
+077 → files 600, directories 700
+```
+
+Important:
+
+```text
+umask does NOT modify existing files.
+```
+
+For existing files:
+
+```bash
+chmod
+```
+
+For ownership:
+
+```bash
+chown
+```
+
+For groups:
+
+```bash
+chgrp
+```
+
+---
+
+# 🎯 DAY 14 SUMMARY
+
+Today I learned:
+
+* What `umask` means
+* Why `umask` is important
+* How Linux permissions work
+* Permission values `4`, `2`, and `1`
+* File default permission `666`
+* Directory default permission `777`
+* How `umask` removes permission bits
+* How to check `umask`
+* How to change `umask`
+* `umask -S`
+* Common umask values such as `022`, `027`, and `077`
+* Difference between `umask` and `chmod`
+* How `umask` is useful for cybersecurity
+* How to use `umask` in shell scripts
+* How to perform hands-on experiments with different umask values
+
+## 🔑 Most Important Thing I Learned
+
+> **`umask` is a default security filter that removes permissions from newly created files and directories.**
+
+```text
+File:
+666 + umask → final permissions
+
+Directory:
+777 + umask → final permissions
+```
+
+The practical idea is:
+
+```text
+umask = "What permissions should NOT be given by default?"
+```
+
+🐧 **Day 14 completed — Linux permissions and default file security.**
