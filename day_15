@@ -1,0 +1,1242 @@
+# 🐧 LINUX LEARNING — DAY 15
+
+# 🔐 SUID (Set User ID) in Linux
+
+Today I learned about **SUID (Set User ID)** in Linux.
+
+SUID is a special Linux file permission that allows a program to run with the **permissions of the file owner**, rather than the permissions of the user executing it.
+
+SUID is important for:
+
+* Linux system administration
+* File permissions
+* Privilege management
+* System security
+* Cybersecurity
+* Privilege escalation analysis
+* CTF challenges
+
+---
+
+# 1. What is SUID?
+
+SUID stands for:
+
+```text
+Set User ID
+```
+
+Normally, when a user executes a program, the program runs with the user's permissions.
+
+For example:
+
+```text
+User: alice
+    ↓
+Runs program
+    ↓
+Program normally runs as alice
+```
+
+With SUID:
+
+```text
+User: alice
+    ↓
+Runs SUID program
+    ↓
+Program runs with owner's privileges
+```
+
+If the owner of the program is `root`, the program can run with **root's effective privileges**.
+
+This is why SUID is an important security concept.
+
+---
+
+# 2. Normal File Execution
+
+Suppose we have:
+
+```text
+-rwxr-xr-x  root  program
+```
+
+A normal user executes:
+
+```bash
+./program
+```
+
+The program normally runs with the user's permissions.
+
+For example:
+
+```text
+Owner: root
+User executing program: alice
+
+Effective privileges:
+alice
+```
+
+The owner being `root` does not automatically mean the program runs as root.
+
+---
+
+# 3. SUID Changes This Behavior
+
+Suppose the permissions are:
+
+```text
+-rwsr-xr-x  root  program
+```
+
+Notice:
+
+```text
+rws
+```
+
+instead of:
+
+```text
+rwx
+```
+
+The `s` indicates the **SUID bit**.
+
+Now:
+
+```text
+User: alice
+        ↓
+Executes program
+        ↓
+SUID enabled
+        ↓
+Program's effective user ID = root
+```
+
+So the program can perform operations using the owner's privileges.
+
+---
+
+# 4. Linux User IDs
+
+To understand SUID, we need to understand Linux user IDs.
+
+Important IDs include:
+
+```text
+UID
+EUID
+```
+
+## UID
+
+UID means:
+
+```text
+User ID
+```
+
+It identifies the user who started the process.
+
+## EUID
+
+EUID means:
+
+```text
+Effective User ID
+```
+
+It determines which user's permissions the process currently uses for permission checks.
+
+SUID mainly affects the **effective user ID** of a process.
+
+---
+
+# 5. Simple Example
+
+Imagine a program owned by root:
+
+```text
+Owner = root
+```
+
+Without SUID:
+
+```text
+alice → program → EUID = alice
+```
+
+With SUID:
+
+```text
+alice → SUID program → EUID = root
+```
+
+This is the fundamental idea behind SUID.
+
+---
+
+# 6. Checking File Permissions
+
+Use:
+
+```bash
+ls -l filename
+```
+
+Example:
+
+```bash
+ls -l myprogram
+```
+
+Output might look like:
+
+```text
+-rwsr-xr-x 1 root root 12345 Sep 2 10:00 myprogram
+```
+
+Look at:
+
+```text
+-rwsr-xr-x
+   ^
+   SUID
+```
+
+The `s` in the owner's execute position indicates SUID.
+
+---
+
+# 7. Understanding Normal Permissions
+
+Linux permissions are divided into:
+
+```text
+User   Group   Others
+ ↓      ↓       ↓
+rwx    r-x     r-x
+```
+
+Example:
+
+```text
+-rwxr-xr-x
+```
+
+Meaning:
+
+```text
+User:   rwx
+Group:  r-x
+Others: r-x
+```
+
+---
+
+# 8. Understanding SUID Permission
+
+With SUID:
+
+```text
+-rwsr-xr-x
+```
+
+The important difference is:
+
+```text
+Normal:
+rwx
+
+SUID:
+rws
+```
+
+The `s` replaces the owner's `x`.
+
+---
+
+# 9. Numeric Permission for SUID
+
+SUID uses a special permission digit:
+
+```text
+4
+```
+
+For example:
+
+```bash
+chmod 4755 program
+```
+
+Here:
+
+```text
+4 = SUID
+7 = owner permissions
+5 = group permissions
+5 = others permissions
+```
+
+So:
+
+```text
+4755
+```
+
+means:
+
+```text
+SUID + rwx + r-x + r-x
+```
+
+---
+
+# 10. SUID Permission Values
+
+The special permission values are:
+
+| Value | Special Permission |
+| ----: | ------------------ |
+|   `4` | SUID               |
+|   `2` | SGID               |
+|   `1` | Sticky Bit         |
+
+So:
+
+```text
+4755 → SUID
+2755 → SGID
+1755 → Sticky Bit
+```
+
+---
+
+# 11. Setting SUID
+
+We can set SUID using:
+
+```bash
+chmod u+s filename
+```
+
+Example:
+
+```bash
+chmod u+s myprogram
+```
+
+Then:
+
+```bash
+ls -l myprogram
+```
+
+might show:
+
+```text
+-rwsr-xr-x
+```
+
+---
+
+# 12. Removing SUID
+
+To remove SUID:
+
+```bash
+chmod u-s myprogram
+```
+
+Check again:
+
+```bash
+ls -l myprogram
+```
+
+It should return to something like:
+
+```text
+-rwxr-xr-x
+```
+
+---
+
+# 13. Setting SUID Numerically
+
+We can also use:
+
+```bash
+chmod 4755 myprogram
+```
+
+The first digit:
+
+```text
+4
+```
+
+sets SUID.
+
+---
+
+# 14. Creating a Simple SUID Program
+
+For learning purposes, create a simple C program.
+
+File:
+
+```text
+demo.c
+```
+
+Code:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    printf("Real UID: %d\n", getuid());
+    printf("Effective UID: %d\n", geteuid());
+
+    return 0;
+}
+```
+
+Compile it:
+
+```bash
+gcc demo.c -o demo
+```
+
+Run:
+
+```bash
+./demo
+```
+
+You may see something like:
+
+```text
+Real UID: 1000
+Effective UID: 1000
+```
+
+The exact UID depends on your Linux account.
+
+---
+
+# 15. Adding SUID
+
+Change the owner to root:
+
+```bash
+sudo chown root:root demo
+```
+
+Then set SUID:
+
+```bash
+sudo chmod u+s demo
+```
+
+Check:
+
+```bash
+ls -l demo
+```
+
+You may see:
+
+```text
+-rwsr-xr-x 1 root root ... demo
+```
+
+Now execute:
+
+```bash
+./demo
+```
+
+The output can look like:
+
+```text
+Real UID: 1000
+Effective UID: 0
+```
+
+Here:
+
+```text
+1000 → normal user
+0    → root
+```
+
+This demonstrates the core behavior of SUID.
+
+---
+
+# 16. Why Does This Happen?
+
+Normally:
+
+```text
+Real UID = 1000
+Effective UID = 1000
+```
+
+After executing a root-owned SUID program:
+
+```text
+Real UID = 1000
+Effective UID = 0
+```
+
+The kernel sees that the executable has the SUID bit set.
+
+Because the file owner is root:
+
+```text
+File owner = root
+```
+
+the process receives:
+
+```text
+Effective UID = root
+```
+
+---
+
+# 17. Important: SUID Does NOT Mean "Run Everything as Root"
+
+This is a very important concept.
+
+A SUID program does not magically make every command run as root.
+
+The program receives the owner's effective privileges, and **what those privileges can actually do depends on the program's code and how it handles those privileges**.
+
+For example, a carefully designed SUID program may perform one specific privileged operation and then drop privileges.
+
+So:
+
+```text
+SUID ≠ Automatically unlimited root access
+```
+
+However, a poorly designed privileged program can create serious security problems.
+
+---
+
+# 18. Real-World Example: `passwd`
+
+One classic example of a legitimate SUID program is:
+
+```bash
+/usr/bin/passwd
+```
+
+Check it:
+
+```bash
+ls -l /usr/bin/passwd
+```
+
+On many Linux systems, you may see an `s` in the owner permission field, such as:
+
+```text
+-rwsr-xr-x
+```
+
+Why might `passwd` need elevated privileges?
+
+A normal user needs to change their password, but password-related system information is protected.
+
+A controlled privileged program can perform the necessary operation without giving the user unrestricted root access.
+
+This demonstrates why SUID exists in the first place:
+
+```text
+Normal user
+     ↓
+Privileged program
+     ↓
+Perform specific privileged operation
+```
+
+---
+
+# 19. Finding SUID Files
+
+Finding SUID files is extremely important in Linux security.
+
+A common command is:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+Let's break it down.
+
+### `find /`
+
+Search from the root directory:
+
+```text
+/
+```
+
+### `-perm -4000`
+
+Find files with the SUID permission bit.
+
+```text
+4000 = SUID
+```
+
+### `-type f`
+
+Only search for regular files.
+
+### `2>/dev/null`
+
+Hide permission-denied errors.
+
+So:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+means:
+
+> Search the filesystem for regular files that have SUID enabled and hide permission errors.
+
+---
+
+# 20. Another Way to Find SUID Files
+
+You may also see:
+
+```bash
+find / -perm /4000 -type f 2>/dev/null
+```
+
+The exact `find` permission syntax has different semantics depending on the form used, so understanding the expression is important rather than blindly copying commands.
+
+For basic SUID enumeration, this is a useful command:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+---
+
+# 21. Searching Specific Directories
+
+Instead of searching the entire filesystem:
+
+```bash
+find /usr/bin -perm -4000 -type f 2>/dev/null
+```
+
+This searches:
+
+```text
+/usr/bin
+```
+
+for SUID files.
+
+You can also inspect:
+
+```bash
+find /bin -perm -4000 -type f 2>/dev/null
+```
+
+---
+
+# 22. Why Security Professionals Care About SUID
+
+SUID programs are interesting from a security perspective because they execute with elevated effective privileges.
+
+Imagine:
+
+```text
+Normal User
+     ↓
+SUID Program
+     ↓
+Elevated Privileges
+```
+
+If the program contains a vulnerability, an attacker might be able to abuse that vulnerability.
+
+Therefore, security professionals inspect:
+
+* Which files have SUID?
+* Who owns them?
+* What does the program do?
+* Is it required?
+* Is it up to date?
+* Does it contain vulnerabilities?
+* Does it safely handle user input?
+* Does it drop privileges when appropriate?
+
+---
+
+# 23. SUID and Privilege Escalation
+
+In cybersecurity, **privilege escalation** means obtaining privileges beyond those normally available to a user.
+
+A vulnerable SUID program can potentially become part of a privilege-escalation path.
+
+Conceptually:
+
+```text
+Low-privileged user
+        ↓
+Find SUID program
+        ↓
+Analyze program
+        ↓
+Identify vulnerability
+        ↓
+Abuse vulnerability
+        ↓
+Higher privileges
+```
+
+This is why SUID enumeration appears frequently in:
+
+* CTFs
+* Linux security assessments
+* Penetration testing
+* Privilege escalation labs
+
+Only perform these tests on systems you own or are explicitly authorized to assess.
+
+---
+
+# 24. SUID in CTFs
+
+SUID is a very common concept in Linux CTF challenges.
+
+A challenge may ask you to:
+
+```text
+Find unusual SUID files
+        ↓
+Identify the interesting binary
+        ↓
+Understand what it does
+        ↓
+Determine whether its privileges can be abused
+        ↓
+Retrieve the challenge flag
+```
+
+A common enumeration command is:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+The important part is not simply finding an SUID file.
+
+You must investigate:
+
+```text
+Who owns it?
+What does it do?
+Is it expected?
+Is it vulnerable?
+What files does it access?
+What commands does it execute?
+```
+
+---
+
+# 25. SUID vs Normal Permissions
+
+| Feature                | Normal Program | SUID Program |
+| ---------------------- | -------------- | ------------ |
+| Owner matters          | Yes            | Yes          |
+| Runs with owner's EUID | Normally no    | Yes          |
+| Special permission     | No             | Yes          |
+| Permission indicator   | `x`            | `s`          |
+| Numeric special bit    | None           | `4`          |
+| Security importance    | Normal         | High         |
+
+---
+
+# 26. SUID vs SGID
+
+Do not confuse SUID with SGID.
+
+### SUID
+
+```text
+4
+```
+
+Uses the file owner's privileges.
+
+### SGID
+
+```text
+2
+```
+
+For an executable, SGID causes the process to use the file's group as its effective group.
+
+Example:
+
+```text
+SUID → User
+SGID → Group
+```
+
+---
+
+# 27. SUID vs Sticky Bit
+
+The sticky bit is another special Linux permission.
+
+Its numeric value is:
+
+```text
+1
+```
+
+A common example is:
+
+```bash
+/tmp
+```
+
+Check:
+
+```bash
+ls -ld /tmp
+```
+
+You may see:
+
+```text
+drwxrwxrwt
+```
+
+The final:
+
+```text
+t
+```
+
+indicates the sticky bit.
+
+Conceptually:
+
+```text
+SUID       → special user privilege
+SGID       → special group privilege
+Sticky Bit → controls deletion behavior in shared directories
+```
+
+---
+
+# 28. Lowercase `s` vs Uppercase `S`
+
+You may encounter both:
+
+```text
+s
+```
+
+and:
+
+```text
+S
+```
+
+### Lowercase `s`
+
+Example:
+
+```text
+-rwsr-xr-x
+```
+
+The SUID bit is enabled **and** the owner's execute permission is enabled.
+
+### Uppercase `S`
+
+Example:
+
+```text
+-rwSr-xr-x
+```
+
+The SUID bit is enabled, but the owner's execute permission is not enabled.
+
+So:
+
+```text
+s → SUID + execute
+S → SUID without execute
+```
+
+This distinction is useful when reading permissions.
+
+---
+
+# 29. Checking SUID Using `stat`
+
+We can inspect file metadata using:
+
+```bash
+stat filename
+```
+
+Example:
+
+```bash
+stat /usr/bin/passwd
+```
+
+This can show information such as:
+
+```text
+Access
+Uid
+Gid
+```
+
+It is useful when investigating permissions in detail.
+
+---
+
+# 30. Removing SUID for Security
+
+If a SUID permission is unnecessary, it can be removed:
+
+```bash
+sudo chmod u-s filename
+```
+
+Then verify:
+
+```bash
+ls -l filename
+```
+
+The `s` should disappear.
+
+However, system files should not have their permissions changed blindly. Removing SUID from a legitimate system utility can break expected functionality.
+
+---
+
+# 31. Security Best Practices
+
+System administrators should:
+
+### 1. Minimize SUID files
+
+Only necessary programs should have SUID.
+
+### 2. Regularly audit SUID files
+
+Use:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+### 3. Check ownership
+
+Unexpected ownership should be investigated.
+
+### 4. Keep software updated
+
+Vulnerable privileged programs can create serious security risks.
+
+### 5. Follow least privilege
+
+Programs should receive only the privileges they actually need.
+
+### 6. Avoid unnecessary privileged execution
+
+If a program does not need elevated privileges, it should not have them.
+
+---
+
+# 32. Practical Lab
+
+## Step 1 — Create a test program
+
+Create:
+
+```bash
+nano demo.c
+```
+
+Add:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    printf("UID  : %d\n", getuid());
+    printf("EUID : %d\n", geteuid());
+
+    return 0;
+}
+```
+
+Compile:
+
+```bash
+gcc demo.c -o demo
+```
+
+---
+
+## Step 2 — Check permissions
+
+```bash
+ls -l demo
+```
+
+Initially you may see:
+
+```text
+-rwxr-xr-x
+```
+
+---
+
+## Step 3 — Run the program
+
+```bash
+./demo
+```
+
+You should see your normal UID for both values:
+
+```text
+UID  : 1000
+EUID : 1000
+```
+
+The exact UID depends on your account.
+
+---
+
+## Step 4 — Change ownership
+
+For a disposable lab environment:
+
+```bash
+sudo chown root:root demo
+```
+
+---
+
+## Step 5 — Enable SUID
+
+```bash
+sudo chmod u+s demo
+```
+
+Check:
+
+```bash
+ls -l demo
+```
+
+You should see:
+
+```text
+-rwsr-xr-x
+```
+
+---
+
+## Step 6 — Run Again
+
+```bash
+./demo
+```
+
+You may now see:
+
+```text
+UID  : 1000
+EUID : 0
+```
+
+This demonstrates:
+
+```text
+UID  → person who started the program
+EUID → privileges being used by the program
+```
+
+---
+
+## Step 7 — Remove SUID
+
+When finished:
+
+```bash
+sudo chmod u-s demo
+```
+
+Optionally remove the test files:
+
+```bash
+rm demo demo.c
+```
+
+---
+
+# 33. Important Security Lesson
+
+SUID is not inherently bad.
+
+It exists because some legitimate programs need to perform specific operations requiring elevated privileges.
+
+The security problem occurs when:
+
+```text
+Unnecessary SUID
+        +
+Vulnerable Program
+        +
+Elevated Privileges
+        =
+Potential Security Risk
+```
+
+Therefore:
+
+```text
+SUID → Powerful feature
+SUID + Vulnerability → Potentially dangerous
+```
+
+---
+
+# 34. Quick SUID Cheat Sheet
+
+### Check permissions
+
+```bash
+ls -l filename
+```
+
+### Add SUID
+
+```bash
+chmod u+s filename
+```
+
+### Remove SUID
+
+```bash
+chmod u-s filename
+```
+
+### Add SUID numerically
+
+```bash
+chmod 4755 filename
+```
+
+### Find SUID files
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+### Check metadata
+
+```bash
+stat filename
+```
+
+---
+
+# 🧠 What I Learned Today
+
+Today I learned:
+
+* What SUID means
+* Why SUID exists
+* How Linux user IDs work
+* Difference between UID and EUID
+* How SUID changes effective privileges
+* How to identify SUID files
+* How to set SUID
+* How to remove SUID
+* Numeric SUID permissions
+* Meaning of `s` and `S`
+* How to find SUID files using `find`
+* Difference between SUID, SGID and Sticky Bit
+* Why SUID matters in cybersecurity
+* How SUID is used in CTFs
+* How vulnerable SUID programs can contribute to privilege escalation
+* How to safely practice SUID in a local lab
+
+---
+
+# 🎯 Day 15 Summary
+
+The most important concept I learned today is:
+
+> **SUID allows an executable to run with the effective user privileges of the file owner.**
+
+For example:
+
+```text
+Normal executable:
+
+User → Program → User privileges
+
+
+SUID executable owned by root:
+
+User → SUID Program → Root effective privileges
+```
+
+The key Linux permission is:
+
+```text
+4000
+```
+
+and a common way to find SUID files is:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+Understanding SUID is important because it connects **Linux permissions → process privileges → system security → privilege escalation**.
+
+---
+
+## 🏆 DAY 15 COMPLETED
+
+**Topic:** Linux SUID (Set User ID)
+**Category:** Linux Permissions & Security
+**Focus:** Privileges + File Permissions + Security
+**Practical Area:** Cybersecurity / CTF / Linux Administration
+**Status:** ✅ Completed
