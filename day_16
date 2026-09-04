@@ -1,0 +1,1481 @@
+# 🐧 LINUX LEARNING — DAY 16
+
+## 🔐 Topic: SGID (Set Group ID)
+
+Today I learned about **SGID (Set Group ID)** in Linux, including:
+
+* What SGID is
+* Why SGID is used
+* Linux groups
+* Linux file permissions
+* SGID on files
+* SGID on directories
+* How to set SGID
+* How to remove SGID
+* How to identify SGID
+* Octal and symbolic methods
+* Real-world examples
+* Security use cases
+* Practice exercises
+
+---
+
+# 1. What is SGID?
+
+SGID stands for:
+
+> **Set Group ID**
+
+SGID is a special Linux permission that changes the way **group permissions** work.
+
+SGID is represented by:
+
+```text
+s
+```
+
+It can appear in the group permission section.
+
+Normal permissions:
+
+```text
+-rwxrwxrwx
+```
+
+With SGID:
+
+```text
+-rwxrwsrwx
+```
+
+The `s` appears where the group's execute (`x`) permission normally appears.
+
+---
+
+# 2. Why do we need SGID?
+
+Imagine a company has a shared project directory:
+
+```text
+/project
+```
+
+There are 5 developers:
+
+```text
+Alice
+Bob
+Charlie
+David
+Eve
+```
+
+All developers belong to:
+
+```text
+developers
+```
+
+They all need to work inside:
+
+```text
+/project
+```
+
+Without SGID, newly created files may receive the creator's default group.
+
+This can cause problems.
+
+For example:
+
+```text
+Alice creates → report.txt
+Group → alice
+```
+
+Then Bob may have trouble accessing or modifying the file.
+
+SGID helps ensure that files created inside an SGID directory inherit the **directory's group**.
+
+---
+
+# 3. Linux groups
+
+Before understanding SGID, we need to understand groups.
+
+Linux users can belong to groups.
+
+For example:
+
+```text
+User
+ ↓
+Alice
+ ↓
+developers
+```
+
+Another user:
+
+```text
+Bob
+ ↓
+developers
+```
+
+So:
+
+```text
+developers
+   │
+   ├── Alice
+   ├── Bob
+   ├── Charlie
+   └── David
+```
+
+Groups are useful for managing permissions for multiple users.
+
+---
+
+# 4. Checking your groups
+
+Use:
+
+```bash
+groups
+```
+
+Example:
+
+```text
+alice developers
+```
+
+This means the user belongs to the `developers` group.
+
+You can also use:
+
+```bash
+id
+```
+
+Example:
+
+```text
+uid=1000(alice) gid=1000(alice) groups=1000(alice),1001(developers)
+```
+
+This provides information about the user's UID, primary group, and supplementary groups.
+
+---
+
+# 5. Normal directory permissions
+
+Suppose we have:
+
+```bash
+mkdir project
+```
+
+Check its permissions:
+
+```bash
+ls -ld project
+```
+
+You might see:
+
+```text
+drwxr-xr-x 2 alice developers 4096 Sep 4 20:00 project
+```
+
+Let's understand:
+
+```text
+d rwx r-x r-x
+│ │   │   │
+│ │   │   └── Others
+│ │   └────── Group
+│ └────────── Owner
+└──────────── Directory
+```
+
+---
+
+# 6. What does SGID do on a directory?
+
+When SGID is enabled on a directory:
+
+> **New files and directories created inside it inherit the directory's group ownership.**
+
+This is the most important thing to remember about SGID on directories.
+
+Example:
+
+```text
+/project
+Group = developers
+SGID = enabled
+```
+
+Alice creates:
+
+```text
+report.txt
+```
+
+The file will inherit:
+
+```text
+Group = developers
+```
+
+Even if Alice's primary group is something else.
+
+---
+
+# 7. Creating an SGID directory
+
+First create a directory:
+
+```bash
+mkdir shared
+```
+
+Now enable SGID:
+
+```bash
+chmod g+s shared
+```
+
+Let's understand this command:
+
+```text
+chmod
+ ↓
+change permissions
+
+g
+ ↓
+group
+
++
+ ↓
+add
+
+s
+ ↓
+SGID
+```
+
+Therefore:
+
+```bash
+chmod g+s shared
+```
+
+means:
+
+> Add SGID to the group permission of `shared`.
+
+---
+
+# 8. Check SGID
+
+Run:
+
+```bash
+ls -ld shared
+```
+
+You may see:
+
+```text
+drwxr-sr-x 2 user user 4096 Sep 4 20:00 shared
+```
+
+After SGID:
+
+```text
+drwxr-sr-x
+```
+
+The exact permissions depend on the directory's original permissions.
+
+A common SGID directory permission looks like:
+
+```text
+drwxrwsr-x
+```
+
+Notice:
+
+```text
+      s
+      ↑
+    SGID
+```
+
+The `s` appears in the **group execute position**.
+
+---
+
+# 9. SGID with `chmod 2xxx`
+
+SGID can also be set using an octal permission.
+
+The SGID value is:
+
+```text
+2
+```
+
+For example:
+
+```bash
+chmod 2775 shared
+```
+
+Break it down:
+
+```text
+2 775
+│ │
+│ └── Normal permissions
+└──── SGID
+```
+
+So:
+
+```text
+2 = SGID
+7 = owner permissions
+7 = group permissions
+5 = others permissions
+```
+
+Therefore:
+
+```text
+2775
+```
+
+means:
+
+```text
+SGID + rwx + rwx + r-x
+```
+
+---
+
+# 10. Understanding `2775`
+
+Let's break:
+
+```text
+2775
+```
+
+into:
+
+```text
+2 7 7 5
+```
+
+### `2`
+
+SGID.
+
+### First `7`
+
+Owner:
+
+```text
+rwx
+```
+
+### Second `7`
+
+Group:
+
+```text
+rwx
+```
+
+### Third `5`
+
+Others:
+
+```text
+r-x
+```
+
+So:
+
+```text
+2775
+```
+
+results in something similar to:
+
+```text
+drwxrwsr-x
+```
+
+---
+
+# 11. Real-world example — Shared development folder
+
+Imagine a development team:
+
+```text
+developers
+```
+
+has access to:
+
+```text
+/company/project
+```
+
+We want all files created there to belong to the `developers` group.
+
+We can configure:
+
+```bash
+chmod 2775 /company/project
+```
+
+Now:
+
+```text
+/company/project
+        │
+        ├── app.py
+        ├── database.py
+        ├── config.txt
+        └── README.md
+```
+
+New files inherit the directory's group.
+
+This makes collaboration much easier.
+
+---
+
+# 12. SGID does NOT automatically give everyone write access
+
+This is very important.
+
+Suppose:
+
+```text
+drwxrwsr-x
+```
+
+The SGID `s` only controls **group inheritance behavior**.
+
+It doesn't magically mean:
+
+> Everyone can modify everything.
+
+You still need appropriate group permissions.
+
+For example:
+
+```text
+Group permissions = rwx
+```
+
+allows group members to read, write, and enter the directory.
+
+SGID and normal permissions work together.
+
+---
+
+# 13. SGID and group inheritance
+
+Imagine:
+
+```text
+shared/
+```
+
+has:
+
+```text
+Owner = admin
+Group = developers
+SGID = enabled
+```
+
+Alice creates:
+
+```text
+shared/report.txt
+```
+
+The resulting file can inherit:
+
+```text
+Group = developers
+```
+
+Then Bob, who belongs to `developers`, can access the file according to the file's actual permissions.
+
+---
+
+# 14. Important distinction: ownership vs permissions
+
+Linux permissions have three main categories:
+
+```text
+Owner
+Group
+Others
+```
+
+For example:
+
+```text
+-rwxr-x---
+```
+
+means:
+
+```text
+Owner  → rwx
+Group  → r-x
+Others → ---
+```
+
+SGID mainly affects **group ownership inheritance on directories**.
+
+It does not replace normal Linux permissions.
+
+---
+
+# 15. SGID on files
+
+SGID can also be set on executable files.
+
+Historically, SGID on an executable causes the program to run with the **effective group ID associated with the file**, rather than simply the invoking user's group.
+
+Example representation:
+
+```text
+-rwxr-sr-x
+```
+
+The `s` appears in the group execute position.
+
+However, SGID on executables is less commonly used in everyday administration than SGID on directories.
+
+---
+
+# 16. SGID on directories vs files
+
+This distinction is very important.
+
+### SGID on directory
+
+Main purpose:
+
+```text
+New files inherit the directory's group.
+```
+
+### SGID on executable file
+
+Main purpose:
+
+```text
+Program runs with the file's group identity
+```
+
+So remember:
+
+```text
+DIRECTORY
+   ↓
+Group inheritance
+
+EXECUTABLE
+   ↓
+Effective group ID
+```
+
+---
+
+# 17. How to remove SGID
+
+If you want to remove SGID:
+
+```bash
+chmod g-s shared
+```
+
+Breakdown:
+
+```text
+g
+↓
+group
+
+-
+↓
+remove
+
+s
+↓
+SGID
+```
+
+Therefore:
+
+```bash
+chmod g-s shared
+```
+
+means:
+
+> Remove SGID from the group permission.
+
+You can also use octal permissions that do not include the SGID bit.
+
+---
+
+# 18. Finding SGID files
+
+You can use:
+
+```bash
+find / -perm -2000 2>/dev/null
+```
+
+Let's understand:
+
+```text
+find /
+```
+
+Search from the root directory.
+
+```text
+-perm -2000
+```
+
+Find files with the SGID permission bit set.
+
+```text
+2>/dev/null
+```
+
+Redirects permission-denied errors to `/dev/null`.
+
+This is useful during Linux administration and security auditing.
+
+---
+
+# 19. Why is SGID important in cybersecurity?
+
+SGID is important because special permissions can affect how programs and files behave.
+
+Security professionals may audit:
+
+```text
+SUID
+SGID
+World-writable files
+Weak permissions
+Incorrect group ownership
+Executable files
+```
+
+An incorrectly configured SGID executable could potentially create a security problem if it provides unintended access or interacts unsafely with user-controlled data.
+
+Therefore, SGID files should be reviewed carefully.
+
+---
+
+# 20. Finding SGID executables
+
+A more focused search can be performed with:
+
+```bash
+find / -type f -perm -2000 2>/dev/null
+```
+
+Here:
+
+```text
+-type f
+```
+
+means:
+
+> Search for regular files.
+
+And:
+
+```text
+-perm -2000
+```
+
+means:
+
+> Look for files with the SGID bit set.
+
+This can be useful during security auditing.
+
+Only investigate or modify system permissions when you have authorization to do so.
+
+---
+
+# 21. SGID and `ls -l`
+
+When you run:
+
+```bash
+ls -l
+```
+
+you might see:
+
+```text
+-rwxrwsr-x
+```
+
+Look at:
+
+```text
+rwxrwsr-x
+    ↑
+```
+
+The `s` indicates SGID.
+
+Compare:
+
+```text
+-rwxrwxr-x
+```
+
+Normal group execute permission.
+
+With SGID:
+
+```text
+-rwxrwsr-x
+```
+
+The `x` becomes:
+
+```text
+s
+```
+
+---
+
+# 22. Lowercase `s` vs uppercase `S`
+
+This is an important detail.
+
+### Lowercase `s`
+
+```text
+rws
+```
+
+means:
+
+```text
+SGID + execute permission
+```
+
+### Uppercase `S`
+
+```text
+rwS
+```
+
+means:
+
+```text
+SGID is set
+but execute permission is NOT set
+```
+
+So:
+
+```text
+s → SGID + execute
+S → SGID without execute
+```
+
+---
+
+# 23. Example
+
+Normal:
+
+```text
+drwxrwxr-x
+```
+
+SGID:
+
+```text
+drwxrwsr-x
+```
+
+Here:
+
+```text
+x
+```
+
+became:
+
+```text
+s
+```
+
+because SGID was added while execute permission was already present.
+
+---
+
+# 24. Practical demonstration
+
+Let's create a practice environment.
+
+### Step 1 — Create a directory
+
+```bash
+mkdir sgid-demo
+```
+
+### Step 2 — Check permissions
+
+```bash
+ls -ld sgid-demo
+```
+
+### Step 3 — Enable SGID
+
+```bash
+chmod g+s sgid-demo
+```
+
+### Step 4 — Check again
+
+```bash
+ls -ld sgid-demo
+```
+
+Look for:
+
+```text
+s
+```
+
+in the group permission section.
+
+---
+
+# 25. Using octal notation
+
+You can also do:
+
+```bash
+chmod 2775 sgid-demo
+```
+
+Then:
+
+```bash
+ls -ld sgid-demo
+```
+
+You should see something similar to:
+
+```text
+drwxrwsr-x
+```
+
+The exact owner/group names and other metadata will depend on your system.
+
+---
+
+# 26. Checking with `stat`
+
+Another useful command is:
+
+```bash
+stat sgid-demo
+```
+
+This provides detailed information about the file or directory, including its permission information.
+
+You may see a mode similar to:
+
+```text
+Access: (2775/drwxrwsr-x)
+```
+
+The leading:
+
+```text
+2
+```
+
+represents SGID.
+
+---
+
+# 27. SGID octal values
+
+Linux special permissions use these values:
+
+```text
+SUID → 4
+SGID → 2
+Sticky Bit → 1
+```
+
+So:
+
+```text
+4 = SUID
+2 = SGID
+1 = Sticky Bit
+```
+
+This is useful to remember.
+
+---
+
+# 28. Combining special permissions
+
+Special permissions can be combined.
+
+For example:
+
+```text
+4 + 2 + 1 = 7
+```
+
+So:
+
+```text
+chmod 4775
+```
+
+sets SUID.
+
+```text
+chmod 2775
+```
+
+sets SGID.
+
+```text
+chmod 1777
+```
+
+sets the sticky bit.
+
+The exact permission mode should always be chosen based on the intended security behavior.
+
+---
+
+# 29. Real-world example — Shared company folder
+
+Imagine a company has:
+
+```text
+/project
+```
+
+Group:
+
+```text
+developers
+```
+
+Users:
+
+```text
+Alice
+Bob
+Charlie
+```
+
+The administrator can configure the directory so that:
+
+```text
+/project
+Group = developers
+SGID = enabled
+```
+
+For example:
+
+```bash
+chmod 2775 /project
+```
+
+Now new files created under `/project` inherit the `developers` group.
+
+This is useful for:
+
+```text
+👨‍💻 Software development
+📊 Data analysis
+📝 Shared documents
+🛠️ DevOps
+🔐 Security teams
+🗂️ Shared administrative directories
+```
+
+---
+
+# 30. SGID in cybersecurity labs / CTFs
+
+SGID is also important in Linux-based CTFs.
+
+You may encounter commands such as:
+
+```bash
+find / -perm -2000 2>/dev/null
+```
+
+The purpose is to identify SGID files.
+
+For example:
+
+```text
+/usr/bin/some-program
+```
+
+might have:
+
+```text
+-rwxr-sr-x
+```
+
+The `s` tells you:
+
+```text
+SGID is enabled
+```
+
+In a CTF, the challenge may ask you to investigate how special permissions affect a program.
+
+Always understand what the program does before executing it.
+
+---
+
+# 31. SGID vs SUID
+
+This is a common interview question.
+
+## SUID
+
+```text
+Set User ID
+```
+
+Usually affects the **effective user identity** of an executable.
+
+Special bit:
+
+```text
+4
+```
+
+Example:
+
+```text
+-rwsr-xr-x
+```
+
+---
+
+## SGID
+
+```text
+Set Group ID
+```
+
+On directories, it causes new files/subdirectories to inherit the directory's group.
+
+On executable files, it can affect the program's effective group identity.
+
+Special bit:
+
+```text
+2
+```
+
+Example:
+
+```text
+-rwxr-sr-x
+```
+
+---
+
+# 32. Easy way to remember SUID and SGID
+
+Think:
+
+```text
+SUID
+ ↓
+USER
+ ↓
+4
+```
+
+and:
+
+```text
+SGID
+ ↓
+GROUP
+ ↓
+2
+```
+
+So:
+
+```text
+4 → User → SUID
+
+2 → Group → SGID
+```
+
+---
+
+# 33. SGID vs Sticky Bit
+
+Another important comparison:
+
+### SGID
+
+```text
+2
+```
+
+Used mainly for:
+
+```text
+Group inheritance on directories
+```
+
+### Sticky Bit
+
+```text
+1
+```
+
+Often used on shared directories such as:
+
+```text
+/tmp
+```
+
+It restricts deletion/renaming so that users generally cannot remove or rename files owned by other users in the shared directory.
+
+Example:
+
+```text
+drwxrwxrwt
+```
+
+The:
+
+```text
+t
+```
+
+represents the sticky bit.
+
+---
+
+# 34. Special permission cheat sheet
+
+```text
+SUID       → 4
+SGID       → 2
+Sticky Bit → 1
+```
+
+Remember:
+
+```text
+4 = User
+2 = Group
+1 = Sticky
+```
+
+---
+
+# 35. Common SGID commands
+
+### Add SGID
+
+```bash
+chmod g+s directory
+```
+
+### Remove SGID
+
+```bash
+chmod g-s directory
+```
+
+### Add SGID using octal
+
+```bash
+chmod 2775 directory
+```
+
+### Find SGID files
+
+```bash
+find / -perm -2000 2>/dev/null
+```
+
+### Find SGID regular files
+
+```bash
+find / -type f -perm -2000 2>/dev/null
+```
+
+### Check permissions
+
+```bash
+ls -ld directory
+```
+
+### Detailed information
+
+```bash
+stat directory
+```
+
+---
+
+# 36. Important things I learned today
+
+```text
+SGID = Set Group ID
+```
+
+SGID has different effects depending on where it is applied.
+
+### On directories:
+
+```text
+New files/directories inherit the directory's group.
+```
+
+### On executable files:
+
+```text
+The program can run with the file's effective group identity.
+```
+
+SGID is represented by:
+
+```text
+s
+```
+
+The octal value is:
+
+```text
+2
+```
+
+Enable it:
+
+```bash
+chmod g+s directory
+```
+
+Remove it:
+
+```bash
+chmod g-s directory
+```
+
+Find SGID files:
+
+```bash
+find / -perm -2000 2>/dev/null
+```
+
+---
+
+# 🧠 Simple Mental Model
+
+Imagine a classroom.
+
+```text
+CLASSROOM
+Group = students
+SGID = ON
+```
+
+Alice enters the classroom and creates:
+
+```text
+notes.txt
+```
+
+Bob enters and creates:
+
+```text
+homework.txt
+```
+
+Because SGID is enabled on the directory:
+
+```text
+Classroom
+   │
+   ├── notes.txt
+   │     ↓
+   │   group = students
+   │
+   └── homework.txt
+         ↓
+       group = students
+```
+
+So SGID on a directory basically says:
+
+> **"Everything created inside me should inherit my group."**
+
+---
+
+# 🎯 Practice Exercises
+
+## Exercise 1 — Create an SGID directory
+
+```bash
+mkdir practice-sgid
+chmod g+s practice-sgid
+ls -ld practice-sgid
+```
+
+Find the `s`.
+
+---
+
+## Exercise 2 — Use octal notation
+
+```bash
+mkdir practice2
+chmod 2775 practice2
+ls -ld practice2
+```
+
+Look for:
+
+```text
+drwxrwsr-x
+```
+
+---
+
+## Exercise 3 — Remove SGID
+
+```bash
+chmod g-s practice2
+```
+
+Then:
+
+```bash
+ls -ld practice2
+```
+
+Check whether the `s` disappeared.
+
+---
+
+## Exercise 4 — Find SGID files
+
+Try:
+
+```bash
+find / -type f -perm -2000 2>/dev/null
+```
+
+Study the results instead of modifying system files.
+
+---
+
+## Exercise 5 — Check with `stat`
+
+```bash
+stat practice-sgid
+```
+
+Look for the permission mode.
+
+---
+
+# 🏆 Day 16 Summary
+
+Today I learned about **SGID (Set Group ID)** in Linux.
+
+The most important points are:
+
+```text
+SGID
+ ↓
+Set Group ID
+ ↓
+Special Linux permission
+ ↓
+Octal value = 2
+```
+
+For directories:
+
+```text
+SGID
+ ↓
+New files inherit directory's group
+```
+
+For executables:
+
+```text
+SGID
+ ↓
+Program can use the file's effective group identity
+```
+
+Important commands:
+
+```bash
+chmod g+s directory
+chmod g-s directory
+chmod 2775 directory
+ls -ld directory
+stat directory
+find / -type f -perm -2000 2>/dev/null
+```
+
+### 🔥 Key takeaway
+
+> **SGID on a directory is especially useful for shared team directories because new files and directories inherit the directory's group ownership.**
+
+This makes SGID an important Linux permission concept for **system administration, DevOps, cybersecurity, and CTFs**.
